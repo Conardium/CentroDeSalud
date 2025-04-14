@@ -1,4 +1,11 @@
+using Microsoft.EntityFrameworkCore;
+using CentroDeSalud.Data;
+
 var builder = WebApplication.CreateBuilder(args);
+
+//Asignacion de la Cadena de Conexión
+builder.Services.AddDbContext<CentroSaludContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DevelopmentConnection") ?? throw new InvalidOperationException("Cadena de Conexión 'DevelopmentConnection' no encontrada")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
