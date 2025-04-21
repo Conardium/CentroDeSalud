@@ -22,13 +22,29 @@ namespace CentroDeSalud.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("CentroDeSalud.Models.Usuario", b =>
+            modelBuilder.Entity("CentroDeSalud.Models.Rol", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("Nombre")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("NombreNormalizado")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles", (string)null);
+                });
+
+            modelBuilder.Entity("CentroDeSalud.Models.Usuario", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Apellidos")
                         .IsRequired()
@@ -54,11 +70,16 @@ namespace CentroDeSalud.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(MAX)");
 
+                    b.Property<int?>("RolId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Telefono")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("RolId");
 
                     b.ToTable("Usuarios", (string)null);
 
@@ -86,7 +107,6 @@ namespace CentroDeSalud.Migrations
                     b.HasBaseType("CentroDeSalud.Models.Usuario");
 
                     b.Property<string>("Direccion")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -99,14 +119,22 @@ namespace CentroDeSalud.Migrations
                         .HasColumnType("DATE");
 
                     b.Property<int>("GrupoSanguineo")
-                        .HasMaxLength(3)
                         .HasColumnType("int");
 
                     b.Property<int>("Sexo")
-                        .HasMaxLength(10)
                         .HasColumnType("int");
 
                     b.ToTable("Pacientes", (string)null);
+                });
+
+            modelBuilder.Entity("CentroDeSalud.Models.Usuario", b =>
+                {
+                    b.HasOne("CentroDeSalud.Models.Rol", "Rol")
+                        .WithMany("Usuarios")
+                        .HasForeignKey("RolId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Rol");
                 });
 
             modelBuilder.Entity("CentroDeSalud.Models.Medico", b =>
@@ -125,6 +153,11 @@ namespace CentroDeSalud.Migrations
                         .HasForeignKey("CentroDeSalud.Models.Paciente", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("CentroDeSalud.Models.Rol", b =>
+                {
+                    b.Navigation("Usuarios");
                 });
 #pragma warning restore 612, 618
         }
