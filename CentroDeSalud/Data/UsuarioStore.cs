@@ -5,15 +5,43 @@ using Microsoft.AspNetCore.Identity;
 namespace CentroDeSalud.Data
 {
     public class UsuarioStore : IUserStore<Usuario>, IUserEmailStore<Usuario>, IUserPasswordStore<Usuario>, 
-        IUserRoleStore<Usuario>
+        IUserRoleStore<Usuario>, IUserLoginStore<Usuario>
     {
         private readonly IRepositorioUsuarios _repositorioUsuarios;
         private readonly IRepositorioRoles _repositorioRoles;
+        private readonly IRepositorioUsuariosLoginExterno _repositorioUsuariosLoginExterno;
 
-        public UsuarioStore(IRepositorioUsuarios repositorioUsuarios, IRepositorioRoles repositorioRoles)
+        public UsuarioStore(IRepositorioUsuarios repositorioUsuarios, IRepositorioRoles repositorioRoles, IRepositorioUsuariosLoginExterno repositorioUsuariosLoginExterno)
         {
             _repositorioUsuarios = repositorioUsuarios;
             _repositorioRoles = repositorioRoles;
+            _repositorioUsuariosLoginExterno = repositorioUsuariosLoginExterno;
+        }
+
+        Task IUserLoginStore<Usuario>.AddLoginAsync(Usuario user, UserLoginInfo login, CancellationToken cancellationToken)
+        {
+            return AddLoginAsync(user, login, cancellationToken);
+        }
+
+        public async Task<IdentityResult> AddLoginAsync(Usuario user, UserLoginInfo login, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            //Comprobamos que los campos no sean nulos
+            ArgumentNullException.ThrowIfNull(user);
+            ArgumentNullException.ThrowIfNull(login);
+
+            //Mapeamos los datos a UsuarioLoginExterno
+            var usuarioLoginExterno = new UsuarioLoginExterno()
+            {
+                UsuarioId = user.Id,
+                LoginProvider = login.LoginProvider,
+                ProviderKey = login.ProviderKey,
+                ProviderDisplayName = login.ProviderDisplayName
+            };
+
+            await _repositorioUsuariosLoginExterno.InsertarLoginExterno(usuarioLoginExterno);
+            return IdentityResult.Success;
         }
 
         public async Task AddToRoleAsync(Usuario user, string roleName, CancellationToken cancellationToken)
@@ -59,6 +87,20 @@ namespace CentroDeSalud.Data
             return await _repositorioUsuarios.BuscarUsuarioPorId(id);
         }
 
+        public async Task<Usuario> FindByLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ArgumentNullException.ThrowIfNull(loginProvider);
+            ArgumentNullException.ThrowIfNull(providerKey);
+            
+            var usuarioLoginExterno = await _repositorioUsuariosLoginExterno.ObtenerLoginExterno(loginProvider, providerKey);
+            
+            if(usuarioLoginExterno == null) 
+                return null;
+            
+            return await _repositorioUsuarios.BuscarUsuarioPorId(usuarioLoginExterno.UsuarioId);
+        }
+
         public async Task<Usuario> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
         {
             return await _repositorioUsuarios.BuscarUsuarioPorEmail(normalizedUserName);
@@ -71,7 +113,19 @@ namespace CentroDeSalud.Data
 
         public Task<bool> GetEmailConfirmedAsync(Usuario user, CancellationToken cancellationToken)
         {
+            //No se implementa
             throw new NotImplementedException();
+        }
+
+        public async Task<IList<UserLoginInfo>> GetLoginsAsync(Usuario user, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ArgumentNullException.ThrowIfNull(user);
+
+            var loginsExternos = await _repositorioUsuariosLoginExterno.ListadoLoginsPorUsuarioId(user.Id);
+
+            return loginsExternos.Select(login => new UserLoginInfo(
+                login.LoginProvider, login.ProviderKey, login.ProviderDisplayName)).ToList();
         }
 
         public Task<string> GetNormalizedEmailAsync(Usuario user, CancellationToken cancellationToken)
@@ -118,6 +172,7 @@ namespace CentroDeSalud.Data
 
         public Task<bool> HasPasswordAsync(Usuario user, CancellationToken cancellationToken)
         {
+            //No se implementa
             throw new NotImplementedException();
         }
 
@@ -142,6 +197,16 @@ namespace CentroDeSalud.Data
             }         
         }
 
+        public async Task RemoveLoginAsync(Usuario user, string loginProvider, string providerKey, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ArgumentNullException.ThrowIfNull(user);
+            ArgumentNullException.ThrowIfNull(loginProvider);
+            ArgumentNullException.ThrowIfNull(providerKey);
+
+            await _repositorioUsuariosLoginExterno.EliminarLoginExterno(user.Id, loginProvider, providerKey);
+        }
+
         public Task SetEmailAsync(Usuario user, string email, CancellationToken cancellationToken)
         {
             user.Email = email;
@@ -150,6 +215,7 @@ namespace CentroDeSalud.Data
 
         public Task SetEmailConfirmedAsync(Usuario user, bool confirmed, CancellationToken cancellationToken)
         {
+            //No se implementa
             throw new NotImplementedException();
         }
 

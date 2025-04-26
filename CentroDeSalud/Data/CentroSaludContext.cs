@@ -12,6 +12,7 @@ namespace CentroDeSalud.Data
         public DbSet<Paciente> Pacientes { get; set; }
         public DbSet<Medico> Medicos { get; set; }
         public DbSet<Rol> Roles { get; set; }
+        public DbSet<UsuarioLoginExterno> UsuariosLoginExterno { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -21,13 +22,24 @@ namespace CentroDeSalud.Data
             modelBuilder.Entity<Medico>().ToTable("Medicos");
             modelBuilder.Entity<Usuario>().ToTable("Usuarios");
             modelBuilder.Entity<Rol>().ToTable("Roles");
+            modelBuilder.Entity<UsuarioLoginExterno>().ToTable("UsuariosLoginExterno");
 
-            //Relaciones
+            //========================== RELACIONES ===============================
             modelBuilder.Entity<Usuario>()
                 .HasOne(u => u.Rol)
                 .WithMany(r => r.Usuarios)
                 .HasForeignKey(u => u.RolId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<UsuarioLoginExterno>(entity =>
+            {
+                //Indice unico para evitar duplicados por proveedor+clave
+                entity.HasIndex(e => new { e.LoginProvider, e.ProviderKey }).IsUnique();
+
+                //Clave foranea
+                entity.HasOne<Usuario>().WithOne().HasForeignKey<UsuarioLoginExterno>(e => e.UsuarioId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 }
