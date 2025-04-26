@@ -18,6 +18,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IRepositorioUsuarios, RepositorioUsuarios>();
 builder.Services.AddTransient<IRepositorioPacientes, RepositorioPacientes>();
 builder.Services.AddTransient<IRepositorioRoles, RepositorioRoles>();
+builder.Services.AddTransient<IRepositorioUsuariosLoginExterno, RepositorioUsuariosLoginExterno>();
 
 //============================ SERVICIOS ===============================
 builder.Services.AddTransient<IServicioPaciente, ServicioPaciente>();
@@ -30,23 +31,40 @@ builder.Services.AddTransient<IUserStore<Usuario>, UsuarioStore>(); //UserManage
 builder.Services.AddIdentityCore<Usuario>(opciones =>
 {
     //Personalizacion y modificacion de las reglas que trae por defecto Identity
+    opciones.SignIn.RequireConfirmedAccount = false; //No requiere confirmacion de cuenta
     opciones.Password.RequiredLength = 6; //Numero minimo de caracteres es de 6
     opciones.Password.RequireDigit = false; //NO Requiere Numeros
     opciones.Password.RequireLowercase = false; //NO Requiere minusculas
     opciones.Password.RequireUppercase = false; //NO Requiere mayusculas
     opciones.Password.RequireNonAlphanumeric = false; //NO Requerir alfanuméricos
-}).AddErrorDescriber<MensajesDeErrorIdentity>(); //Establecer el descriptor de errores
+})
+    .AddErrorDescriber<MensajesDeErrorIdentity>() //Establecer el descriptor de errores
+    .AddDefaultTokenProviders(); //Tokens para recuperar contraseña, cambiar email, etc.
 
 builder.Services.AddAuthorization(); //Permitimos la comprobacion de autorizaciones (Para los roles)
 
 //============================ COOCKIE DE SESION ===============================
-//Configuracion del servicio de autentificacion de la Coockie
+//Configuracion del servicio de autentificacion
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
     options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
     options.DefaultSignOutScheme = IdentityConstants.ApplicationScheme;
-}).AddCookie(IdentityConstants.ApplicationScheme);
+    options.DefaultSignInScheme = IdentityConstants.ExternalScheme; //Necesario para el login externo
+})
+    .AddCookie(IdentityConstants.ApplicationScheme) //Login normal
+    .AddCookie(IdentityConstants.ExternalScheme)    //Login externo
+    .AddMicrosoftAccount(options => //Microsoft
+    {
+        options.ClientId = builder.Configuration["MicrosoftClientId"];
+        options.ClientSecret = builder.Configuration["MicrosoftSecretId"];
+    })
+    .AddGoogle(options => //Google
+    {
+        options.ClientId = builder.Configuration["GoogleClientId"];
+        options.ClientSecret = builder.Configuration["GoogleSecretId"];
+        //options.Scope.Add("https://www.googleapis.com/auth/calendar.events"); //Acceso a Google Calendar
+    });
 
 builder.Services.PostConfigure<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme,
     opciones =>

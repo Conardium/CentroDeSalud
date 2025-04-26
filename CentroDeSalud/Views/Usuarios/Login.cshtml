@@ -1,9 +1,15 @@
-﻿@model LoginViewModel
+﻿@using CentroDeSalud.Models.ViewModels
+@model LoginViewModel
 @{
     ViewData["Title"] = "Iniciar sesión";
 }
 
-<h2>@ViewData["Title"]</h2>
+<h2>Iniciar Sesión</h2>
+
+@if (ViewData.Keys.Contains("mensaje"))
+{
+    <p style="color: red;"> @ViewData["mensaje"] </p>
+}
 
 <div class="row justify-content-center">
     <div class="col-md-6">
@@ -28,6 +34,9 @@
             </div>
 
             <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+
+            <a class="btn btn-success" asp-action="LoginExterno" asp-route-proveedor="Microsoft">Continuar con Microsoft</a>
+            <a class="btn btn-success" asp-action="LoginExterno" asp-route-proveedor="Google">Continuar con Google</a>
         </form>
     </div>
 </div>
