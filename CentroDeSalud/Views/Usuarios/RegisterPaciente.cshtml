@@ -1,4 +1,5 @@
 ﻿@using CentroDeSalud.Enumerations
+@using CentroDeSalud.Models.ViewModels
 @model RegisterPacienteViewModel
 
 @{
@@ -37,7 +38,7 @@
     <div class="form-group">
         <label asp-for="Sexo"></label>
         <select asp-for="Sexo" asp-items="Html.GetEnumSelectList<Sexo>()" class="form-control">
-            <option value="">Seleccione su sexo</option>
+
         </select>
         <span asp-validation-for="Sexo" class="text-danger"></span>
     </div>
@@ -56,9 +57,7 @@
 
     <div class="form-group">
         <label asp-for="GrupoSanguineo"></label>
-        <select asp-for="GrupoSanguineo" asp-items="Html.GetEnumSelectList<GrupoSanguineo>()" class="form-control">
-            <option value="">Seleccione su grupo sanguíneo</option>
-        </select>
+        <select asp-for="GrupoSanguineo" asp-items="Html.GetEnumSelectList<GrupoSanguineo>()" class="form-control"></select>
         <span asp-validation-for="GrupoSanguineo" class="text-danger"></span>
     </div>
 
