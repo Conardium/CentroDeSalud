@@ -44,5 +44,7 @@ namespace CentroDeSalud.Models
         //Relacion con Rol
         public int? RolId { get; set; }
         public Rol Rol { get; set; } //Variable de navegacion con Rol
+
+        public ICollection<UsuarioLoginExterno> LoginsExternos { get; set; }
     }
 }

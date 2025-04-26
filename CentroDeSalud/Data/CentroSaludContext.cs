@@ -37,8 +37,8 @@ namespace CentroDeSalud.Data
                 entity.HasIndex(e => new { e.LoginProvider, e.ProviderKey }).IsUnique();
 
                 //Clave foranea
-                entity.HasOne<Usuario>().WithOne().HasForeignKey<UsuarioLoginExterno>(e => e.UsuarioId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne<Usuario>().WithMany(u => u.LoginsExternos).HasForeignKey(e => e.UsuarioId)
+                .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }
