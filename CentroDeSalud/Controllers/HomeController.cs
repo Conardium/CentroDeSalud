@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using CentroDeSalud.Models;
+using CentroDeSalud.Models.ViewModels;
 
 namespace CentroDeSalud.Controllers;
 
