@@ -9,6 +9,8 @@ namespace CentroDeSalud.Models
         [Key]
         public Guid Id { get; set; }
 
+        public string SecurityStamp { get; set; }
+
         [Required(ErrorMessage = "El correo es obligatorio")]
         [MaxLength(120, ErrorMessage = "El correo es demasiado largo")]
         [EmailAddress(ErrorMessage = "El correo debe ser de un tipo válido")]

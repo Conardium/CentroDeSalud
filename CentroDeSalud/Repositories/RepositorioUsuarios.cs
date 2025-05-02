@@ -27,10 +27,13 @@ namespace CentroDeSalud.Repositories
             var id = Guid.NewGuid();
             usuario.Id = id;
 
+            usuario.SecurityStamp = Guid.NewGuid().ToString();
+
             using var conexion = new SqlConnection(_connectionString);
-            await conexion.ExecuteAsync(@"INSERT INTO Usuarios (Id, Email, EmailNormalizado, 
+            await conexion.ExecuteAsync(@"INSERT INTO Usuarios (Id, SecurityStamp, Email, EmailNormalizado, 
                          PasswordHash, Nombre, Apellidos, Telefono)
-                         VALUES (@Id, @Email, @EmailNormalizado, @PasswordHash, @Nombre, @Apellidos, @Telefono);", usuario);
+                         VALUES (@Id, @SecurityStamp, @Email, @EmailNormalizado, @PasswordHash, 
+                         @Nombre, @Apellidos, @Telefono);", usuario);
 
             return id;
         }
