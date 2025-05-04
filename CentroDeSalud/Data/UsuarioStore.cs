@@ -76,7 +76,8 @@ namespace CentroDeSalud.Data
 
         public async Task<Usuario> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
         {
-            return await _repositorioUsuarios.BuscarUsuarioPorEmail(normalizedEmail);
+            var emailNormalizado = normalizedEmail.ToUpper();
+            return await _repositorioUsuarios.BuscarUsuarioPorEmail(emailNormalizado);
         }
 
         public async Task<Usuario> FindByIdAsync(string userId, CancellationToken cancellationToken)
@@ -243,9 +244,10 @@ namespace CentroDeSalud.Data
             return Task.CompletedTask;
         }
 
-        public Task<IdentityResult> UpdateAsync(Usuario user, CancellationToken cancellationToken)
+        public async Task<IdentityResult> UpdateAsync(Usuario user, CancellationToken cancellationToken)
         {
-            return Task.FromResult(IdentityResult.Success);
+            await _repositorioUsuarios.ActualizarPassword(user);
+            return IdentityResult.Success;
         }
     }
 }

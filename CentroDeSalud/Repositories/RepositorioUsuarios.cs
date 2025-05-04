@@ -11,6 +11,7 @@ namespace CentroDeSalud.Repositories
         Task<Usuario> BuscarUsuarioPorEmail(string emailNormalizado);
         Task<Usuario> BuscarUsuarioPorNombre(string nombre);
         Task ActualizarRol(Guid usuarioId, int? rolId);
+        Task ActualizarPassword(Usuario usuario);
     }
 
     public class RepositorioUsuarios : IRepositorioUsuarios
@@ -65,6 +66,14 @@ namespace CentroDeSalud.Repositories
             await conexion.ExecuteAsync(@"Update Usuarios 
                                         SET RolId = @RolId 
                                         WHERE Id = @UsuarioId", new { RolId = rolId, UsuarioId = usuarioId });
+        }
+
+        public async Task ActualizarPassword(Usuario usuario)
+        {
+            using var conexion = new SqlConnection(_connectionString);
+            await conexion.ExecuteAsync(@"Update Usuarios
+                                          SET PasswordHash = @PasswordHash
+                                          WHERE Id = @Id", usuario);
         }
     }
 }
