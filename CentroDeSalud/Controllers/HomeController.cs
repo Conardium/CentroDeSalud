@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using CentroDeSalud.Models;
+using CentroDeSalud.Models.ViewModels;
 
 namespace CentroDeSalud.Controllers;
 
@@ -27,5 +27,14 @@ public class HomeController : Controller
     public IActionResult Error()
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+
+    public IActionResult AccesoDenegado()
+    {
+        if (!TempData.ContainsKey("Denegado"))
+            return NotFound();
+
+        TempData.Remove("Denegado");
+        return View();
     }
 }

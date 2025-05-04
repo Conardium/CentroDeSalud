@@ -4,6 +4,7 @@ using CentroDeSalud.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CentroDeSalud.Migrations
 {
     [DbContext(typeof(CentroSaludContext))]
-    partial class CentroSaludContextModelSnapshot : ModelSnapshot
+    [Migration("20250422104915_UsuarioLoginExterno")]
+    partial class UsuarioLoginExterno
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -73,9 +76,6 @@ namespace CentroDeSalud.Migrations
                     b.Property<int?>("RolId")
                         .HasColumnType("int");
 
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Telefono")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
@@ -116,7 +116,8 @@ namespace CentroDeSalud.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UsuarioId");
+                    b.HasIndex("UsuarioId")
+                        .IsUnique();
 
                     b.HasIndex("LoginProvider", "ProviderKey")
                         .IsUnique();
@@ -178,8 +179,8 @@ namespace CentroDeSalud.Migrations
             modelBuilder.Entity("CentroDeSalud.Models.UsuarioLoginExterno", b =>
                 {
                     b.HasOne("CentroDeSalud.Models.Usuario", null)
-                        .WithMany("LoginsExternos")
-                        .HasForeignKey("UsuarioId")
+                        .WithOne()
+                        .HasForeignKey("CentroDeSalud.Models.UsuarioLoginExterno", "UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -205,11 +206,6 @@ namespace CentroDeSalud.Migrations
             modelBuilder.Entity("CentroDeSalud.Models.Rol", b =>
                 {
                     b.Navigation("Usuarios");
-                });
-
-            modelBuilder.Entity("CentroDeSalud.Models.Usuario", b =>
-                {
-                    b.Navigation("LoginsExternos");
                 });
 #pragma warning restore 612, 618
         }

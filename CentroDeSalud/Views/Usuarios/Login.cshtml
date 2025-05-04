@@ -1,0 +1,69 @@
+﻿@using CentroDeSalud.Models.ViewModels
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Iniciar sesión";
+}
+
+<h2 class="mt-4 row justify-content-center mb-3">Iniciar Sesión</h2>
+
+@if (ViewData.Keys.Contains("mensaje"))
+{
+    <p style="color: red;"> @ViewData["mensaje"] </p>
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <form asp-action="Login" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Email" class="control-label"></label>
+                        <input asp-for="Email" class="form-control" placeholder="Email"/>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Password" class="control-label"></label>
+                        <input asp-for="Password" class="form-control" type="password" placeholder="Contraseña"/>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group form-check mb-3">
+                        <input asp-for="Recuerdame" class="form-check-input" />
+                        <label asp-for="Recuerdame" class="form-check-label">Recuérdame</label>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <a class="text-decoration-none link-Verde" asp-action="OlvidarPassword">¿Olvidaste tu contraseña?</a>
+                    </div>
+
+                    <button type="submit" class="btn boton-Verde-Oscuro mb-3 w-100">Iniciar sesión</button>
+
+                    <div class="d-flex align-items-center mb-3">
+                        <hr class="flex-grow-1">
+                        <span class="px-3 text-muted">OR</span>
+                        <hr class="flex-grow-1">
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-outline-dark w-50 d-flex align-items-center justify-content-center gap-1" asp-action="LoginExterno" asp-route-proveedor="Microsoft">
+                            <img src="~/images/icons8-microsoft.svg" width="20" height="20" alt="Microsoft"/> Microsoft
+                        </a>
+                        <a class="btn btn-outline-dark w-50 d-flex align-items-center justify-content-center gap-1" asp-action="LoginExterno" asp-route-proveedor="Google">
+                            <img src="~/images/icons8-logo-de-google.svg" width="20" height="20" alt="Google"/> Google
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
