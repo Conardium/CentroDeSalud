@@ -5,6 +5,7 @@ using CentroDeSalud.Repositories;
 using CentroDeSalud.Models;
 using CentroDeSalud.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using CentroDeSalud.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,7 @@ builder.Services.AddTransient<IRepositorioUsuariosLoginExterno, RepositorioUsuar
 
 //============================ SERVICIOS ===============================
 builder.Services.AddTransient<IServicioPaciente, ServicioPaciente>();
+builder.Services.AddTransient<IServicioEmail, ServicioEmail>();
 
 //============================ IDENTITY ===============================
 builder.Services.AddTransient<IUserClaimsPrincipalFactory<Usuario>, CustomClaimsPrincipalFactory>();//Claims Personalizado
@@ -39,7 +41,7 @@ builder.Services.AddIdentityCore<Usuario>(opciones =>
     opciones.Password.RequireNonAlphanumeric = false; //NO Requerir alfanuméricos
 })
     .AddErrorDescriber<MensajesDeErrorIdentity>() //Establecer el descriptor de errores
-    .AddDefaultTokenProviders(); //Tokens para recuperar contraseña, cambiar email, etc.
+    .AddDefaultTokenProviders(); //Tokens para recuperar/modificar contraseña, cambiar email, etc.
 
 builder.Services.AddAuthorization(); //Permitimos la comprobacion de autorizaciones (Para los roles)
 
