@@ -50,7 +50,7 @@ namespace CentroDeSalud.Models.ViewModels
 
         [Required(ErrorMessage = "Indique una contraseña")]
         [Display(Name = "Contraseña")]
-        [MinLength(6, ErrorMessage = "La contraseña debe de tener al menos 6 caracteres")]
+        [MinLength(6, ErrorMessage = "La contraseña debe de tener al menos 6 carácteres")]
         [EvitarInyecciones]
         public string PasswordHash { get; set; }
     }

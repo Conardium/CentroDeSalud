@@ -4,6 +4,7 @@ using CentroDeSalud.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CentroDeSalud.Migrations
 {
     [DbContext(typeof(CentroSaludContext))]
-    partial class CentroSaludContextModelSnapshot : ModelSnapshot
+    [Migration("20250504190920_Citas")]
+    partial class Citas
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -61,33 +64,6 @@ namespace CentroDeSalud.Migrations
                     b.HasIndex("PacienteId");
 
                     b.ToTable("Citas", (string)null);
-                });
-
-            modelBuilder.Entity("CentroDeSalud.Models.DisponibilidadMedico", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("DiaSemana")
-                        .HasColumnType("int");
-
-                    b.Property<TimeSpan>("HoraFin")
-                        .HasColumnType("time(0)");
-
-                    b.Property<TimeSpan>("HoraInicio")
-                        .HasColumnType("time(0)");
-
-                    b.Property<Guid>("MedicoId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MedicoId");
-
-                    b.ToTable("DisponibilidadesMedicos", (string)null);
                 });
 
             modelBuilder.Entity("CentroDeSalud.Models.Rol", b =>
@@ -205,6 +181,7 @@ namespace CentroDeSalud.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("Sexo")
+                        .HasMaxLength(10)
                         .HasColumnType("int");
 
                     b.ToTable("Medicos", (string)null);
@@ -252,17 +229,6 @@ namespace CentroDeSalud.Migrations
                     b.Navigation("Medico");
 
                     b.Navigation("Paciente");
-                });
-
-            modelBuilder.Entity("CentroDeSalud.Models.DisponibilidadMedico", b =>
-                {
-                    b.HasOne("CentroDeSalud.Models.Medico", "Medico")
-                        .WithMany("DisponibilidadesMedico")
-                        .HasForeignKey("MedicoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Medico");
                 });
 
             modelBuilder.Entity("CentroDeSalud.Models.Usuario", b =>
@@ -315,8 +281,6 @@ namespace CentroDeSalud.Migrations
             modelBuilder.Entity("CentroDeSalud.Models.Medico", b =>
                 {
                     b.Navigation("Citas");
-
-                    b.Navigation("DisponibilidadesMedico");
                 });
 
             modelBuilder.Entity("CentroDeSalud.Models.Paciente", b =>
