@@ -20,6 +20,7 @@ builder.Services.AddTransient<IRepositorioUsuarios, RepositorioUsuarios>();
 builder.Services.AddTransient<IRepositorioPacientes, RepositorioPacientes>();
 builder.Services.AddTransient<IRepositorioRoles, RepositorioRoles>();
 builder.Services.AddTransient<IRepositorioUsuariosLoginExterno, RepositorioUsuariosLoginExterno>();
+builder.Services.AddTransient<IRepositorioMedicos, RepositorioMedicos>();
 
 //============================ SERVICIOS ===============================
 builder.Services.AddTransient<IServicioPaciente, ServicioPaciente>();
@@ -102,6 +103,12 @@ using (var scope = app.Services.CreateScope())
             await rolRepo.InsertarRol(rol);
         }
     }
+    
+    //Seed para generar medicos POR AHORA
+    /*
+    var services = scope.ServiceProvider;
+    await SeedMedicos.CrearMedicosAsync(services);
+    */
 }
 
 // Configure the HTTP request pipeline.

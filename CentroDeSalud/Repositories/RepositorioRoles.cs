@@ -44,6 +44,7 @@ namespace CentroDeSalud.Repositories
 
         public async Task<Rol> BuscarRolPorNombre(string nombreNormalizado)
         {
+            nombreNormalizado = nombreNormalizado.ToUpper();
             using var conexion = new SqlConnection(_connectionString);
             return await conexion.QueryFirstOrDefaultAsync<Rol>(@"Select * from Roles
                                 Where NombreNormalizado = @NombreNormalizado", new { NombreNormalizado = nombreNormalizado });
