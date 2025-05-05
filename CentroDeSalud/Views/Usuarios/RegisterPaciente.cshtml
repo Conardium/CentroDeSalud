@@ -6,76 +6,105 @@
     ViewData["Title"] = "Registro de Paciente";
 }
 
-<h2>@ViewData["Title"]</h2>
+<h2 class="mt-4 row justify-content-center">@ViewData["Title"]</h2>
 
-<p>Los campos con * son obligarios</p>
+<p class="row justify-content-center form-text">Los campos con * son obligarios</p>
 
 <form asp-action="RegisterPaciente" method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-    <div class="form-group">
-        <label asp-for="Nombre"></label>
-        <input asp-for="Nombre" class="form-control" />
-        <span asp-validation-for="Nombre" class="text-danger"></span>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger d-flex align-items-center gap-2">
+                <i class="fa-solid fa-circle-exclamation"></i>
+            </div>
+            <div class="card shadow">
+                <div class="card-body">
+                    <h4>Datos personales</h4>
+                    <div class="d-flex gap-4 mb-3">
+                        <div class="form-group w-50">
+                            <label asp-for="Nombre"></label> <span class="text-danger">*</span>
+                            <input asp-for="Nombre" class="form-control" />
+                            <span asp-validation-for="Nombre" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group w-75">
+                            <label asp-for="Apellidos"></label> <span class="text-danger">*</span>
+                            <input asp-for="Apellidos" class="form-control" />
+                            <span asp-validation-for="Apellidos" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-4 mb-3">
+                        <div class="form-group w-50">
+                            <label asp-for="Dni"></label> <span class="text-danger">*</span>
+                            <input asp-for="Dni" class="form-control" />
+                            <span asp-validation-for="Dni" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group w-50">
+                            <label asp-for="FechaNacimiento"></label> <span class="text-danger">*</span>
+                            <input asp-for="FechaNacimiento" class="form-control" type="date" />
+                            <span asp-validation-for="FechaNacimiento" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group w-50">
+                            <label asp-for="Telefono"></label>
+                            <input asp-for="Telefono" class="form-control" />
+                            <span asp-validation-for="Telefono" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Direccion"></label>
+                        <input asp-for="Direccion" class="form-control" />
+                        <span asp-validation-for="Direccion" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-flex gap-4 mb-3">
+                        <div class="form-group w-50">
+                            <label asp-for="Sexo"></label> <span class="text-danger">*</span>
+                            <select asp-for="Sexo" asp-items="Html.GetEnumSelectList<Sexo>()" class="form-control">
+                            </select>
+                            <span asp-validation-for="Sexo" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group w-50">
+                            <label asp-for="GrupoSanguineo"></label> <span class="text-danger">*</span>
+                            <select asp-for="GrupoSanguineo" asp-items="Html.GetEnumSelectList<GrupoSanguineo>()" class="form-control"></select>
+                            <span asp-validation-for="GrupoSanguineo" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Apellidos"></label>
-        <input asp-for="Apellidos" class="form-control" />
-        <span asp-validation-for="Apellidos" class="text-danger"></span>
+    <div class="mt-3 row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h4>Datos de inicio de sesión</h4>
+                    <div class="d-flex gap-4">
+                        <div class="form-group w-50">
+                            <label asp-for="Email"></label> <span class="text-danger">*</span>
+                            <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group w-50">
+                            <label asp-for="PasswordHash"></label> <span class="text-danger">*</span>
+                            <input asp-for="PasswordHash" class="form-control" type="password" />
+                            <span asp-validation-for="PasswordHash" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Dni"></label>
-        <input asp-for="Dni" class="form-control" />
-        <span asp-validation-for="Dni" class="text-danger"></span>
+    <div class="d-flex justify-content-center">
+        <button type="submit" class="w-25 btn btn-primary mt-3">Registrarse</button>
     </div>
-
-    <div class="form-group">
-        <label asp-for="FechaNacimiento"></label>
-        <input asp-for="FechaNacimiento" class="form-control" type="date" />
-        <span asp-validation-for="FechaNacimiento" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Sexo"></label>
-        <select asp-for="Sexo" asp-items="Html.GetEnumSelectList<Sexo>()" class="form-control">
-
-        </select>
-        <span asp-validation-for="Sexo" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Telefono"></label>
-        <input asp-for="Telefono" class="form-control" />
-        <span asp-validation-for="Telefono" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Direccion"></label>
-        <input asp-for="Direccion" class="form-control" />
-        <span asp-validation-for="Direccion" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="GrupoSanguineo"></label>
-        <select asp-for="GrupoSanguineo" asp-items="Html.GetEnumSelectList<GrupoSanguineo>()" class="form-control"></select>
-        <span asp-validation-for="GrupoSanguineo" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="PasswordHash"></label>
-        <input asp-for="PasswordHash" class="form-control" type="password" />
-        <span asp-validation-for="PasswordHash" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary mt-3">Registrarse</button>
 </form>
 
 @section Scripts {

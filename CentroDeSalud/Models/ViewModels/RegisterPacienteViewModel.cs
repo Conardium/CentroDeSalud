@@ -8,7 +8,7 @@ namespace CentroDeSalud.Models.ViewModels
     {
         [Required(ErrorMessage = "Indique un nombre")]
         [MaxLength(50, ErrorMessage = "El nombre es demasiado largo")]
-        [RegularExpression("^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]+$", ErrorMessage = "El nombre solo puede contener letras y tildes")]
+        [RegularExpression("^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ ]+$", ErrorMessage = "El nombre solo puede contener letras y tildes")]
         public string Nombre { get; set; }
 
         [Required(ErrorMessage = "Los apellidos son requeridos")]
