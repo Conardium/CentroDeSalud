@@ -1,4 +1,16 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿
+function mostrarAlerta(mensaje) {
+    const contenedor = document.getElementById("contenedorAlertas");
 
-// Write your JavaScript code.
+    //Limpiamos el contenido del contenedor
+    contenedor.innerHTML = '';
+
+    const alerta = document.createElement("div");
+    alerta.className = "alert alert-warning alert-dismissible fade show";
+    alerta.role = "alert";
+    alerta.innerHTML = `
+        <i class="fa-solid fa-triangle-exclamation"></i> ${mensaje}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+
+    contenedor.appendChild(alerta);
+}
