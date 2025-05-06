@@ -13,12 +13,15 @@ namespace CentroDeSalud.Models
         public Guid PacienteId { get; set; }
         public Paciente Paciente { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Seleccione un médico valido")]
+        [Display(Name = "Médico")]
+        [ComprobarGuid]
         public Guid MedicoId { get; set; }
         public Medico Medico { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Seleccione una fecha")]
         [Column(TypeName = "DATE")]
+        [FechaNoPasada]
         public DateTime Fecha { get; set; }
 
         [Required(ErrorMessage = "Seleccione una hora")]
@@ -27,14 +30,10 @@ namespace CentroDeSalud.Models
 
         public EstadoCita EstadoCita { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Indique el motivo de su cita")]
         [MaxLength(120)]
-        [EvitarCaracteresEspeciales]
-        [EvitarInyecciones]
         public string Motivo { get; set; }
 
-        [EvitarCaracteresEspeciales]
-        [EvitarInyecciones]
         [MaxLength(250)]
         public string Detalles { get; set; }
     }

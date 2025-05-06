@@ -19,6 +19,7 @@ namespace CentroDeSalud.Models.ViewModels
         [Required(ErrorMessage = "El DNI es obligatorio")]
         [StringLength(9, ErrorMessage = "El DNI debe tener un máximo de 9 caracteres")]
         [RegularExpression("^[0-9]{8}[A-Za-z]$", ErrorMessage = "El DNI no tiene un formato correcto")]
+        [Display(Name = "DNI")]
         public string Dni { get; set; }
 
         [Required(ErrorMessage = "Indique su Fecha de Nacimiento")]
