@@ -22,9 +22,16 @@ builder.Services.AddTransient<IRepositorioRoles, RepositorioRoles>();
 builder.Services.AddTransient<IRepositorioUsuariosLoginExterno, RepositorioUsuariosLoginExterno>();
 builder.Services.AddTransient<IRepositorioMedicos, RepositorioMedicos>();
 
+builder.Services.AddTransient<IRepositorioCitas, RepositorioCitas>();
+builder.Services.AddTransient<IRepositorioDisponibilidadesMedicos, RepositorioDisponibilidadesMedicos>();
+
 //============================ SERVICIOS ===============================
-builder.Services.AddTransient<IServicioPaciente, ServicioPaciente>();
+builder.Services.AddTransient<IServicioPacientes, ServicioPacientes>();
 builder.Services.AddTransient<IServicioEmail, ServicioEmail>();
+builder.Services.AddTransient<IServicioMedicos, ServicioMedicos>();
+
+builder.Services.AddTransient<IServicioCitas, ServicioCitas>();
+builder.Services.AddTransient<IServicioDisponibilidadesMedicos, ServicioDisponibilidadesMedicos>();
 
 //============================ IDENTITY ===============================
 builder.Services.AddTransient<IUserClaimsPrincipalFactory<Usuario>, CustomClaimsPrincipalFactory>();//Claims Personalizado

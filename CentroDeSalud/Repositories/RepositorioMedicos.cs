@@ -7,6 +7,7 @@ namespace CentroDeSalud.Repositories
     public interface IRepositorioMedicos
     {
         Task<Guid> CrearMedico(Medico medico);
+        Task<IEnumerable<Medico>> ListadoMedicos();
     }
 
     public class RepositorioMedicos : IRepositorioMedicos
@@ -26,6 +27,13 @@ namespace CentroDeSalud.Repositories
                            VALUES (@Id, @Dni, @Sexo, @Especialidad);", medico);
 
             return medico.Id;
+        }
+
+        public async Task<IEnumerable<Medico>> ListadoMedicos()
+        {
+            using var conexion = new SqlConnection(_connectionString);
+            return await conexion.QueryAsync<Medico>(@"Select u.Id, u.Nombre, u.Apellidos, m.Especialidad from Usuarios u 
+                                                        inner join Medicos m on u.Id = m.Id where RolId = 2");
         }
     }
 }
