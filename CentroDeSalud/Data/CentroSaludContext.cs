@@ -14,6 +14,7 @@ namespace CentroDeSalud.Data
         public DbSet<Rol> Roles { get; set; }
         public DbSet<UsuarioLoginExterno> UsuariosLoginExterno { get; set; }
         public DbSet<Cita> Citas { get; set; }
+        public DbSet<DisponibilidadMedico> DisponibilidadesMedicos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
