@@ -56,6 +56,10 @@ namespace CentroDeSalud.Data
                 .WithMany(c => c.Citas)
                 .HasForeignKey(c => c.MedicoId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Cita>()
+                .HasIndex(c => new { c.Fecha, c.Hora })
+                .IsUnique();
         }
     }
 }
