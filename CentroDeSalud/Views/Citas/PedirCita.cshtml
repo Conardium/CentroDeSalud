@@ -1,0 +1,112 @@
+﻿@using CentroDeSalud.Models.ViewModels
+@model CrearCitaViewModel
+
+@{
+    ViewData["Title"] = "Pedir Cita";
+}
+
+<h2 class="mt-4 row justify-content-center">Pedir Cita</h2>
+<p class="row justify-content-center form-text mb-3">Los campos con * son obligarios</p>
+
+<div class="d-flex justify-content-center" id="contenedorAlertas">@Html.Raw(ViewBag.MensajeError)</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-body">
+                <form asp-action="PedirCita" method="post">
+                    <div class="form-group mb-3">
+                        <label asp-for="MedicoId" class="control-label"></label>
+                        <select asp-for="MedicoId" class="form-control" id="MedicoId">
+                            <option value="@Guid.Empty">Seleccione un médico</option>
+                            @if (Model.Medicos != null && Model.Medicos.Any())
+                            {
+                                @foreach (var medico in Model.Medicos)
+                                {
+                                    <option value="@medico.Id">@medico.Nombre @medico.Apellidos (@medico.Especialidad)</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="MedicoId" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-flex gap-4 mb-3">
+                        <div class="form-group w-25">
+                            <label asp-for="Fecha" class="control-label"></label>
+                            <input asp-for="Fecha" class="form-control" type="date" id="Fecha" min="@DateTime.Now.ToString("yyyy-MM-dd")" readonly />
+                            <span asp-validation-for="Fecha" class="text-danger"></span>
+                        </div>
+
+                        <div id="divHora" class="form-group w-auto" style="display:none">
+                            <label for="Hora" class="control-label">Hora</label>
+                            <select id="Hora" name="Hora" class="form-control"></select>
+                        </div>
+                    </div>
+
+                    <div id="divMotivo" class="form-group mb-3" style="display:none">
+                        <label asp-for="Motivo" class="control-label"></label>
+                        <input asp-for="Motivo" class="form-control" />
+                        <span asp-validation-for="Motivo" class="text-danger"></span>
+                    </div>
+
+                    <div id="divDetalles" class="form-group mb-3" style="display:none">
+                        <label asp-for="Detalles" class="control-label"></label>
+                        <textarea asp-for="Detalles" class="form-control"></textarea>
+                        <span asp-validation-for="Detalles" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-center">
+                        <button id="BotonPedirCita" type="submit" class="w-50 btn boton-Verde-Oscuro mt-3" disabled>Pedir cita</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/PedirCita.js"></script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const UrlObtenerCitas = '@Url.Action("ObtenerCitasDisponibles")'
+
+        $(function(){
+            $("#Fecha").change(async function(){
+                const medicoId = $("#MedicoId").val();
+                const fecha = $(this).val();
+
+                if(!medicoId || !fecha) return;
+
+                const data = {
+                    medicoId: medicoId,
+                    fecha: fecha
+                };
+                
+                const respuesta = await fetch(UrlObtenerCitas, {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if(!respuesta.ok){ //Si la respuesta no es OK
+                    const error = await respuesta.json();
+                    mostrarAlerta(error.mensaje);
+                    desactivarDetallesCita(); //PedirCita.js
+                    return;
+                }
+
+                const json = await respuesta.json();
+
+                document.getElementById("contenedorAlertas").innerHTML = '';
+                activarDetallesCita(); //PedirCita.js
+
+                const opciones = json.map(hora => `<option value=${hora.value}>${hora.text}</option>`);
+                $("#Hora").html(opciones);
+            })
+        })
+    </script>
+}
