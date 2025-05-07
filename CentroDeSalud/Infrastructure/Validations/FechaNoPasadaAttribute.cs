@@ -8,7 +8,7 @@ namespace CentroDeSalud.Infrastructure.Validations
         {
             if (value is DateTime fecha)
             {
-                if (fecha.Date < DateTime.Today)
+                if (fecha.Date < DateTime.Now.Date)
                 {
                     return new ValidationResult("La fecha no puede ser anterior a hoy.");
                 }
