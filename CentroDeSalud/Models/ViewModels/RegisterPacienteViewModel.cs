@@ -8,7 +8,7 @@ namespace CentroDeSalud.Models.ViewModels
     {
         [Required(ErrorMessage = "Indique un nombre")]
         [MaxLength(50, ErrorMessage = "El nombre es demasiado largo")]
-        [RegularExpression("^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]+$", ErrorMessage = "El nombre solo puede contener letras y tildes")]
+        [RegularExpression("^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ ]+$", ErrorMessage = "El nombre solo puede contener letras y tildes")]
         public string Nombre { get; set; }
 
         [Required(ErrorMessage = "Los apellidos son requeridos")]
@@ -19,6 +19,7 @@ namespace CentroDeSalud.Models.ViewModels
         [Required(ErrorMessage = "El DNI es obligatorio")]
         [StringLength(9, ErrorMessage = "El DNI debe tener un máximo de 9 caracteres")]
         [RegularExpression("^[0-9]{8}[A-Za-z]$", ErrorMessage = "El DNI no tiene un formato correcto")]
+        [Display(Name = "DNI")]
         public string Dni { get; set; }
 
         [Required(ErrorMessage = "Indique su Fecha de Nacimiento")]
@@ -50,7 +51,7 @@ namespace CentroDeSalud.Models.ViewModels
 
         [Required(ErrorMessage = "Indique una contraseña")]
         [Display(Name = "Contraseña")]
-        [MinLength(6, ErrorMessage = "La contraseña debe de tener al menos 6 caracteres")]
+        [MinLength(6, ErrorMessage = "La contraseña debe de tener al menos 6 carácteres")]
         [EvitarInyecciones]
         public string PasswordHash { get; set; }
     }

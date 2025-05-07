@@ -13,6 +13,8 @@ namespace CentroDeSalud.Data
         public DbSet<Medico> Medicos { get; set; }
         public DbSet<Rol> Roles { get; set; }
         public DbSet<UsuarioLoginExterno> UsuariosLoginExterno { get; set; }
+        public DbSet<Cita> Citas { get; set; }
+        public DbSet<DisponibilidadMedico> DisponibilidadesMedicos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -23,6 +25,8 @@ namespace CentroDeSalud.Data
             modelBuilder.Entity<Usuario>().ToTable("Usuarios");
             modelBuilder.Entity<Rol>().ToTable("Roles");
             modelBuilder.Entity<UsuarioLoginExterno>().ToTable("UsuariosLoginExterno");
+            modelBuilder.Entity<Cita>().ToTable("Citas");
+            modelBuilder.Entity<DisponibilidadMedico>().ToTable("DisponibilidadesMedicos");
 
             //========================== RELACIONES ===============================
             modelBuilder.Entity<Usuario>()
@@ -40,6 +44,22 @@ namespace CentroDeSalud.Data
                 entity.HasOne<Usuario>().WithMany(u => u.LoginsExternos).HasForeignKey(e => e.UsuarioId)
                 .OnDelete(DeleteBehavior.Cascade);
             });
+
+            modelBuilder.Entity<Cita>()
+                .HasOne(p => p.Paciente)
+                .WithMany(c => c.Citas)
+                .HasForeignKey(c => c.PacienteId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Cita>()
+                .HasOne(m => m.Medico)
+                .WithMany(c => c.Citas)
+                .HasForeignKey(c => c.MedicoId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Cita>()
+                .HasIndex(c => new { c.Fecha, c.Hora })
+                .IsUnique();
         }
     }
 }

@@ -10,6 +10,11 @@ body{
     background-color: var(--color-antiflash-white);
 }
 
+input[readonly]{
+    background-color: darkgray;
+    color: var(--color-dark-gray);
+}
+
 .link-Verde{
     font-size: 14px;
     font-weight: bold;

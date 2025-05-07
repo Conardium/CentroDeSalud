@@ -3,16 +3,16 @@ using CentroDeSalud.Repositories;
 
 namespace CentroDeSalud.Services
 {
-    public interface IServicioPaciente
+    public interface IServicioPacientes
     {
         Task<Guid> CrearPacienteAsync(Paciente paciente);
     }
 
-    public class ServicioPaciente : IServicioPaciente
+    public class ServicioPacientes : IServicioPacientes
     {
         public readonly IRepositorioPacientes _repositorioPacientes;
 
-        public ServicioPaciente(IRepositorioPacientes repositorioPacientes)
+        public ServicioPacientes(IRepositorioPacientes repositorioPacientes)
         {
             _repositorioPacientes = repositorioPacientes;
         }

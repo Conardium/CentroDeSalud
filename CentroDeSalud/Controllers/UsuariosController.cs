@@ -18,10 +18,10 @@ namespace CentroDeSalud.Controllers
     {
         private readonly UserManager<Usuario> userManager;
         private readonly SignInManager<Usuario> signInManager;
-        private readonly IServicioPaciente servicioPaciente;
+        private readonly IServicioPacientes servicioPaciente;
         private readonly IServicioEmail servicioEmail;
 
-        public UsuariosController(UserManager<Usuario> userManager, SignInManager<Usuario> signInManager, IServicioPaciente servicioPaciente, IServicioEmail servicioEmail)
+        public UsuariosController(UserManager<Usuario> userManager, SignInManager<Usuario> signInManager, IServicioPacientes servicioPaciente, IServicioEmail servicioEmail)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
