@@ -3,6 +3,7 @@ using CentroDeSalud.Enumerations;
 using CentroDeSalud.Infrastructure.Services;
 using CentroDeSalud.Models;
 using CentroDeSalud.Models.ViewModels;
+using CentroDeSalud.Repositories;
 using CentroDeSalud.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 
 namespace CentroDeSalud.Controllers
 {
@@ -20,13 +22,16 @@ namespace CentroDeSalud.Controllers
         private readonly SignInManager<Usuario> signInManager;
         private readonly IServicioPacientes servicioPaciente;
         private readonly IServicioEmail servicioEmail;
+        private readonly IServicioUsuariosLoginsExternos servicioUsuariosLoginsExternos;
 
-        public UsuariosController(UserManager<Usuario> userManager, SignInManager<Usuario> signInManager, IServicioPacientes servicioPaciente, IServicioEmail servicioEmail)
+        public UsuariosController(UserManager<Usuario> userManager, SignInManager<Usuario> signInManager,
+            IServicioPacientes servicioPaciente, IServicioEmail servicioEmail, IServicioUsuariosLoginsExternos servicioUsuariosLoginsExternos)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.servicioPaciente = servicioPaciente;
             this.servicioEmail = servicioEmail;
+            this.servicioUsuariosLoginsExternos = servicioUsuariosLoginsExternos;
         }
 
         private string ObtenerClaim(ClaimsPrincipal principal, string tipoClaim)
@@ -69,19 +74,18 @@ namespace CentroDeSalud.Controllers
                 await userManager.AddToRoleAsync(usuario, Constantes.RolPaciente); //Le asignamos el rol "Paciente"
 
                 //Comprobamos si el register proviene de un proveedor externo
-                if (TempData["LoginProvider"] != null && TempData["ProviderKey"] != null)
+                if (TempData["LoginExterno"] != null)
                 {
-                    var loginExterno = new UserLoginInfo(
-                        TempData["LoginProvider"].ToString(),
-                        TempData["ProviderKey"].ToString(),
-                        TempData["ProviderDisplayName"].ToString());
+                    var loginExterno = new UsuarioLoginExterno();
+                    if (TempData["LoginExterno"] is string json)
+                        loginExterno = JsonSerializer.Deserialize<UsuarioLoginExterno>(json);
+
+                    loginExterno.UsuarioId = usuario.Id;
 
                     //Borramos los TempData
-                    TempData.Remove("LoginProvider");
-                    TempData.Remove("ProviderKey");
-                    TempData.Remove("ProviderDisplayName");
+                    TempData.Remove("LoginExterno");
 
-                    var resultadoAgregarLogin = await userManager.AddLoginAsync(usuario, loginExterno);
+                    var resultadoAgregarLogin = await servicioUsuariosLoginsExternos.AgregarLoginExterno(loginExterno);
 
                     if (resultadoAgregarLogin.Succeeded)
                     {
@@ -200,10 +204,25 @@ namespace CentroDeSalud.Controllers
                 Sexo = Sexo.NoSeleccionado,
                 GrupoSanguineo = GrupoSanguineo.NoSeleccionado};
 
+            var accessToken = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "access_token")?.Value;
+            var refreshToken = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "refresh_token")?.Value;
+            var expiresAtString = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "expires_at")?.Value;
+
+            DateTime? expiresAt = null;
+            if(DateTime.TryParse(expiresAtString, out var parsedFecha))
+                expiresAt = parsedFecha;
+
+            var DatosProveedor = new UsuarioLoginExterno
+            {
+                LoginProvider = info.LoginProvider,
+                ProviderKey = info.ProviderKey,
+                ProviderDisplayName = info.ProviderDisplayName,
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+                TokenExpiraEn = expiresAt
+            };
             //Guardamos temporalmente estos datos para a futuro guardarlos en el usuarioLoginExterno
-            TempData["LoginProvider"] = info.LoginProvider;
-            TempData["ProviderKey"] = info.ProviderKey;
-            TempData["ProviderDisplayName"] = info.ProviderDisplayName;
+            TempData["LoginExterno"] = JsonSerializer.Serialize(DatosProveedor);
 
             return View("RegisterPaciente", registroVM);
         }
@@ -291,5 +310,12 @@ namespace CentroDeSalud.Controllers
             TempData.Remove("PasswordCambiado");
             return View();
         }
+
+        /*
+            var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!Guid.TryParse(usuarioId, out Guid id))
+                return null;
+         */
     }
 }
