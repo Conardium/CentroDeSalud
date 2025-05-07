@@ -54,7 +54,7 @@ namespace CentroDeSalud.Services
             var disponibilidadMedico = await servicioDisponibilidades.ObtenerDisponibilidad(medicoId, numeroDia);
 
             if (disponibilidadMedico is null)
-                return ResultadoOperacion<List<TimeSpan>>.Error("<strong>El médico no trabaja para el día seleccionado</strong>. Recuerde que puede comprobar la disponibilidad de un médico accediendo al perfil público de este dentro de la web.");
+                return ResultadoOperacion<List<TimeSpan>>.Error("<strong>El médico seleccionado no tiene consulta para esta fecha</strong>. Recuerde que puede comprobar la disponibilidad de un médico accediendo al perfil público de este dentro de la web.");
 
             //Creamos las posibles franjas horarias de 30min
             TimeSpan horaInicio = disponibilidadMedico.HoraInicio;
