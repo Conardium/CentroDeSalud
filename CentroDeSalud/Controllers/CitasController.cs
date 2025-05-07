@@ -90,7 +90,7 @@ namespace CentroDeSalud.Controllers
             if (citaOcupada is not null)
             {
                 ViewBag.MensajeError = @"<div class='alert alert-danger alert-dismissible fade show' role='alert'>
-                    <i class='fa-solid fa-circle-exclamation'></i> Lo sentimos, pero el médico ya tiene una cita para esta hora.
+                    <i class='fa-solid fa-circle-exclamation'></i> Lo sentimos, esta cita ya ha sido seleccionada.
                     <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button></div>";
                 var Nuevomodelo = await ObtenerMedicos();
                 return View(Nuevomodelo);
