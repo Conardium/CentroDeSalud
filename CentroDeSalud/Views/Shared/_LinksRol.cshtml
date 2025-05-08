@@ -1,0 +1,15 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using System.Security.Claims
+@using CentroDeSalud.Data
+@inject SignInManager<Usuario> SignInManager
+
+
+@if (SignInManager.IsSignedIn(User)) //Comprobamos el rol del usuario
+{
+	if (User.IsInRole(Constantes.RolPaciente))
+	{
+		<li class="nav-item">
+			<a class="nav-link text-dark" asp-area="" asp-controller="Citas" asp-action="PedirCita">Pedir Cita</a>
+		</li>
+	}
+}

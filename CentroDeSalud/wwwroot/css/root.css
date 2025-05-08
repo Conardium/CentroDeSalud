@@ -2,6 +2,7 @@
     --color-dark-green: #0A584E;
     --color-green-tea: #0E7C7B;
     --color-keppel: #00BFA5;
+    --color-menta-claro: #E0F7F4; 
     --color-antiflash-white: #F0F0F0;
     --color-dark-gray: #4A4A4A;
 }
@@ -10,7 +11,20 @@ body{
     background-color: var(--color-antiflash-white);
 }
 
-input[readonly]{
+.dropdown-toggle::after {
+    display: none;
+}
+
+.dropdown-menu .dropdown-item:hover{
+    background-color: var(--color-menta-claro);
+}
+
+.dropdown-menu .dropdown-item:active {
+    background-color: var(--color-green-tea);
+    color: white !important;
+}
+
+input[readonly] {
     background-color: darkgray;
     color: var(--color-dark-gray);
 }
