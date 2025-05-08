@@ -135,7 +135,8 @@ namespace CentroDeSalud.Controllers
             }
         }
 
-        // =============================== LOGIN EXTERNO =================================
+        #region Funcionalidad "Login Externo"
+
         [AllowAnonymous]
         [HttpGet]
         public ChallengeResult LoginExterno(string proveedor, string urlRetorno = null)
@@ -174,42 +175,26 @@ namespace CentroDeSalud.Controllers
             var resultadoLoginExterno = await signInManager.ExternalLoginSignInAsync(info.LoginProvider,
                 info.ProviderKey, isPersistent: true, bypassTwoFactor: true);
 
-            // Ya la cuenta existe
+            //Comprobamos si hay un usuario con una cuenta vinculada al proveedor
             if (resultadoLoginExterno.Succeeded)
                 return LocalRedirect(urlRetorno);
-            
+
             //Recogemos los datos que queramos del login externo y preparamos el ViewModel para el register
             string email = ObtenerClaim(info.Principal, ClaimTypes.Email);
-            
-            if(email == null)
+
+            if (email == null)
             {
                 mensaje = "Error leyendo el email del usuario del proveedor";
                 return RedirectToAction("Login", routeValues: new { mensaje });
             }
 
-            var nombre = ObtenerClaim(info.Principal, ClaimTypes.GivenName);
-            if(nombre == null)
-            {
-                mensaje = "Error leyendo el nombre del usuario del proveedor";
-                return RedirectToAction("Login", routeValues: new { mensaje });
-            }
-
-            var apellidos = ObtenerClaim(info.Principal, ClaimTypes.Surname);
-
-            var registroVM = new RegisterPacienteViewModel { 
-                Email = email, 
-                Nombre = nombre,
-                Apellidos = apellidos,
-                FechaNacimiento = DateTime.Now,
-                Sexo = Sexo.NoSeleccionado,
-                GrupoSanguineo = GrupoSanguineo.NoSeleccionado};
-
+            //Recogemos los datos del proveedor externo
             var accessToken = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "access_token")?.Value;
             var refreshToken = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "refresh_token")?.Value;
             var expiresAtString = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "expires_at")?.Value;
 
             DateTime? expiresAt = null;
-            if(DateTime.TryParse(expiresAtString, out var parsedFecha))
+            if (DateTime.TryParse(expiresAtString, out var parsedFecha))
                 expiresAt = parsedFecha;
 
             var DatosProveedor = new UsuarioLoginExterno
@@ -221,11 +206,59 @@ namespace CentroDeSalud.Controllers
                 RefreshToken = refreshToken,
                 TokenExpiraEn = expiresAt
             };
+
+            //Comprobamos si el correo del usuario ya está registrado en nuestra web
+            var usuarioExiste = await userManager.FindByEmailAsync(email);
+
+            if(usuarioExiste != null) //Si existe, vinculamos el proveedor con ese usuario
+            {
+                DatosProveedor.UsuarioId = usuarioExiste.Id;
+                var resultadoAgregarLogin = await servicioUsuariosLoginsExternos.AgregarLoginExterno(DatosProveedor);
+
+                if (resultadoAgregarLogin.Succeeded)
+                {
+                    //Volvemos a intentar iniciar sesión
+                    resultadoLoginExterno = await signInManager.ExternalLoginSignInAsync(info.LoginProvider,
+                    info.ProviderKey, isPersistent: true, bypassTwoFactor: true);
+
+                    //Comprobamos si ya tiene la cuenta vinculada.
+                    if (resultadoLoginExterno.Succeeded)
+                        return LocalRedirect(urlRetorno);
+                }
+                else
+                {
+                    mensaje = "Error al intentar vincular el proveedor con su cuenta";
+                    return RedirectToAction("Login", routeValues: new { mensaje });
+                }
+            }
+
             //Guardamos temporalmente estos datos para a futuro guardarlos en el usuarioLoginExterno
             TempData["LoginExterno"] = JsonSerializer.Serialize(DatosProveedor);
 
+            var nombre = ObtenerClaim(info.Principal, ClaimTypes.GivenName);
+            if (nombre == null)
+            {
+                mensaje = "Error leyendo el nombre del usuario del proveedor";
+                return RedirectToAction("Login", routeValues: new { mensaje });
+            }
+
+            var apellidos = ObtenerClaim(info.Principal, ClaimTypes.Surname);
+
+            var registroVM = new RegisterPacienteViewModel
+            {
+                Email = email,
+                Nombre = nombre,
+                Apellidos = apellidos,
+                FechaNacimiento = DateTime.Now,
+                Sexo = Sexo.NoSeleccionado,
+                GrupoSanguineo = GrupoSanguineo.NoSeleccionado
+            };
+
             return View("RegisterPaciente", registroVM);
         }
+
+        #endregion
+
 
         [HttpPost]
         public async Task<IActionResult> Logout()
@@ -233,6 +266,8 @@ namespace CentroDeSalud.Controllers
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
             return RedirectToAction("Index", "Home");
         }
+
+        #region Funcionalidad del "Olvidar Contraseña"
 
         [HttpGet]
         [AllowAnonymous]
@@ -259,7 +294,7 @@ namespace CentroDeSalud.Controllers
             var codigo = await userManager.GeneratePasswordResetTokenAsync(usuario);
             //Convertimos a base64
             var codigoBase64 = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(codigo));
-            var enlace = Url.Action("RestablecerPassword", "Usuarios", new {codigo = codigoBase64}, protocol: Request.Scheme);
+            var enlace = Url.Action("RestablecerPassword", "Usuarios", new { codigo = codigoBase64 }, protocol: Request.Scheme);
 
             var nombreCompleto = usuario.Nombre + " " + usuario.Apellidos;
             await servicioEmail.EnviarRecuperarPassword(usuario.Email, usuario.Nombre, nombreCompleto, enlace);
@@ -293,7 +328,7 @@ namespace CentroDeSalud.Controllers
             {
                 return RedirectToAction("PasswordCambiado");
             }
-                
+
 
             var resultado = await userManager.ResetPasswordAsync(usuario, modelo.CodigoReseteo, modelo.Password);
             return RedirectToAction("PasswordCambiado");
@@ -310,6 +345,9 @@ namespace CentroDeSalud.Controllers
             TempData.Remove("PasswordCambiado");
             return View();
         }
+
+        #endregion
+
 
         /*
             var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);

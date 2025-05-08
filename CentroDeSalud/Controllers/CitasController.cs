@@ -7,9 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace CentroDeSalud.Controllers
 {
@@ -96,22 +95,40 @@ namespace CentroDeSalud.Controllers
                 return View(Nuevomodelo);
             }
 
-            await servicioCitas.CrearCita(cita);
+            var idCita = await servicioCitas.CrearCita(cita);
 
             TempData["CitaSolicitada"] = true;
-            return RedirectToAction("CitaSolicitada");
+            return RedirectToAction("CitaSolicitada", new {id = idCita});
         }
 
         [Authorize(Roles = Constantes.RolPaciente)]
-        public IActionResult CitaSolicitada()
+        public IActionResult CitaSolicitada(int id)
         {
-            /*
             if (!TempData.ContainsKey("CitaSolicitada"))
                 return NotFound();
 
-            TempData.Remove("CitaSolicitada");
-            */
+            TempData.Remove("PasswordCambiado");
+            ViewBag.IdCita = id;
             return View();
+        }
+
+        [Authorize(Roles = Constantes.RolPaciente)]
+        public async Task<IActionResult> SincronizarCitaCalendario(int id)
+        {
+            var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!Guid.TryParse(usuarioId, out Guid usuarioIdGuid))
+                return null;
+
+            var resultado = await servicioCitas.SincronizarCita(usuarioIdGuid, id);
+
+            if (resultado.TieneError)
+            {
+                ViewBag.IdCita = id;
+                ViewBag.MensajeError = resultado.MensajeError;
+                return RedirectToAction("CitaSolicitada", new { id });
+            }
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]

@@ -10,6 +10,7 @@ namespace CentroDeSalud.Services
     {
         Task<IdentityResult> AgregarLoginExterno(UsuarioLoginExterno usuarioLoginExterno);
         Task<bool> ComprobarCaducidadToken(Guid usuarioId);
+        Task<IEnumerable<UsuarioLoginExterno>> ListadoLoginsExternos(Guid usuarioId);
     }
 
     public class ServicioUsuariosLoginsExternos : IServicioUsuariosLoginsExternos
@@ -62,6 +63,11 @@ namespace CentroDeSalud.Services
                     throw new Exception("Error al renovar el token.");
                 }
             }
+        }
+
+        public async Task<IEnumerable<UsuarioLoginExterno>> ListadoLoginsExternos(Guid usuarioId)
+        {
+            return await repositorioUsuariosLoginExterno.ListadoLoginsPorUsuarioId(usuarioId);
         }
 
         public async Task<IdentityResult> AgregarLoginExterno(UsuarioLoginExterno usuarioLoginExterno)

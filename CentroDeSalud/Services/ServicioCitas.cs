@@ -2,6 +2,10 @@
 using CentroDeSalud.Infrastructure.Utilidades;
 using CentroDeSalud.Models;
 using CentroDeSalud.Repositories;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Calendar.v3;
+using Google.Apis.Calendar.v3.Data;
+using Google.Apis.Services;
 using System.Globalization;
 
 namespace CentroDeSalud.Services
@@ -11,17 +15,21 @@ namespace CentroDeSalud.Services
         Task<Cita> BuscarCitaPorFechaHora(DateTime fecha, TimeSpan hora);
         Task<int> CrearCita(Cita cita);
         Task<ResultadoOperacion<List<TimeSpan>>> ListarHorasDisponibles(Guid medicoId, DateTime fecha);
+        Task<ResultadoOperacion<bool>> SincronizarCita(Guid usuarioId, int idCita);
     }
 
     public class ServicioCitas : IServicioCitas
     {
         private readonly IRepositorioCitas repositorioCitas;
         private readonly IServicioDisponibilidadesMedicos servicioDisponibilidades;
+        private readonly IServicioUsuariosLoginsExternos servicioUsuariosLoginsExternos;
 
-        public ServicioCitas(IRepositorioCitas repositorioCitas, IServicioDisponibilidadesMedicos servicioDisponibilidades)
+        public ServicioCitas(IRepositorioCitas repositorioCitas, IServicioDisponibilidadesMedicos servicioDisponibilidades, 
+            IServicioUsuariosLoginsExternos servicioUsuariosLoginsExternos)
         {
             this.repositorioCitas = repositorioCitas;
             this.servicioDisponibilidades = servicioDisponibilidades;
+            this.servicioUsuariosLoginsExternos = servicioUsuariosLoginsExternos;
         }
 
         public async Task<int> CrearCita(Cita cita)
@@ -96,6 +104,64 @@ namespace CentroDeSalud.Services
             
 
             return ResultadoOperacion<List<TimeSpan>>.Exito(franjasDisponibles);
+        }
+
+        public async Task<ResultadoOperacion<bool>> SincronizarCita(Guid usuarioId, int idCita)
+        {
+            //Comprobamos primero que el usuario que ha solicitado vincular la cita sea el propio usuario de la cita
+            var cita = await repositorioCitas.BuscarCitaPorId(idCita);
+
+            if (cita is null)
+                return ResultadoOperacion<bool>.Error("La cita que ha intentado sincronizar no existe.");
+
+            if(cita.PacienteId != usuarioId)
+                return ResultadoOperacion<bool>.Error("Ha habido un error al sincronizar la cita.");
+
+            //Comprobamos la caducidad del accessToken
+            await servicioUsuariosLoginsExternos.ComprobarCaducidadToken(usuarioId);
+
+            //Si la cita existe en la BD y el usuario es el correcto, procedemos a crear el evento del calendario
+            var listaLogins = await servicioUsuariosLoginsExternos.ListadoLoginsExternos(usuarioId);
+            var loginGoogle = listaLogins.FirstOrDefault(l => l.LoginProvider == "Google");
+
+            if(loginGoogle is null)
+                return ResultadoOperacion<bool>.Error("Vaya, parece que su cuenta no está vinculada con Google.");
+
+            //Implementacion del servicio de Google Calendar
+            //Obtenemos la credencial
+            var credencial = GoogleCredential.FromAccessToken(loginGoogle.AccessToken);
+            
+            //Inicializamos el servicio de Calendar
+            var servicioCalendar = new CalendarService(new BaseClientService.Initializer()
+            {
+                HttpClientInitializer = credencial,
+                ApplicationName = "Cura Vitae"
+            });
+
+            //Creamos y configuramos el evento
+            var fechaInicio = cita.Fecha.Date + cita.Hora;
+            var fechaFin = fechaInicio.AddMinutes(30);
+            var evento = new Event
+            {
+                Summary = "Consulta médica (Cura Vitae)",
+                Location = "",
+                Description = cita.Motivo,
+                Start = new EventDateTime
+                {
+                    DateTimeDateTimeOffset = new DateTimeOffset(fechaInicio, TimeZoneInfo.FindSystemTimeZoneById("Europe/Madrid").GetUtcOffset(fechaInicio)),
+                    TimeZone = "Europe/Madrid"
+                },
+                End = new EventDateTime
+                {
+                    DateTimeDateTimeOffset = new DateTimeOffset(fechaFin, TimeZoneInfo.FindSystemTimeZoneById("Europe/Madrid").GetUtcOffset(fechaFin)),
+                    TimeZone = "Europe/Madrid"
+                }
+            };
+
+            //Enviamos el evento al calendario
+            await servicioCalendar.Events.Insert(evento, "primary").ExecuteAsync();
+
+            return ResultadoOperacion<bool>.Exito(true);
         }
     }
 }

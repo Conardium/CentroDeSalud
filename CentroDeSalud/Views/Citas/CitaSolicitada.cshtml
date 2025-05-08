@@ -4,6 +4,8 @@
 
 <h1 class="mt-4 text-success"><i class="fa-solid fa-circle-check "></i> Su cita ha sido solicitada con éxito</h1>
 
+<div class="d-flex justify-content-center" id="contenedorAlertas">@ViewBag.MensajeError</div>
+
 <div class="mt-4 mb-lg-5">
 	<p style="font-size: 18px">Recuerde que puede ver el listado de sus citas en su perfil.</p>
 </div>
@@ -15,12 +17,11 @@
 		</strong> con su calendario de Google y así evitar olvidos o confusiones con la fecha y hora de su cita. <br />
 		<a style="font-size:16px; cursor:pointer" class="link-Verde" asp-action="Index" asp-controller="Home">Vincular mi cuenta con Google</a>
 	</p>
-	
+	<a class="btn boton-Verde-Oscuro" asp-action="SincronizarCitaCalendario" asp-route-id="@ViewBag.IdCita">Vincular cita con Google Calendar</a>
 </div>
 
 <div class="d-flex">
-	<div class="d-flex w-50 mt-4 gap-4">
-		<a style="cursor:pointer" class="btn btn-secondary w-25" asp-action="Index" asp-controller="Home">Volver al Inicio</a>
-		<a style="cursor:pointer" class="btn boton-Verde-Oscuro w-25">Mi Perfil</a>
+	<div class="d-flex mt-4 gap-4">
+		<a style="cursor:pointer" class="btn btn-secondary" asp-action="Index" asp-controller="Home">Volver al Inicio</a>
 	</div>
 </div>
