@@ -23,7 +23,7 @@ namespace CentroDeSalud.Data
             //Nombre real del usuario
             if (!string.IsNullOrEmpty(user.Nombre))
             {
-                identity.AddClaim(new Claim("NombreReal", user.Nombre));
+                identity.AddClaim(new Claim("NombreReal", user.Nombre + " " + user.Apellidos));
             }
 
             //Rol del usuario

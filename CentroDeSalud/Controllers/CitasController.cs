@@ -1,4 +1,5 @@
 ﻿using CentroDeSalud.Data;
+using CentroDeSalud.Infrastructure.Utilidades;
 using CentroDeSalud.Models;
 using CentroDeSalud.Models.Requests;
 using CentroDeSalud.Models.ViewModels;
@@ -7,9 +8,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Net;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace CentroDeSalud.Controllers
 {
@@ -58,16 +58,28 @@ namespace CentroDeSalud.Controllers
 
             if (usuarioId is null)
             {
-                TempData["Denegado"] = true;
-                return RedirectToAction("AccesoDenegado", "Home");
+                TempData["Acceso"] = true;
+                var aviso = new AvisoViewModel
+                {
+                    Titulo = "Acceso denegado",
+                    Tipo = Constantes.Denegado,
+                    Mensaje = "No tienes los permisos suficientes para acceder a esta página"
+                };
+                return RedirectToAction("AvisosGenerales", "Avisos", aviso);
             }
 
             var usuario = await userManager.FindByIdAsync(usuarioId);        
 
             if (usuario is null)
             {
-                TempData["Denegado"] = true;
-                return RedirectToAction("AccesoDenegado", "Home");
+                TempData["Acceso"] = true;
+                var aviso = new AvisoViewModel
+                {
+                    Titulo = "Acceso denegado",
+                    Tipo = Constantes.Denegado,
+                    Mensaje = "No tienes los permisos suficientes para acceder a esta página"
+                };
+                return RedirectToAction("AvisosGenerales", "Avisos", aviso);
             }
 
             //SI el usuario exite en la BD
@@ -90,28 +102,67 @@ namespace CentroDeSalud.Controllers
             if (citaOcupada is not null)
             {
                 ViewBag.MensajeError = @"<div class='alert alert-danger alert-dismissible fade show' role='alert'>
-                    <i class='fa-solid fa-circle-exclamation'></i> Lo sentimos, pero el médico ya tiene una cita para esta hora.
+                    <i class='fa-solid fa-circle-exclamation'></i> Lo sentimos, esta cita ya ha sido seleccionada.
                     <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button></div>";
                 var Nuevomodelo = await ObtenerMedicos();
                 return View(Nuevomodelo);
             }
 
-            await servicioCitas.CrearCita(cita);
+            var idCita = await servicioCitas.CrearCita(cita);
 
             TempData["CitaSolicitada"] = true;
-            return RedirectToAction("CitaSolicitada");
+            return RedirectToAction("CitaSolicitada", new {id = idCita});
         }
 
         [Authorize(Roles = Constantes.RolPaciente)]
-        public IActionResult CitaSolicitada()
+        public IActionResult CitaSolicitada(int id)
         {
-            /*
             if (!TempData.ContainsKey("CitaSolicitada"))
                 return NotFound();
 
-            TempData.Remove("CitaSolicitada");
-            */
+            TempData.Remove("PasswordCambiado");
+            ViewBag.IdCita = id;
             return View();
+        }
+
+        [Authorize(Roles = Constantes.RolPaciente)]
+        public async Task<IActionResult> SincronizarCitaCalendario(int id)
+        {
+            var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!Guid.TryParse(usuarioId, out Guid usuarioIdGuid))
+                return null;
+
+            var resultado = new ResultadoOperacion<bool>();
+
+            try
+            {
+                resultado = await servicioCitas.SincronizarCita(usuarioIdGuid, id);
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Forbidden)
+            {
+                return View("ConsentimientoCalendario");
+            }
+            if (resultado.TieneError)
+            {
+                var avisoError = new AvisoViewModel
+                {
+                    Titulo = "Error",
+                    Tipo = Constantes.Error,
+                    Mensaje = resultado.MensajeError,
+                };
+                TempData["Acceso"] = true;
+                return RedirectToAction("AvisosGenerales", "Avisos", avisoError);
+            }
+
+            var avisoOK = new AvisoViewModel
+            {
+                Titulo = "Exito",
+                Tipo = Constantes.OK,
+                Mensaje = "Su cita se ha sincronizado correctamente con su calendario de Google",
+            };
+            TempData["Acceso"] = true;
+            return RedirectToAction("AvisosGenerales", "Avisos", avisoOK);
         }
 
         [HttpPost]

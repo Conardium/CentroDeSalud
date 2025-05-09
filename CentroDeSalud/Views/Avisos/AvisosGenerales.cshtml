@@ -1,0 +1,45 @@
+﻿@using CentroDeSalud.Models.ViewModels
+@using CentroDeSalud.Data
+@model AvisoViewModel
+
+@{
+	ViewData["Title"] = Model.Titulo;
+}
+
+<div class="row justify-content-center">
+	<div class="col-md-8">
+		<div class="d-flex justify-content-center">
+			@if (Model.Tipo == Constantes.OK)
+			{
+				<img class="img-fluid" style="min-height: 200px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));" src="~/images/icons8-exito.svg" alt="ImagenExito" />
+			}
+			else if (Model.Tipo == Constantes.Denegado)
+			{
+				<img class="img-fluid" style="min-height: 200px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));" src="~/images/icons8-denegado.svg" alt="ImagenDenegado" />
+			}
+			else
+			{
+				<img class="img-fluid" style="min-height: 200px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));" src="~/images/icons8-error.svg" alt="ImagenError" />
+			}
+		</div>
+
+		<div class="d-flex justify-content-center">
+			@if (Model.Tipo == Constantes.OK)
+			{
+				<h1 class="text-success">@Model.Titulo</h1>
+			}
+			else
+			{
+				<h1 class="text-danger">@Model.Titulo</h1>
+			}
+		</div>
+
+		<div class="d-flex justify-content-center mb-4" style="font-size: 18px; text-align:center;">
+			@Model.Mensaje
+		</div>
+
+		<div class="d-flex justify-content-center" style="font-size: 18px;">
+			<a class="btn boton-Verde-Oscuro" asp-action="Index" asp-controller="Home">Volver al inicio</a>
+		</div>
+	</div>
+</div>

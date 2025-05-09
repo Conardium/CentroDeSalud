@@ -6,6 +6,7 @@ namespace CentroDeSalud.Repositories
 {
     public interface IRepositorioCitas
     {
+        Task<Cita> BuscarCitaPorId(int id);
         Task<Cita> BuscarPorFechaHora(DateTime fecha, TimeSpan hora);
         Task<int> CrearCita(Cita cita);
         Task<IEnumerable<Cita>> ObtenerCitasPendientesMedicoPorFecha(Guid medicoId, DateTime fecha);
@@ -18,6 +19,13 @@ namespace CentroDeSalud.Repositories
         public RepositorioCitas(IConfiguration configuration)
         {
             _connectionString = configuration.GetConnectionString("DevelopmentConnection");
+        }
+
+        public async Task<Cita> BuscarCitaPorId(int id)
+        {
+            using var conexion = new SqlConnection(_connectionString);
+
+            return await conexion.QueryFirstOrDefaultAsync<Cita>(@"Select * from Citas where Id = @Id", new {Id = id});
         }
 
         public async Task<int> CrearCita (Cita cita)

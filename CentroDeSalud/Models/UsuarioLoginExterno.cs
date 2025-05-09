@@ -21,5 +21,14 @@ namespace CentroDeSalud.Models
 
         [MaxLength(200)]
         public string ProviderDisplayName { get; set; }
+
+        [Column(TypeName = "nvarchar(MAX)")]
+        public string AccessToken { get; set; }
+
+        [Column(TypeName = "nvarchar(MAX)")]
+        public string RefreshToken { get; set; }
+
+        [Column(TypeName = "datetime2(0)")]
+        public DateTime? TokenExpiraEn { get; set; }
     }
 }

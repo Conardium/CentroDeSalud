@@ -1,15 +1,20 @@
-﻿using CentroDeSalud.Models;
+﻿using Azure.Core;
+using CentroDeSalud.Models;
 using Dapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 
 namespace CentroDeSalud.Repositories
 {
     public interface IRepositorioUsuariosLoginExterno
     {
+        Task<IdentityResult> ActualizarAccessToken(string loginProvider, string providerKey, string accessToken, DateTime fechaExp);
+        Task<IdentityResult> ActualizarLoginExterno(string loginProvider, string providerKey, string accessToken, string refreshToken, DateTime? fechaExp);
         Task EliminarLoginExterno(Guid usuarioId, string loginProvider, string providerKey);
-        public Task InsertarLoginExterno(UsuarioLoginExterno usuarioLoginExterno);
+        public Task<IdentityResult> InsertarLoginExterno(UsuarioLoginExterno usuarioLoginExterno);
         Task<IEnumerable<UsuarioLoginExterno>> ListadoLoginsPorUsuarioId(Guid usuarioId);
         Task<UsuarioLoginExterno> ObtenerLoginExterno(string loginProvider, string providerKey);
+        Task<UsuarioLoginExterno> ObtenerLoginExternoPorUsuarioProveedor(Guid usuarioId, string proveedor);
     }
 
     public class RepositorioUsuariosLoginExterno : IRepositorioUsuariosLoginExterno
@@ -21,11 +26,14 @@ namespace CentroDeSalud.Repositories
             _connectionString = configuration.GetConnectionString("DevelopmentConnection");
         }
 
-        public async Task InsertarLoginExterno(UsuarioLoginExterno usuarioLoginExterno)
+        public async Task<IdentityResult> InsertarLoginExterno(UsuarioLoginExterno usuarioLoginExterno)
         {
             using var conexion = new SqlConnection(_connectionString);
-            await conexion.ExecuteAsync(@"INSERT INTO UsuariosLoginExterno (UsuarioId, LoginProvider, ProviderKey, ProviderDisplayName)
-                            VALUES (@UsuarioId, @LoginProvider, @ProviderKey, @ProviderDisplayName);", usuarioLoginExterno);
+            await conexion.ExecuteAsync(@"INSERT INTO UsuariosLoginExterno (UsuarioId, LoginProvider, ProviderKey, 
+                    ProviderDisplayName, AccessToken, RefreshToken, TokenExpiraEn) 
+                    VALUES (@UsuarioId, @LoginProvider, @ProviderKey, @ProviderDisplayName, @AccessToken, 
+                    @RefreshToken, @TokenExpiraEn);", usuarioLoginExterno);
+            return IdentityResult.Success;
         }
 
         public async Task<UsuarioLoginExterno> ObtenerLoginExterno(string loginProvider, string providerKey)
@@ -34,6 +42,14 @@ namespace CentroDeSalud.Repositories
             return await conexion.QueryFirstOrDefaultAsync<UsuarioLoginExterno>(@"Select * from UsuariosLoginExterno
                                     where LoginProvider = @LoginProvider and ProviderKey = @ProviderKey;",
                                     new { LoginProvider = loginProvider, ProviderKey = providerKey});
+        }
+
+        public async Task<UsuarioLoginExterno> ObtenerLoginExternoPorUsuarioProveedor(Guid usuarioId, string proveedor)
+        {
+            using var conexion = new SqlConnection(_connectionString);
+            return await conexion.QueryFirstOrDefaultAsync<UsuarioLoginExterno>(@"Select * from UsuariosLoginExterno
+                                    Where UsuarioId = @UsuarioId AND LoginProvider = @LoginProvider",
+                                    new { UsuarioId = usuarioId, LoginProvider = proveedor });
         }
 
         public async Task<IEnumerable<UsuarioLoginExterno>> ListadoLoginsPorUsuarioId(Guid usuarioId)
@@ -49,6 +65,29 @@ namespace CentroDeSalud.Repositories
             await conexion.ExecuteAsync(@"Delete from UsuariosLoginExterno where UsuarioId = @UsuarioId AND
                             LoginProvider = @LoginProvider AND ProviderKey = @ProviderKey",
                             new { UsuarioId = usuarioId, LoginProvider = loginProvider, ProviderKey = providerKey});
+        }
+
+        public async Task<IdentityResult> ActualizarAccessToken(string loginProvider, string providerKey, string accessToken, DateTime fechaExp)
+        {
+            using var conexion = new SqlConnection(_connectionString);
+            await conexion.ExecuteAsync(@"Update UsuariosLoginExterno 
+                       SET AccessToken = @AccessToken, TokenExpiraEn = @TokenExpiraEn
+                       WHERE LoginProvider = @LoginProvider AND ProviderKey = @ProviderKey",
+                       new { AccessToken = accessToken, TokenExpiraEn = fechaExp, LoginProvider = loginProvider, ProviderKey = providerKey });
+            
+            return IdentityResult.Success; 
+        }
+
+        public async Task<IdentityResult> ActualizarLoginExterno(string loginProvider, string providerKey, string accessToken, string refreshToken, DateTime? fechaExp)
+        {
+            using var conexion = new SqlConnection(_connectionString);
+            await conexion.ExecuteAsync(@"Update UsuariosLoginExterno 
+                       SET AccessToken = @AccessToken, RefreshToken = @RefreshToken, TokenExpiraEn = @TokenExpiraEn
+                       WHERE LoginProvider = @LoginProvider AND ProviderKey = @ProviderKey",
+                       new { AccessToken = accessToken, RefreshToken = refreshToken, 
+                           TokenExpiraEn = fechaExp, LoginProvider = loginProvider, ProviderKey = providerKey });
+
+            return IdentityResult.Success;
         }
     }
 }

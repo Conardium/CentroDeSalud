@@ -29,6 +29,7 @@ builder.Services.AddTransient<IRepositorioDisponibilidadesMedicos, RepositorioDi
 builder.Services.AddTransient<IServicioPacientes, ServicioPacientes>();
 builder.Services.AddTransient<IServicioEmail, ServicioEmail>();
 builder.Services.AddTransient<IServicioMedicos, ServicioMedicos>();
+builder.Services.AddTransient<IServicioUsuariosLoginsExternos, ServicioUsuariosLoginsExternos>();
 
 builder.Services.AddTransient<IServicioCitas, ServicioCitas>();
 builder.Services.AddTransient<IServicioDisponibilidadesMedicos, ServicioDisponibilidadesMedicos>();
@@ -73,7 +74,12 @@ builder.Services.AddAuthentication(options =>
     {
         options.ClientId = builder.Configuration["GoogleClientId"];
         options.ClientSecret = builder.Configuration["GoogleSecretId"];
-        //options.Scope.Add("https://www.googleapis.com/auth/calendar.events"); //Acceso a Google Calendar
+        
+        options.Scope.Add("https://www.googleapis.com/auth/calendar.events"); //Acceso al scope de Google Calendar
+
+        //Solicitar refresh token
+        options.AccessType = "offline";
+        options.SaveTokens = true; //Permite guardar los tokens en la coockie
     });
 
 builder.Services.PostConfigure<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme,

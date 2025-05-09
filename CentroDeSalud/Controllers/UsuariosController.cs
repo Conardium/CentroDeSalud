@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 
 namespace CentroDeSalud.Controllers
 {
@@ -20,13 +21,16 @@ namespace CentroDeSalud.Controllers
         private readonly SignInManager<Usuario> signInManager;
         private readonly IServicioPacientes servicioPaciente;
         private readonly IServicioEmail servicioEmail;
+        private readonly IServicioUsuariosLoginsExternos servicioUsuariosLoginsExternos;
 
-        public UsuariosController(UserManager<Usuario> userManager, SignInManager<Usuario> signInManager, IServicioPacientes servicioPaciente, IServicioEmail servicioEmail)
+        public UsuariosController(UserManager<Usuario> userManager, SignInManager<Usuario> signInManager,
+            IServicioPacientes servicioPaciente, IServicioEmail servicioEmail, IServicioUsuariosLoginsExternos servicioUsuariosLoginsExternos)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.servicioPaciente = servicioPaciente;
             this.servicioEmail = servicioEmail;
+            this.servicioUsuariosLoginsExternos = servicioUsuariosLoginsExternos;
         }
 
         private string ObtenerClaim(ClaimsPrincipal principal, string tipoClaim)
@@ -69,19 +73,18 @@ namespace CentroDeSalud.Controllers
                 await userManager.AddToRoleAsync(usuario, Constantes.RolPaciente); //Le asignamos el rol "Paciente"
 
                 //Comprobamos si el register proviene de un proveedor externo
-                if (TempData["LoginProvider"] != null && TempData["ProviderKey"] != null)
+                if (TempData["LoginExterno"] != null)
                 {
-                    var loginExterno = new UserLoginInfo(
-                        TempData["LoginProvider"].ToString(),
-                        TempData["ProviderKey"].ToString(),
-                        TempData["ProviderDisplayName"].ToString());
+                    var loginExterno = new UsuarioLoginExterno();
+                    if (TempData["LoginExterno"] is string json)
+                        loginExterno = JsonSerializer.Deserialize<UsuarioLoginExterno>(json);
+
+                    loginExterno.UsuarioId = usuario.Id;
 
                     //Borramos los TempData
-                    TempData.Remove("LoginProvider");
-                    TempData.Remove("ProviderKey");
-                    TempData.Remove("ProviderDisplayName");
+                    TempData.Remove("LoginExterno");
 
-                    var resultadoAgregarLogin = await userManager.AddLoginAsync(usuario, loginExterno);
+                    var resultadoAgregarLogin = await servicioUsuariosLoginsExternos.AgregarLoginExterno(loginExterno);
 
                     if (resultadoAgregarLogin.Succeeded)
                     {
@@ -131,7 +134,8 @@ namespace CentroDeSalud.Controllers
             }
         }
 
-        // =============================== LOGIN EXTERNO =================================
+        #region Funcionalidad "Login Externo"
+
         [AllowAnonymous]
         [HttpGet]
         public ChallengeResult LoginExterno(string proveedor, string urlRetorno = null)
@@ -163,28 +167,75 @@ namespace CentroDeSalud.Controllers
             var info = await signInManager.GetExternalLoginInfoAsync();
             if (info is null)
             {
-                mensaje = "Error cargando la data de login externo";
+                mensaje = "Error cargando los datos del proveedor";
                 return RedirectToAction("Login", routeValues: new { mensaje });
             }
 
             var resultadoLoginExterno = await signInManager.ExternalLoginSignInAsync(info.LoginProvider,
                 info.ProviderKey, isPersistent: true, bypassTwoFactor: true);
 
-            // Ya la cuenta existe
+            //Comprobamos si hay un usuario con una cuenta vinculada al proveedor
             if (resultadoLoginExterno.Succeeded)
                 return LocalRedirect(urlRetorno);
-            
+
             //Recogemos los datos que queramos del login externo y preparamos el ViewModel para el register
             string email = ObtenerClaim(info.Principal, ClaimTypes.Email);
-            
-            if(email == null)
+
+            if (email == null)
             {
                 mensaje = "Error leyendo el email del usuario del proveedor";
                 return RedirectToAction("Login", routeValues: new { mensaje });
             }
 
+            //Recogemos los datos del proveedor externo
+            var accessToken = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "access_token")?.Value;
+            var refreshToken = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "refresh_token")?.Value;
+            var expiresAtString = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "expires_at")?.Value;
+
+            DateTime? expiresAt = null;
+            if (DateTime.TryParse(expiresAtString, out var parsedFecha))
+                expiresAt = parsedFecha;
+
+            var DatosProveedor = new UsuarioLoginExterno
+            {
+                LoginProvider = info.LoginProvider,
+                ProviderKey = info.ProviderKey,
+                ProviderDisplayName = info.ProviderDisplayName,
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+                TokenExpiraEn = expiresAt
+            };
+
+            //Comprobamos si el correo del usuario ya está registrado en nuestra web
+            var usuarioExiste = await userManager.FindByEmailAsync(email);
+
+            if(usuarioExiste != null) //Si existe, vinculamos el proveedor con ese usuario
+            {
+                DatosProveedor.UsuarioId = usuarioExiste.Id;
+                var resultadoAgregarLogin = await servicioUsuariosLoginsExternos.AgregarLoginExterno(DatosProveedor);
+
+                if (resultadoAgregarLogin.Succeeded)
+                {
+                    //Volvemos a intentar iniciar sesión
+                    resultadoLoginExterno = await signInManager.ExternalLoginSignInAsync(info.LoginProvider,
+                    info.ProviderKey, isPersistent: true, bypassTwoFactor: true);
+
+                    //Comprobamos si ya tiene la cuenta vinculada.
+                    if (resultadoLoginExterno.Succeeded)
+                        return LocalRedirect(urlRetorno);
+                }
+                else
+                {
+                    mensaje = "Error al intentar vincular el proveedor con su cuenta";
+                    return RedirectToAction("Login", routeValues: new { mensaje });
+                }
+            }
+
+            //Guardamos temporalmente estos datos para a futuro guardarlos en el usuarioLoginExterno
+            TempData["LoginExterno"] = JsonSerializer.Serialize(DatosProveedor);
+
             var nombre = ObtenerClaim(info.Principal, ClaimTypes.GivenName);
-            if(nombre == null)
+            if (nombre == null)
             {
                 mensaje = "Error leyendo el nombre del usuario del proveedor";
                 return RedirectToAction("Login", routeValues: new { mensaje });
@@ -192,21 +243,108 @@ namespace CentroDeSalud.Controllers
 
             var apellidos = ObtenerClaim(info.Principal, ClaimTypes.Surname);
 
-            var registroVM = new RegisterPacienteViewModel { 
-                Email = email, 
+            var registroVM = new RegisterPacienteViewModel
+            {
+                Email = email,
                 Nombre = nombre,
                 Apellidos = apellidos,
                 FechaNacimiento = DateTime.Now,
                 Sexo = Sexo.NoSeleccionado,
-                GrupoSanguineo = GrupoSanguineo.NoSeleccionado};
-
-            //Guardamos temporalmente estos datos para a futuro guardarlos en el usuarioLoginExterno
-            TempData["LoginProvider"] = info.LoginProvider;
-            TempData["ProviderKey"] = info.ProviderKey;
-            TempData["ProviderDisplayName"] = info.ProviderDisplayName;
+                GrupoSanguineo = GrupoSanguineo.NoSeleccionado
+            };
 
             return View("RegisterPaciente", registroVM);
         }
+
+        [Authorize(Roles = Constantes.RolPaciente)]
+        [HttpGet]
+        public ChallengeResult LoginConsentimiento(string proveedor, string urlRetorno = null)
+        {
+            var urlRedireccion = Url.Action("ConsentimientoCalendario");
+            var propiedades = signInManager
+                .ConfigureExternalAuthenticationProperties(proveedor, urlRedireccion);
+
+            if (proveedor == "Google")
+                propiedades.Items["prompt"] = "consent"; //Fuerzo la pantalla de consentimiento
+
+            return new ChallengeResult(proveedor, propiedades);
+        }
+
+        [Authorize(Roles = Constantes.RolPaciente)]
+        public async Task<IActionResult> ConsentimientoCalendario(string remoteError = null)
+        {
+            var mensaje = "";
+
+            if (remoteError is not null)
+            {
+                mensaje = $"Error del proveedor externo: {remoteError}";
+                return RedirectToAction("Login", routeValues: new { mensaje });
+            }
+
+            var info = await signInManager.GetExternalLoginInfoAsync();
+            if (info is null)
+            {
+                mensaje = "Error cargando los datos del proveedor";
+                return RedirectToAction("Login", routeValues: new { mensaje });
+            }
+
+            //Guardamos el nuevo access-token que da permisos para modificar el calendario
+            var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!Guid.TryParse(usuarioId, out Guid usuarioIdGuid))
+                return null;
+
+            var listaLogins = await servicioUsuariosLoginsExternos.ListadoLoginsExternos(usuarioIdGuid);
+            var loginGoogle = listaLogins.FirstOrDefault(l => l.LoginProvider == "Google");
+
+            var accessToken = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "access_token")?.Value;
+            var refreshToken = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "refresh_token")?.Value;
+            var expiresAtString = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "expires_at")?.Value;
+
+            DateTime? expiresAt = null;
+            if (DateTime.TryParse(expiresAtString, out var parsedFecha))
+                expiresAt = parsedFecha;
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                var aviso = new AvisoViewModel
+                {
+                    Titulo = "Error",
+                    Tipo = Constantes.Error,
+                    Mensaje = "No se pudieron obtener correctamente los datos del proveedor"
+                };
+                TempData["Acceso"] = true;
+                return RedirectToAction("AvisosGenerales", "Avisos", aviso);
+            }
+                
+
+            var resultado = await servicioUsuariosLoginsExternos.ActualizarConsentimientos(loginGoogle, accessToken, refreshToken, expiresAt);
+            if (resultado.Succeeded)
+            {
+                var aviso = new AvisoViewModel
+                {
+                    Titulo = "Exito",
+                    Tipo = Constantes.OK,
+                    Mensaje = "Sus permisos de Google han sido actualizados con exito, si quiere sincronizar cualquiera de sus citas con el calendario de Google dirígase a su perfil"
+                };
+                TempData["Acceso"] = true;
+                return RedirectToAction("AvisosGenerales", "Avisos", aviso);
+            }
+            else
+            {
+                var aviso = new AvisoViewModel
+                {
+                    Titulo = "Error",
+                    Tipo = Constantes.Error,
+                    Mensaje = "Ha habido un problema intentando actualizar sus permisos de Google, por favor intentelo de nuevo más tarde"
+                };
+                TempData["Acceso"] = true;
+                return RedirectToAction("AvisosGenerales", "Avisos", aviso);
+            }
+        }
+
+        #endregion
+
 
         [HttpPost]
         public async Task<IActionResult> Logout()
@@ -214,6 +352,8 @@ namespace CentroDeSalud.Controllers
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
             return RedirectToAction("Index", "Home");
         }
+
+        #region Funcionalidad del "Olvidar Contraseña"
 
         [HttpGet]
         [AllowAnonymous]
@@ -240,7 +380,7 @@ namespace CentroDeSalud.Controllers
             var codigo = await userManager.GeneratePasswordResetTokenAsync(usuario);
             //Convertimos a base64
             var codigoBase64 = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(codigo));
-            var enlace = Url.Action("RestablecerPassword", "Usuarios", new {codigo = codigoBase64}, protocol: Request.Scheme);
+            var enlace = Url.Action("RestablecerPassword", "Usuarios", new { codigo = codigoBase64 }, protocol: Request.Scheme);
 
             var nombreCompleto = usuario.Nombre + " " + usuario.Apellidos;
             await servicioEmail.EnviarRecuperarPassword(usuario.Email, usuario.Nombre, nombreCompleto, enlace);
@@ -254,8 +394,14 @@ namespace CentroDeSalud.Controllers
         {
             if (codigo is null)
             {
-                TempData["Denegado"] = true;
-                return RedirectToAction("AccesoDenegado", "Home");
+                TempData["Acceso"] = true;
+                var aviso = new AvisoViewModel
+                {
+                    Titulo = "Acceso denegado",
+                    Tipo = Constantes.Denegado,
+                    Mensaje = "No tienes los permisos suficientes para acceder a esta página"
+                };
+                return RedirectToAction("AvisosGenerales", "Avisos", aviso);
             }
 
             var modelo = new RestablecerPasswordViewModel();
@@ -274,7 +420,7 @@ namespace CentroDeSalud.Controllers
             {
                 return RedirectToAction("PasswordCambiado");
             }
-                
+
 
             var resultado = await userManager.ResetPasswordAsync(usuario, modelo.CodigoReseteo, modelo.Password);
             return RedirectToAction("PasswordCambiado");
@@ -291,5 +437,15 @@ namespace CentroDeSalud.Controllers
             TempData.Remove("PasswordCambiado");
             return View();
         }
+
+        #endregion
+
+
+        /*
+            var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!Guid.TryParse(usuarioId, out Guid id))
+                return null;
+         */
     }
 }
