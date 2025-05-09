@@ -28,13 +28,4 @@ public class HomeController : Controller
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
-
-    public IActionResult AccesoDenegado()
-    {
-        if (!TempData.ContainsKey("Denegado"))
-            return NotFound();
-
-        TempData.Remove("Denegado");
-        return View();
-    }
 }
