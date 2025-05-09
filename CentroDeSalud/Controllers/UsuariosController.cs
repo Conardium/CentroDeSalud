@@ -3,7 +3,6 @@ using CentroDeSalud.Enumerations;
 using CentroDeSalud.Infrastructure.Services;
 using CentroDeSalud.Models;
 using CentroDeSalud.Models.ViewModels;
-using CentroDeSalud.Repositories;
 using CentroDeSalud.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -168,7 +167,7 @@ namespace CentroDeSalud.Controllers
             var info = await signInManager.GetExternalLoginInfoAsync();
             if (info is null)
             {
-                mensaje = "Error cargando la data de login externo";
+                mensaje = "Error cargando los datos del proveedor";
                 return RedirectToAction("Login", routeValues: new { mensaje });
             }
 
@@ -257,6 +256,93 @@ namespace CentroDeSalud.Controllers
             return View("RegisterPaciente", registroVM);
         }
 
+        [Authorize(Roles = Constantes.RolPaciente)]
+        [HttpGet]
+        public ChallengeResult LoginConsentimiento(string proveedor, string urlRetorno = null)
+        {
+            var urlRedireccion = Url.Action("ConsentimientoCalendario");
+            var propiedades = signInManager
+                .ConfigureExternalAuthenticationProperties(proveedor, urlRedireccion);
+
+            if (proveedor == "Google")
+                propiedades.Items["prompt"] = "consent"; //Fuerzo la pantalla de consentimiento
+
+            return new ChallengeResult(proveedor, propiedades);
+        }
+
+        [Authorize(Roles = Constantes.RolPaciente)]
+        public async Task<IActionResult> ConsentimientoCalendario(string remoteError = null)
+        {
+            var mensaje = "";
+
+            if (remoteError is not null)
+            {
+                mensaje = $"Error del proveedor externo: {remoteError}";
+                return RedirectToAction("Login", routeValues: new { mensaje });
+            }
+
+            var info = await signInManager.GetExternalLoginInfoAsync();
+            if (info is null)
+            {
+                mensaje = "Error cargando los datos del proveedor";
+                return RedirectToAction("Login", routeValues: new { mensaje });
+            }
+
+            //Guardamos el nuevo access-token que da permisos para modificar el calendario
+            var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!Guid.TryParse(usuarioId, out Guid usuarioIdGuid))
+                return null;
+
+            var listaLogins = await servicioUsuariosLoginsExternos.ListadoLoginsExternos(usuarioIdGuid);
+            var loginGoogle = listaLogins.FirstOrDefault(l => l.LoginProvider == "Google");
+
+            var accessToken = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "access_token")?.Value;
+            var refreshToken = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "refresh_token")?.Value;
+            var expiresAtString = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "expires_at")?.Value;
+
+            DateTime? expiresAt = null;
+            if (DateTime.TryParse(expiresAtString, out var parsedFecha))
+                expiresAt = parsedFecha;
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                var aviso = new AvisoViewModel
+                {
+                    Titulo = "Error",
+                    Tipo = Constantes.Error,
+                    Mensaje = "No se pudieron obtener correctamente los datos del proveedor"
+                };
+                TempData["Acceso"] = true;
+                return RedirectToAction("AvisosGenerales", "Avisos", aviso);
+            }
+                
+
+            var resultado = await servicioUsuariosLoginsExternos.ActualizarConsentimientos(loginGoogle, accessToken, refreshToken, expiresAt);
+            if (resultado.Succeeded)
+            {
+                var aviso = new AvisoViewModel
+                {
+                    Titulo = "Exito",
+                    Tipo = Constantes.OK,
+                    Mensaje = "Sus permisos de Google han sido actualizados con exito, si quiere sincronizar cualquiera de sus citas con el calendario de Google dirígase a su perfil"
+                };
+                TempData["Acceso"] = true;
+                return RedirectToAction("AvisosGenerales", "Avisos", aviso);
+            }
+            else
+            {
+                var aviso = new AvisoViewModel
+                {
+                    Titulo = "Error",
+                    Tipo = Constantes.Error,
+                    Mensaje = "Ha habido un problema intentando actualizar sus permisos de Google, por favor intentelo de nuevo más tarde"
+                };
+                TempData["Acceso"] = true;
+                return RedirectToAction("AvisosGenerales", "Avisos", aviso);
+            }
+        }
+
         #endregion
 
 
@@ -308,8 +394,14 @@ namespace CentroDeSalud.Controllers
         {
             if (codigo is null)
             {
-                TempData["Denegado"] = true;
-                return RedirectToAction("AccesoDenegado", "Home");
+                TempData["Acceso"] = true;
+                var aviso = new AvisoViewModel
+                {
+                    Titulo = "Acceso denegado",
+                    Tipo = Constantes.Denegado,
+                    Mensaje = "No tienes los permisos suficientes para acceder a esta página"
+                };
+                return RedirectToAction("AvisosGenerales", "Avisos", aviso);
             }
 
             var modelo = new RestablecerPasswordViewModel();

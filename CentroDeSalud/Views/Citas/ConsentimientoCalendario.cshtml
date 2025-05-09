@@ -1,0 +1,30 @@
+﻿@{
+	ViewData["Title"] = "Permisos insuficientes";
+}
+
+<div class="row justify-content-center">
+	<div class="col-md-8">
+		<div class="d-flex justify-content-center">
+			<img class="img-fluid" style="min-height: 200px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));" src="~/images/icons8-permisos.svg" alt="ImagenKeys" />
+		</div>
+
+		<div class="d-flex justify-content-center mb-3">
+			<h1>Permisos insuficientes</h1>
+		</div>
+
+		<div class="d-flex justify-content-center mb-4" style="font-size: 18px; text-align:center">
+			Parece que no tenemos los permisos necesarios para sincronizar su cita con su calendario.
+			Por favor pulse en el boton de abajo para concedernos los permisos necesarios para añadir su cita a su calendario.
+		</div>
+
+		<div class="d-flex justify-content-center mb-4" style="font-size: 18px;">
+			<a class="d-flex gap-2 btn btn-light btn-outline-dark w-50 d-flex align-items-center justify-content-center" asp-action="LoginConsentimiento" asp-controller="Usuarios" asp-route-proveedor="Google">
+				<img src="~/images/icons8-logo-de-google.svg" width="20" height="20" alt="Google"/> Conceder permisos
+			</a>
+		</div>
+
+		<div class="d-flex justify-content-center" style="font-size: 18px;">
+			<a class="d-flex btn-secondary btn w-25 d-flex align-items-center justify-content-center" asp-action="Index" asp-controller="Home">Cancelar</a>
+		</div>
+	</div>
+</div>

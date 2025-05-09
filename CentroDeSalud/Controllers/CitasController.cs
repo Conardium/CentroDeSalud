@@ -1,4 +1,5 @@
 ﻿using CentroDeSalud.Data;
+using CentroDeSalud.Infrastructure.Utilidades;
 using CentroDeSalud.Models;
 using CentroDeSalud.Models.Requests;
 using CentroDeSalud.Models.ViewModels;
@@ -7,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore.Query;
+using System.Net;
 using System.Security.Claims;
 
 namespace CentroDeSalud.Controllers
@@ -57,16 +58,28 @@ namespace CentroDeSalud.Controllers
 
             if (usuarioId is null)
             {
-                TempData["Denegado"] = true;
-                return RedirectToAction("AccesoDenegado", "Home");
+                TempData["Acceso"] = true;
+                var aviso = new AvisoViewModel
+                {
+                    Titulo = "Acceso denegado",
+                    Tipo = Constantes.Denegado,
+                    Mensaje = "No tienes los permisos suficientes para acceder a esta página"
+                };
+                return RedirectToAction("AvisosGenerales", "Avisos", aviso);
             }
 
             var usuario = await userManager.FindByIdAsync(usuarioId);        
 
             if (usuario is null)
             {
-                TempData["Denegado"] = true;
-                return RedirectToAction("AccesoDenegado", "Home");
+                TempData["Acceso"] = true;
+                var aviso = new AvisoViewModel
+                {
+                    Titulo = "Acceso denegado",
+                    Tipo = Constantes.Denegado,
+                    Mensaje = "No tienes los permisos suficientes para acceder a esta página"
+                };
+                return RedirectToAction("AvisosGenerales", "Avisos", aviso);
             }
 
             //SI el usuario exite en la BD
@@ -120,15 +133,36 @@ namespace CentroDeSalud.Controllers
             if (!Guid.TryParse(usuarioId, out Guid usuarioIdGuid))
                 return null;
 
-            var resultado = await servicioCitas.SincronizarCita(usuarioIdGuid, id);
+            var resultado = new ResultadoOperacion<bool>();
 
+            try
+            {
+                resultado = await servicioCitas.SincronizarCita(usuarioIdGuid, id);
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Forbidden)
+            {
+                return View("ConsentimientoCalendario");
+            }
             if (resultado.TieneError)
             {
-                ViewBag.IdCita = id;
-                ViewBag.MensajeError = resultado.MensajeError;
-                return RedirectToAction("CitaSolicitada", new { id });
+                var avisoError = new AvisoViewModel
+                {
+                    Titulo = "Error",
+                    Tipo = Constantes.Error,
+                    Mensaje = resultado.MensajeError,
+                };
+                TempData["Acceso"] = true;
+                return RedirectToAction("AvisosGenerales", "Avisos", avisoError);
             }
-            return RedirectToAction("Index", "Home");
+
+            var avisoOK = new AvisoViewModel
+            {
+                Titulo = "Exito",
+                Tipo = Constantes.OK,
+                Mensaje = "Su cita se ha sincronizado correctamente con su calendario de Google",
+            };
+            TempData["Acceso"] = true;
+            return RedirectToAction("AvisosGenerales", "Avisos", avisoOK);
         }
 
         [HttpPost]
