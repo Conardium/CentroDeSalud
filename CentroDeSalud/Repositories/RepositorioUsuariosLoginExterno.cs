@@ -9,6 +9,7 @@ namespace CentroDeSalud.Repositories
     public interface IRepositorioUsuariosLoginExterno
     {
         Task<IdentityResult> ActualizarAccessToken(string loginProvider, string providerKey, string accessToken, DateTime fechaExp);
+        Task<IdentityResult> ActualizarLoginExterno(string loginProvider, string providerKey, string accessToken, string refreshToken, DateTime? fechaExp);
         Task EliminarLoginExterno(Guid usuarioId, string loginProvider, string providerKey);
         public Task<IdentityResult> InsertarLoginExterno(UsuarioLoginExterno usuarioLoginExterno);
         Task<IEnumerable<UsuarioLoginExterno>> ListadoLoginsPorUsuarioId(Guid usuarioId);
@@ -75,6 +76,18 @@ namespace CentroDeSalud.Repositories
                        new { AccessToken = accessToken, TokenExpiraEn = fechaExp, LoginProvider = loginProvider, ProviderKey = providerKey });
             
             return IdentityResult.Success; 
+        }
+
+        public async Task<IdentityResult> ActualizarLoginExterno(string loginProvider, string providerKey, string accessToken, string refreshToken, DateTime? fechaExp)
+        {
+            using var conexion = new SqlConnection(_connectionString);
+            await conexion.ExecuteAsync(@"Update UsuariosLoginExterno 
+                       SET AccessToken = @AccessToken, RefreshToken = @RefreshToken, TokenExpiraEn = @TokenExpiraEn
+                       WHERE LoginProvider = @LoginProvider AND ProviderKey = @ProviderKey",
+                       new { AccessToken = accessToken, RefreshToken = refreshToken, 
+                           TokenExpiraEn = fechaExp, LoginProvider = loginProvider, ProviderKey = providerKey });
+
+            return IdentityResult.Success;
         }
     }
 }

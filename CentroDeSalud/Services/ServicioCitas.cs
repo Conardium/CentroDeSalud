@@ -2,11 +2,13 @@
 using CentroDeSalud.Infrastructure.Utilidades;
 using CentroDeSalud.Models;
 using CentroDeSalud.Repositories;
+using Google;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Calendar.v3;
 using Google.Apis.Calendar.v3.Data;
 using Google.Apis.Services;
 using System.Globalization;
+using System.Net;
 
 namespace CentroDeSalud.Services
 {
@@ -159,7 +161,14 @@ namespace CentroDeSalud.Services
             };
 
             //Enviamos el evento al calendario
-            await servicioCalendar.Events.Insert(evento, "primary").ExecuteAsync();
+            try
+            {
+                await servicioCalendar.Events.Insert(evento, "primary").ExecuteAsync();
+            }
+            catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.Forbidden)
+            {
+                throw new HttpRequestException("No se tienen los permisos para acceder al calendario de Google", ex, HttpStatusCode.Forbidden);
+            }
 
             return ResultadoOperacion<bool>.Exito(true);
         }

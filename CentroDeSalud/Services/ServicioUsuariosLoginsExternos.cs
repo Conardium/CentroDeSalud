@@ -8,6 +8,7 @@ namespace CentroDeSalud.Services
 {
     public interface IServicioUsuariosLoginsExternos
     {
+        Task<IdentityResult> ActualizarConsentimientos(UsuarioLoginExterno loginGoogle, string accessToken, string refreshToken, DateTime? expiresAt);
         Task<IdentityResult> AgregarLoginExterno(UsuarioLoginExterno usuarioLoginExterno);
         Task<bool> ComprobarCaducidadToken(Guid usuarioId);
         Task<IEnumerable<UsuarioLoginExterno>> ListadoLoginsExternos(Guid usuarioId);
@@ -101,6 +102,19 @@ namespace CentroDeSalud.Services
             }
 
             return false;
+        }
+
+        public async Task<IdentityResult> ActualizarConsentimientos(UsuarioLoginExterno loginGoogle, string accessToken, string refreshToken, DateTime? expiresAt)
+        {
+            loginGoogle.AccessToken = accessToken;
+            
+            if(refreshToken != null)
+                loginGoogle.RefreshToken = refreshToken;
+
+            loginGoogle.TokenExpiraEn = loginGoogle.TokenExpiraEn < expiresAt ? expiresAt : loginGoogle.TokenExpiraEn;
+
+            return await repositorioUsuariosLoginExterno.ActualizarLoginExterno(loginGoogle.LoginProvider, loginGoogle.ProviderKey, 
+                loginGoogle.AccessToken, loginGoogle.RefreshToken, loginGoogle.TokenExpiraEn);
         }
     }
 }
