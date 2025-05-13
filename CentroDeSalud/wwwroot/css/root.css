@@ -24,6 +24,11 @@ body{
     color: white !important;
 }
 
+.VerdeOscuro {
+    background-color: var(--color-dark-green);
+    color: white;
+}
+
 input[readonly] {
     background-color: darkgray;
     color: var(--color-dark-gray);
@@ -57,5 +62,9 @@ input[readonly] {
 
 .boton-Verde-Oscuro:active{
     background-color: var(--color-dark-green) !important;
+    color: white !important;
+}
+
+.textoBlanco{
     color: white !important;
 }
