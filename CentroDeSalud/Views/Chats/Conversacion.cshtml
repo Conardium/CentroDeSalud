@@ -1,0 +1,57 @@
+﻿@using CentroDeSalud.Models.ViewModels
+@model MensajeViewModel
+
+@{
+    ViewData["Title"] = "Chat en linea";
+}
+
+<link rel="stylesheet" href="~/css/Conversacion.css" asp-append-version="true" />
+
+<h2>Chat en linea</h2>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-body">
+                <form asp-action="">
+                    <div class="form-group d-flex gap-2 mb-3">
+                        <textarea asp-for="Texto" class="form-control auto-grow" rows="1" style="resize: none; max-height: 180px;" placeholder="Escriba su mensaje aquí..."></textarea>
+                        <span asp-validation-for="Texto" class="text-danger"></span>
+                        <button title="Enviar" class="btn boton-Verde-Oscuro" type="submit"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </form>
+                <hr />
+                <div id="contenedorMensajes">
+                    @{
+                        DateTime? fechaAnterior = null;
+                        var hoy = DateTime.Now.Date;
+                        @foreach (var mensaje in Model.Mensajes)
+                        {
+                            var fechaMensaje = mensaje.FechaEnvio.Date;
+
+                            if(fechaAnterior == null || fechaAnterior != fechaMensaje)
+                            {
+                                fechaAnterior = fechaMensaje;
+                                <div class="my-2 text-center">
+                                    <span class="badge VerdeOscuro px-3 py-2" style="">
+                                        @(fechaMensaje == hoy ? "Hoy" : @mensaje.FechaEnvio.ToString("dd/MM/yyy"))
+                                    </span>
+                                </div>
+                            }
+
+                            <div class="d-flex mb-2 @(mensaje.RemitenteId == Model.UsuarioId ? "justify-content-end" : "justify-content-start")">
+                                <div class="mensaje @(mensaje.RemitenteId == Model.UsuarioId ? "mio" : "otro")">
+                                    @mensaje.Contenido
+                                    <br />
+                                    <p class="form-text horaMensaje">@mensaje.FechaEnvio.ToString("HH:mm")</p>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/Conversacion.js"></script>

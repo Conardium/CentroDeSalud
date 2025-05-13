@@ -21,6 +21,11 @@
 						<i class="fa-solid fa-file-waveform w-4 text-center" style="width: 20px;"></i> Ver Informes
 					</a>
 				</li>
+				<li>
+					<a class="dropdown-item d-flex align-items-center gap-2" asp-controller="Chats" asp-action="Index" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)">
+						<i class="fa-solid fa-comments w-4 text-center" style="width: 20px;"></i> Mis chats
+					</a>
+				</li>
 				<li><hr class="dropdown-divider"/></li>
 				<li>
 					<form asp-controller="Usuarios" asp-action="Logout">
