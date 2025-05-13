@@ -18,8 +18,6 @@ namespace CentroDeSalud.Models
         [RegularExpression("^[1-3]$", ErrorMessage = "Seleccione un sexo válido")]
         public Sexo Sexo { get; set; }
 
-        public ICollection<Cita> Citas { get; set; }
-
         public ICollection<DisponibilidadMedico> DisponibilidadesMedico { get; set; }
     }
 }

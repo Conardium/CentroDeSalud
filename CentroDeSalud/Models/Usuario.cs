@@ -48,5 +48,11 @@ namespace CentroDeSalud.Models
         public Rol Rol { get; set; } //Variable de navegacion con Rol
 
         public ICollection<UsuarioLoginExterno> LoginsExternos { get; set; }
+
+        public ICollection<Cita> Citas { get; set; }
+
+        public ICollection<Chat> Chats { get; set; }
+        public ICollection<Mensaje> MensajesRecibidos { get; set; }
+        public ICollection<Mensaje> MensajesEnviados { get; set; }
     }
 }
