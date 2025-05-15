@@ -21,18 +21,23 @@ builder.Services.AddTransient<IRepositorioPacientes, RepositorioPacientes>();
 builder.Services.AddTransient<IRepositorioRoles, RepositorioRoles>();
 builder.Services.AddTransient<IRepositorioUsuariosLoginExterno, RepositorioUsuariosLoginExterno>();
 builder.Services.AddTransient<IRepositorioMedicos, RepositorioMedicos>();
-
 builder.Services.AddTransient<IRepositorioCitas, RepositorioCitas>();
 builder.Services.AddTransient<IRepositorioDisponibilidadesMedicos, RepositorioDisponibilidadesMedicos>();
+
+builder.Services.AddTransient<IRepositorioChats, RepositorioChats>();
+builder.Services.AddTransient<IRepositorioMensajes, RepositorioMensajes>();
 
 //============================ SERVICIOS ===============================
 builder.Services.AddTransient<IServicioPacientes, ServicioPacientes>();
 builder.Services.AddTransient<IServicioEmail, ServicioEmail>();
 builder.Services.AddTransient<IServicioMedicos, ServicioMedicos>();
 builder.Services.AddTransient<IServicioUsuariosLoginsExternos, ServicioUsuariosLoginsExternos>();
-
 builder.Services.AddTransient<IServicioCitas, ServicioCitas>();
 builder.Services.AddTransient<IServicioDisponibilidadesMedicos, ServicioDisponibilidadesMedicos>();
+
+builder.Services.AddTransient<IServicioChats, ServicioChats>();
+builder.Services.AddTransient<IServicioMensajes, ServicioMensajes>();
+builder.Services.AddSignalR(); //Servicio del chat en linea
 
 //============================ IDENTITY ===============================
 builder.Services.AddTransient<IUserClaimsPrincipalFactory<Usuario>, CustomClaimsPrincipalFactory>();//Claims Personalizado
@@ -145,5 +150,6 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+app.MapHub<ChatHub>("/chathub"); // Ruta de SignalR para el cliente JS
 
 app.Run();

@@ -6,9 +6,9 @@
 	@if (SignInManager.IsSignedIn(User)) //Comprueba si el usuario está autenticado
 	{
 		<li class="nav-item dropdown">
-			<a class="nav-link dropdown-toggle text-dark d-flex align-items-center gap-2" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-				<i class="fa-solid fa-user"></i>
+			<a class="nav-link text-light dropdown-toggle d-flex align-items-center gap-2" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 				@User.FindFirst("NombreReal")?.Value (@User.Claims.FirstOrDefault(c => c.Type.Contains("role"))?.Value)
+				<i class="fa-solid fa-user"></i>
 			</a>
 			<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
 				<li>
@@ -19,6 +19,11 @@
 				<li>
 					<a class="dropdown-item d-flex align-items-center gap-2" asp-controller="Informes" asp-action="ListadoInformes">
 						<i class="fa-solid fa-file-waveform w-4 text-center" style="width: 20px;"></i> Ver Informes
+					</a>
+				</li>
+				<li>
+					<a class="dropdown-item d-flex align-items-center gap-2" asp-controller="Chats" asp-action="Index" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)">
+						<i class="fa-solid fa-comments w-4 text-center" style="width: 20px;"></i> Mis chats
 					</a>
 				</li>
 				<li><hr class="dropdown-divider"/></li>
@@ -35,10 +40,10 @@
 	else
 	{
 		<li class="nav-item">
-			<a class="nav-link dark-text" asp-action="RegisterPaciente" asp-controller="usuarios">Registrarse</a>
+			<a class="btn btn-outline-light rounded-pill me-2" asp-action="RegisterPaciente" asp-controller="usuarios">Registrarse</a>
 		</li>
 		<li class="nav-item">
-			<a class="nav-link dark-text" asp-action="Login" asp-controller="usuarios">Login</a>
+			<a class="btn btn-outline-light rounded-pill" asp-action="Login" asp-controller="usuarios">Login</a>
 		</li>
 	}
 </ul>

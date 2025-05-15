@@ -24,6 +24,33 @@ body{
     color: white !important;
 }
 
+.nav-link-custom {
+    position: relative;
+    display: inline-block;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.nav-link-custom::after{
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 0%;
+    background-color: var(--color-keppel);
+    transition: width 0.2s ease-in-out;
+}
+
+.nav-link-custom:hover::after {
+    width: 100%;
+}
+
+.VerdeOscuro {
+    background-color: var(--color-dark-green);
+    color: white;
+}
+
 input[readonly] {
     background-color: darkgray;
     color: var(--color-dark-gray);
@@ -57,5 +84,9 @@ input[readonly] {
 
 .boton-Verde-Oscuro:active{
     background-color: var(--color-dark-green) !important;
+    color: white !important;
+}
+
+.textoBlanco{
     color: white !important;
 }

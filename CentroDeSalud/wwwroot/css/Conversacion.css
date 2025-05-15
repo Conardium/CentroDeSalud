@@ -1,0 +1,32 @@
+﻿#contenedorMensajes{
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
+.mensaje {
+    max-width: 60%;
+    min-width: 10%;
+    padding: 8px 10px;
+    border-radius: 1rem;
+    font-size: 0.95rem;
+    word-wrap: break-word;
+}
+
+.horaMensaje{
+    display: flex;
+    justify-content: end;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.mio {
+    background-color: #d1e7dd; /* verde claro tipo WhatsApp */
+    color: #000;
+    border-bottom-right-radius: 0;
+}
+
+.otro {
+    background-color: #f1f1f1;
+    color: #000;
+    border-bottom-left-radius: 0;
+}

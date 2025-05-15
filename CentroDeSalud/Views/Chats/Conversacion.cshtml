@@ -1,0 +1,124 @@
+﻿@using CentroDeSalud.Models.ViewModels
+@model MensajeViewModel
+
+@{
+    ViewData["Title"] = "Chat en linea";
+}
+
+<link rel="stylesheet" href="~/css/Conversacion.css" asp-append-version="true" />
+
+<h2>Chat en linea</h2>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-body px-3 py-2">
+                <div id="contenedorMensajes" style="min-height:50vh;">
+                    @{
+                        DateTime? fechaAnterior = null;
+                        var hoy = DateTime.Now.Date;
+                        @foreach (var mensaje in Model.Mensajes)
+                        {
+                            var fechaMensaje = mensaje.FechaEnvio.Date;
+
+                            if(fechaAnterior == null || fechaAnterior != fechaMensaje)
+                            {
+                                fechaAnterior = fechaMensaje;
+                                <div class="my-2 text-center">
+                                    <span class="badge VerdeOscuro px-3 py-2" style="">
+                                        @(fechaMensaje == hoy ? "Hoy" : @mensaje.FechaEnvio.ToString("dd/MM/yyy"))
+                                    </span>
+                                </div>
+                            }
+
+                            <div class="d-flex mb-2 @(mensaje.RemitenteId == Model.UsuarioId ? "justify-content-end" : "justify-content-start")">
+                                <div class="mensaje @(mensaje.RemitenteId == Model.UsuarioId ? "mio" : "otro")">
+                                    @mensaje.Contenido
+                                    <br />
+                                    <p class="form-text horaMensaje">@mensaje.FechaEnvio.ToString("HH:mm")</p>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+                <hr />
+                <form id="formulario-mensaje">
+                    <div class="form-group d-flex gap-2 mb-3">
+                        <textarea id="Texto" asp-for="Texto" class="form-control auto-grow" rows="1" style="resize: none; max-height: 180px;" placeholder="Escriba su mensaje aquí..."></textarea>
+                        <span id="Avisos" class="text-danger"></span>
+                        <button id="botonEnviar" title="Enviar" class="btn boton-Verde-Oscuro" type="submit"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="~/js/Conversacion.js"></script>
+    <script src="~/lib/signalr/signalr.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        debugger;
+        const usuarioId = '@Model.UsuarioId';
+        const chatId = '@Model.ChatId';
+        const conexion = new signalR.HubConnectionBuilder().withUrl("/chathub").build();
+
+        //Desactivamos inicialmente el boton de envio hasta que se establezca la conexion
+        document.getElementById("botonEnviar").disabled = true;
+
+        //Al recibir un mensaje
+        conexion.on("RecibirMensaje", function(remitenteId, mensaje, horaEnvio){
+            debugger;
+            const esMio = remitenteId === usuarioId;
+            const lado = esMio ? "end" : "start";
+            const colorMensaje = esMio ? "mio" : "otro";
+
+            const html = `
+            <div class="d-flex mb-2 justify-content-${lado}">
+                <div class="mensaje ${colorMensaje}">
+                    ${mensaje}
+                    <br />
+                    <p class="form-text horaMensaje">${horaEnvio}</p>
+                </div>
+            </div>`;
+
+            document.getElementById("contenedorMensajes").innerHTML += html;
+        });
+
+        //Al comenzar la conexion, se agrega el cliente al grupo
+        conexion.start().then(function(){
+            debugger
+            document.getElementById("botonEnviar").disabled = false;
+            conexion.invoke("UnirseAlChat", chatId);
+        });
+
+        //Enviar el mensaje
+        document.getElementById("formulario-mensaje").addEventListener("submit", function (e){
+            debugger;
+            e.preventDefault(); //Previene que el formulario actue de manera natural y no envie el formulario o recargue la pagina
+            const input = document.getElementById("Texto");
+            const mensaje = input.value;
+
+            const modelo = {
+                UsuarioId: usuarioId,
+                ChatId: chatId,
+                Texto: mensaje,
+                
+            };
+
+            if(mensaje.trim() !== ""){
+                conexion.invoke("EnviarMensaje", modelo)
+                .then(() => {
+                    input.value = "";
+                    document.getElementById("Avisos").innerHTML = "";
+                })
+                .catch(err => {
+                    document.getElementById("Avisos").innerHTML = "El texto contiene carácteres inválidos";
+                });
+            }
+        });
+    </script>
+}

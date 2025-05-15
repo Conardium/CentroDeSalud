@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using CentroDeSalud.Models;
+using static Dapper.SqlMapper;
 
 namespace CentroDeSalud.Data
 {
@@ -15,6 +16,8 @@ namespace CentroDeSalud.Data
         public DbSet<UsuarioLoginExterno> UsuariosLoginExterno { get; set; }
         public DbSet<Cita> Citas { get; set; }
         public DbSet<DisponibilidadMedico> DisponibilidadesMedicos { get; set; }
+        public DbSet<Chat> Chats { get; set; }
+        public DbSet<Mensaje> Mensajes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,24 +30,29 @@ namespace CentroDeSalud.Data
             modelBuilder.Entity<UsuarioLoginExterno>().ToTable("UsuariosLoginExterno");
             modelBuilder.Entity<Cita>().ToTable("Citas");
             modelBuilder.Entity<DisponibilidadMedico>().ToTable("DisponibilidadesMedicos");
+            modelBuilder.Entity<Chat>().ToTable("Chats");
+            modelBuilder.Entity<Mensaje>().ToTable("Mensajes");
 
             //========================== RELACIONES ===============================
+            //===> USUARIO
             modelBuilder.Entity<Usuario>()
                 .HasOne(u => u.Rol)
                 .WithMany(r => r.Usuarios)
                 .HasForeignKey(u => u.RolId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            //===> LOGIN EXTERNO
             modelBuilder.Entity<UsuarioLoginExterno>(entity =>
             {
                 //Indice unico para evitar duplicados por proveedor+clave
                 entity.HasIndex(e => new { e.LoginProvider, e.ProviderKey }).IsUnique();
 
-                //Clave foranea
+                //FKs
                 entity.HasOne<Usuario>().WithMany(u => u.LoginsExternos).HasForeignKey(e => e.UsuarioId)
                 .OnDelete(DeleteBehavior.Cascade);
             });
 
+            //===> CITA
             modelBuilder.Entity<Cita>()
                 .HasOne(p => p.Paciente)
                 .WithMany(c => c.Citas)
@@ -59,7 +67,35 @@ namespace CentroDeSalud.Data
 
             modelBuilder.Entity<Cita>()
                 .HasIndex(c => new { c.Fecha, c.Hora })
-                .IsUnique();
+            .IsUnique();
+
+            //===> CHAT
+            modelBuilder.Entity<Chat>().HasIndex(c => new { c.PacienteId, c.MedicoId }).IsUnique();
+
+            modelBuilder.Entity<Chat>()
+                .HasOne(p => p.Paciente)
+                .WithMany(c => c.Chats)
+                .HasForeignKey(c => c.PacienteId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Chat>()
+                .HasOne(m => m.Medico)
+                .WithMany(c => c.Chats)
+                .HasForeignKey(c => c.MedicoId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //===> MENSAJE
+            modelBuilder.Entity<Mensaje>()
+                .HasOne(u => u.UsuarioRemitente)
+                .WithMany(m => m.MensajesEnviados)
+                .HasForeignKey(m => m.RemitenteId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Mensaje>()
+                .HasOne(u => u.UsuarioReceptor)
+                .WithMany(m => m.MensajesRecibidos)
+                .HasForeignKey(m => m.ReceptorId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

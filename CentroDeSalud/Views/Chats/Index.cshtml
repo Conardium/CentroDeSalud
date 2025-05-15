@@ -1,0 +1,42 @@
+﻿@using CentroDeSalud.Models.ViewModels
+@model IEnumerable<ChatInfoViewModel>
+
+@{
+    ViewData["Title"] = "Mis Chats";
+}
+
+<h2 class="mt-4 row justify-content-center mb-3">Mis chats</h2>
+
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        @if(Model.Count() != 0)
+        {
+            @foreach (var chat in Model)
+            {
+                <div class="card shadow mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">@(chat.NombreMedico == null ? chat.NombrePaciente : chat.NombreMedico)</h5>
+
+                        @if (chat.FechaUltimoMensaje == null)
+                        {
+                            <p class="card-text">Sin mensajes</p>
+                        }
+                        else
+                        {
+                            <p class="card-text"><u>Ult. mensaje:</u> @chat.FechaUltimoMensaje</p>
+                        }
+
+                        <a class="btn boton-Verde-Oscuro" asp-action="Conversacion" asp-controller="Chats" asp-route-id="@chat.ChatId">Entrar</a>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="d-flex row justify-content-center">
+                <p class="text-center form-text" style="font-size: 16px;">Su listado de chats está vacío</p>
+                <img class="img-fluid" style="max-height: 200px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));" src="~/images/icons8-buzon.svg" alt="BuzónVacío" />
+            </div>
+        }
+    </div>
+</div>
