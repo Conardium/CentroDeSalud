@@ -16,7 +16,7 @@
             <div class="card-body">
                 <form asp-action="PedirCita" method="post">
                     <div class="form-group mb-3">
-                        <label asp-for="MedicoId" class="control-label"></label>
+                        <label asp-for="MedicoId" class="control-label"></label> <span class="text-danger">*</span>
                         <select asp-for="MedicoId" class="form-control" id="MedicoId">
                             <option value="@Guid.Empty">Seleccione un médico</option>
                             @if (Model.Medicos != null && Model.Medicos.Any())
@@ -32,19 +32,19 @@
 
                     <div class="d-flex gap-4 mb-3">
                         <div class="form-group w-25">
-                            <label asp-for="Fecha" class="control-label"></label>
+                            <label asp-for="Fecha" class="control-label"></label> <span class="text-danger">*</span>
                             <input asp-for="Fecha" class="form-control" type="date" id="Fecha" min="@DateTime.Now.ToString("yyyy-MM-dd")" readonly />
                             <span asp-validation-for="Fecha" class="text-danger"></span>
                         </div>
 
                         <div id="divHora" class="form-group w-auto" style="display:none">
-                            <label for="Hora" class="control-label">Hora</label>
+                            <label for="Hora" class="control-label">Hora</label> <span class="text-danger">*</span>
                             <select id="Hora" name="Hora" class="form-control"></select>
                         </div>
                     </div>
 
                     <div id="divMotivo" class="form-group mb-3" style="display:none">
-                        <label asp-for="Motivo" class="control-label"></label>
+                        <label asp-for="Motivo" class="control-label"></label> <span class="text-danger">*</span>
                         <input asp-for="Motivo" class="form-control" />
                         <span asp-validation-for="Motivo" class="text-danger"></span>
                     </div>
