@@ -8,6 +8,8 @@ namespace CentroDeSalud.Models.ViewModels
     {
         public Guid UsuarioId { get; set; }
 
+        public Guid ChatId { get; set; }
+
         [Required]
         [MaxLength(250)]
         [EvitarInyecciones]
