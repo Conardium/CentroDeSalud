@@ -11,6 +11,7 @@ namespace CentroDeSalud.Services
         Task<bool> ExisteChat(Guid chatId, Guid usuarioId);
         Task<IEnumerable<ChatInfoViewModel>> ListarChatsPorMedico(Guid medicoId);
         Task<IEnumerable<ChatInfoViewModel>> ListarChatsPorPaciente(Guid pacienteId);
+        Task<Guid> ObtenerReceptor(Guid chatId, Guid remitenteId);
     }
 
     public class ServicioChats : IServicioChats
@@ -45,6 +46,11 @@ namespace CentroDeSalud.Services
         public async Task<bool> ExisteChat(Guid chatId, Guid usuarioId)
         {
             return await repositorioChats.ExisteChat(chatId, usuarioId);
+        }
+
+        public async Task<Guid> ObtenerReceptor(Guid chatId, Guid remitenteId)
+        {
+            return await repositorioChats.ObtenerReceptor(chatId, remitenteId);
         }
     }
 }

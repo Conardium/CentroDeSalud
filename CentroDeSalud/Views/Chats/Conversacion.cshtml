@@ -12,16 +12,8 @@
 <div class="row justify-content-center">
     <div class="col-md-8">
         <div class="card shadow">
-            <div class="card-body">
-                <form asp-action="">
-                    <div class="form-group d-flex gap-2 mb-3">
-                        <textarea asp-for="Texto" class="form-control auto-grow" rows="1" style="resize: none; max-height: 180px;" placeholder="Escriba su mensaje aquí..."></textarea>
-                        <span asp-validation-for="Texto" class="text-danger"></span>
-                        <button title="Enviar" class="btn boton-Verde-Oscuro" type="submit"><i class="fa-solid fa-paper-plane"></i></button>
-                    </div>
-                </form>
-                <hr />
-                <div id="contenedorMensajes">
+            <div class="card-body px-3 py-2">
+                <div id="contenedorMensajes" style="min-height:50vh;">
                     @{
                         DateTime? fechaAnterior = null;
                         var hoy = DateTime.Now.Date;
@@ -49,9 +41,84 @@
                         }
                     }
                 </div>
+                <hr />
+                <form id="formulario-mensaje">
+                    <div class="form-group d-flex gap-2 mb-3">
+                        <textarea id="Texto" asp-for="Texto" class="form-control auto-grow" rows="1" style="resize: none; max-height: 180px;" placeholder="Escriba su mensaje aquí..."></textarea>
+                        <span id="Avisos" class="text-danger"></span>
+                        <button id="botonEnviar" title="Enviar" class="btn boton-Verde-Oscuro" type="submit"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
-<script src="~/js/Conversacion.js"></script>
+
+@section Scripts {
+    <script src="~/js/Conversacion.js"></script>
+    <script src="~/lib/signalr/signalr.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        debugger;
+        const usuarioId = '@Model.UsuarioId';
+        const chatId = '@Model.ChatId';
+        const conexion = new signalR.HubConnectionBuilder().withUrl("/chathub").build();
+
+        //Desactivamos inicialmente el boton de envio hasta que se establezca la conexion
+        document.getElementById("botonEnviar").disabled = true;
+
+        //Al recibir un mensaje
+        conexion.on("RecibirMensaje", function(remitenteId, mensaje, horaEnvio){
+            debugger;
+            const esMio = remitenteId === usuarioId;
+            const lado = esMio ? "end" : "start";
+            const colorMensaje = esMio ? "mio" : "otro";
+
+            const html = `
+            <div class="d-flex mb-2 justify-content-${lado}">
+                <div class="mensaje ${colorMensaje}">
+                    ${mensaje}
+                    <br />
+                    <p class="form-text horaMensaje">${horaEnvio}</p>
+                </div>
+            </div>`;
+
+            document.getElementById("contenedorMensajes").innerHTML += html;
+        });
+
+        //Al comenzar la conexion, se agrega el cliente al grupo
+        conexion.start().then(function(){
+            debugger
+            document.getElementById("botonEnviar").disabled = false;
+            conexion.invoke("UnirseAlChat", chatId);
+        });
+
+        //Enviar el mensaje
+        document.getElementById("formulario-mensaje").addEventListener("submit", function (e){
+            debugger;
+            e.preventDefault(); //Previene que el formulario actue de manera natural y no envie el formulario o recargue la pagina
+            const input = document.getElementById("Texto");
+            const mensaje = input.value;
+
+            const modelo = {
+                UsuarioId: usuarioId,
+                ChatId: chatId,
+                Texto: mensaje,
+                
+            };
+
+            if(mensaje.trim() !== ""){
+                conexion.invoke("EnviarMensaje", modelo)
+                .then(() => {
+                    input.value = "";
+                    document.getElementById("Avisos").innerHTML = "";
+                })
+                .catch(err => {
+                    document.getElementById("Avisos").innerHTML = "El texto contiene carácteres inválidos";
+                });
+            }
+        });
+    </script>
+}

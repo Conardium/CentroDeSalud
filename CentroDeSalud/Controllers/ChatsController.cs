@@ -74,6 +74,7 @@ namespace CentroDeSalud.Controllers
 
             var modelo = new MensajeViewModel
             {
+                ChatId = id,
                 UsuarioId = usuarioIdGuid,
                 Mensajes = listadoMensajes
             };

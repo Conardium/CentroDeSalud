@@ -12,6 +12,7 @@ namespace CentroDeSalud.Repositories
         Task<bool> ExisteChat(Guid chatId, Guid idUsuario);
         Task<IEnumerable<ChatInfoViewModel>> ListarChatsPorMedico(Guid medicoId);
         Task<IEnumerable<ChatInfoViewModel>> ListarChatsPorPaciente(Guid pacienteId);
+        Task<Guid> ObtenerReceptor(Guid chatId, Guid remitenteId);
     }
 
     public class RepositorioChats : IRepositorioChats
@@ -64,6 +65,13 @@ namespace CentroDeSalud.Repositories
                             new { Id = chatId, PacienteId = idUsuario, MedicoId = idUsuario });
 
             return resultado == 1;
+        }
+
+        public async Task<Guid> ObtenerReceptor(Guid chatId, Guid remitenteId)
+        {
+            using var conexion = new SqlConnection(_connectionString);
+            return await conexion.QueryFirstOrDefaultAsync<Guid>("ObtenerReceptorChat",
+                        new { ChatId = chatId, RemitenteId = remitenteId }, commandType: System.Data.CommandType.StoredProcedure);
         }
     }
 }
