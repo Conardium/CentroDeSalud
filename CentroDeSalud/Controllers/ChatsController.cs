@@ -47,6 +47,7 @@ namespace CentroDeSalud.Controllers
             return View(listadoChat);
         }
 
+        [Authorize(Roles = Constantes.RolPaciente + "," + Constantes.RolMedico)]
         public async Task<IActionResult> Conversacion(Guid id)
         {
             //Comprobamos que la conversación pertenezca al usuario que está logueado
