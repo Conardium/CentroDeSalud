@@ -23,7 +23,6 @@ builder.Services.AddTransient<IRepositorioUsuariosLoginExterno, RepositorioUsuar
 builder.Services.AddTransient<IRepositorioMedicos, RepositorioMedicos>();
 builder.Services.AddTransient<IRepositorioCitas, RepositorioCitas>();
 builder.Services.AddTransient<IRepositorioDisponibilidadesMedicos, RepositorioDisponibilidadesMedicos>();
-
 builder.Services.AddTransient<IRepositorioChats, RepositorioChats>();
 builder.Services.AddTransient<IRepositorioMensajes, RepositorioMensajes>();
 
@@ -34,7 +33,6 @@ builder.Services.AddTransient<IServicioMedicos, ServicioMedicos>();
 builder.Services.AddTransient<IServicioUsuariosLoginsExternos, ServicioUsuariosLoginsExternos>();
 builder.Services.AddTransient<IServicioCitas, ServicioCitas>();
 builder.Services.AddTransient<IServicioDisponibilidadesMedicos, ServicioDisponibilidadesMedicos>();
-
 builder.Services.AddTransient<IServicioChats, ServicioChats>();
 builder.Services.AddTransient<IServicioMensajes, ServicioMensajes>();
 builder.Services.AddSignalR(); //Servicio del chat en linea
@@ -87,6 +85,7 @@ builder.Services.AddAuthentication(options =>
         options.SaveTokens = true; //Permite guardar los tokens en la coockie
     });
 
+//============================ PERSONALIZACIÓN DE RUTAS DE LAS COOCKIES ===============================
 builder.Services.PostConfigure<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme,
     opciones =>
     {
@@ -94,7 +93,7 @@ builder.Services.PostConfigure<CookieAuthenticationOptions>(IdentityConstants.Ap
         opciones.AccessDeniedPath = "/usuarios/login";
     });
 
-//============================ MIGRACIONES DE EF CORE =============================
+//============================ CONEXIÓN PARA LAS MIGRACIONES DE EF CORE =============================
 //Asignacion de la Cadena de Conexión
 builder.Services.AddDbContext<CentroSaludContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DevelopmentConnection") ?? throw new InvalidOperationException("Cadena de Conexión 'DevelopmentConnection' no encontrada")));

@@ -51,6 +51,22 @@ body{
     color: white;
 }
 
+.Verde{
+    background-color: var(--color-green-tea);
+}
+
+.VerdeTe{
+    background-color: var(--color-keppel);
+}
+
+.TextoVerdeOscuro{
+    color: var(--color-dark-green) !important;
+}
+
+.TextoVerdeClaro{
+    color: var(--color-green-tea) !important;
+}
+
 input[readonly] {
     background-color: darkgray;
     color: var(--color-dark-gray);
