@@ -1,4 +1,5 @@
 ﻿@using CentroDeSalud.Models.ViewModels
+@using CentroDeSalud.Infrastructure.Utilidades
 @model CrearCitaViewModel
 
 @{
@@ -23,7 +24,7 @@
                             {
                                 @foreach (var medico in Model.Medicos)
                                 {
-                                    <option value="@medico.Id">@medico.Nombre @medico.Apellidos (@medico.Especialidad)</option>
+                                    <option value="@medico.Id">@medico.Nombre @medico.Apellidos (@medico.Especialidad.GetDisplayName())</option>
                                 }
                             }
                         </select>
