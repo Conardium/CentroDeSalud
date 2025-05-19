@@ -8,6 +8,7 @@ namespace CentroDeSalud.Repositories
     {
         Task<Guid> CrearMedico(Medico medico);
         Task<IEnumerable<Medico>> ListadoMedicos();
+        Task<Medico> ObtenerMedicoPorId(Guid id);
     }
 
     public class RepositorioMedicos : IRepositorioMedicos
@@ -27,6 +28,12 @@ namespace CentroDeSalud.Repositories
                            VALUES (@Id, @Dni, @Sexo, @Especialidad);", medico);
 
             return medico.Id;
+        }
+
+        public async Task<Medico> ObtenerMedicoPorId(Guid id)
+        {
+            using var conexion = new SqlConnection(_connectionString);
+            return await conexion.QueryFirstOrDefaultAsync<Medico>(@"Select * from Medicos where Id = @Id", new { Id = id });
         }
 
         public async Task<IEnumerable<Medico>> ListadoMedicos()

@@ -1,0 +1,33 @@
+﻿@using CentroDeSalud.Infrastructure.Utilidades
+@using CentroDeSalud.Models.ViewModels
+@model PerfilViewModel
+
+<h4 class="mb-3 mt-2 TextoVerdeClaro">Horario de consultas</h4>
+@if (Model.DisponibilidadesMedico != null && Model.DisponibilidadesMedico.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-success">
+                <tr>
+                    <th>Dia de la semana</th>
+                    <th>Hora Inicio</th>
+                    <th>Hora Fin</th>
+                </tr>
+            </thead>
+            <tbody class="table-group-divider">
+                @foreach (var horario in Model.DisponibilidadesMedico)
+                {
+                    <tr>
+                        <td>@horario.DiaSemana.GetDisplayName()</td>
+                        <td>@horario.HoraInicio.ToString(@"hh\:mm")</td>
+                        <td>@horario.HoraFin.ToString(@"hh\:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <p class="text-muted">No hay un horario disponible en este momento.</p>
+}
