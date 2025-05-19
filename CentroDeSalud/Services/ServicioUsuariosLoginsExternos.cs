@@ -61,7 +61,8 @@ namespace CentroDeSalud.Services
                 }
                 else
                 {
-                    throw new Exception("Error al renovar el token.");
+                    //var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Error al renovar el token. Contenido: {errorContent}");
                 }
             }
         }
