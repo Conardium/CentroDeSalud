@@ -15,6 +15,7 @@ namespace CentroDeSalud.Services
 {
     public interface IServicioCitas
     {
+        Task ActualizarSincronizarCita(int id);
         Task<Cita> BuscarCitaPorFechaHora(DateTime fecha, TimeSpan hora);
         Task<Cita> BuscarCitaPorId(int id);
         Task<bool> CancelarCita(int id);
@@ -189,6 +190,8 @@ namespace CentroDeSalud.Services
             try
             {
                 await servicioCalendar.Events.Insert(evento, "primary").ExecuteAsync();
+                await ActualizarSincronizarCita(idCita);
+
             }
             catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.Forbidden)
             {
@@ -201,6 +204,11 @@ namespace CentroDeSalud.Services
         public async Task<bool> CancelarCita(int id)
         {
             return await repositorioCitas.CancelarCita(id);
+        }
+
+        public async Task ActualizarSincronizarCita(int id)
+        {
+            await repositorioCitas.SincronizarCita(id);
         }
     }
 }

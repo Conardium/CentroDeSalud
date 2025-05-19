@@ -9,6 +9,7 @@ namespace CentroDeSalud.Services
     public interface IServicioUsuariosLoginsExternos
     {
         Task<IdentityResult> ActualizarConsentimientos(UsuarioLoginExterno loginGoogle, string accessToken, string refreshToken, DateTime? expiresAt);
+        Task<IdentityResult> ActualizarLoginExterno(string loginProvider, string providerKey, string accessToken, string refreshToken, DateTime? expiresAt);
         Task<IdentityResult> AgregarLoginExterno(UsuarioLoginExterno usuarioLoginExterno);
         Task<bool> ComprobarCaducidadToken(Guid usuarioId);
         Task<IEnumerable<UsuarioLoginExterno>> ListadoLoginsExternos(Guid usuarioId);
@@ -61,7 +62,7 @@ namespace CentroDeSalud.Services
                 }
                 else
                 {
-                    //var errorContent = await response.Content.ReadAsStringAsync();
+                    var errorContent = await response.Content.ReadAsStringAsync();
                     throw new Exception($"Error al renovar el token. Contenido: {errorContent}");
                 }
             }
@@ -88,24 +89,33 @@ namespace CentroDeSalud.Services
             //Comprobamos si el access token a caducado
             if(DateTime.Now > loginGoogle.TokenExpiraEn)
             {
-                var tokenResponse = await ObtenerNuevoAccessToken(loginGoogle.RefreshToken);
+                try
+                {
+                    var tokenResponse = await ObtenerNuevoAccessToken(loginGoogle.RefreshToken);
 
-                if(tokenResponse == null)
+                    if (tokenResponse == null)
+                        return false;
+
+                    var NuevafechaCad = DateTime.Now.AddSeconds(tokenResponse.ExpiraEn);
+
+                    var resultado = await repositorioUsuariosLoginExterno.ActualizarAccessToken(
+                        loginGoogle.LoginProvider, loginGoogle.ProviderKey, tokenResponse.AccessToken, NuevafechaCad);
+
+                    if (resultado.Succeeded)
+                        return true;
+                }
+                catch (Exception ex)
+                {
+                    var errprMensaje = ex.Message;
                     return false;
-
-                var NuevafechaCad = DateTime.Now.AddSeconds(tokenResponse.ExpiraEn);
-
-                var resultado = await repositorioUsuariosLoginExterno.ActualizarAccessToken(
-                    loginGoogle.LoginProvider, loginGoogle.ProviderKey, tokenResponse.AccessToken, NuevafechaCad);
-
-                if (resultado.Succeeded)
-                    return true;
+                }
             }
 
             return false;
         }
 
-        public async Task<IdentityResult> ActualizarConsentimientos(UsuarioLoginExterno loginGoogle, string accessToken, string refreshToken, DateTime? expiresAt)
+        public async Task<IdentityResult> ActualizarConsentimientos(UsuarioLoginExterno loginGoogle, 
+            string accessToken, string refreshToken, DateTime? expiresAt)
         {
             loginGoogle.AccessToken = accessToken;
             
@@ -116,6 +126,12 @@ namespace CentroDeSalud.Services
 
             return await repositorioUsuariosLoginExterno.ActualizarLoginExterno(loginGoogle.LoginProvider, loginGoogle.ProviderKey, 
                 loginGoogle.AccessToken, loginGoogle.RefreshToken, loginGoogle.TokenExpiraEn);
+        }
+
+        public async Task<IdentityResult> ActualizarLoginExterno(string loginProvider, string providerKey, 
+            string accessToken, string refreshToken, DateTime? expiresAt)
+        {
+            return await repositorioUsuariosLoginExterno.ActualizarLoginExterno(loginProvider, providerKey, accessToken, refreshToken, expiresAt);
         }
     }
 }

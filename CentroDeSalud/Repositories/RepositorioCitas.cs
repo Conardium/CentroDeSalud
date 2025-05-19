@@ -15,6 +15,7 @@ namespace CentroDeSalud.Repositories
         Task<IEnumerable<Cita>> ListarCitasPorUsuario(Guid id, string rol);
         Task<IEnumerable<Cita>> ObtenerCitasPendientesMedicoPorFecha(Guid medicoId, DateTime fecha);
         Task<IEnumerable<Cita>> ObtenerCitasPendientesPorIdUsuario(Guid idUsuario, string rol);
+        Task SincronizarCita(int id);
     }
 
     public class RepositorioCitas : IRepositorioCitas
@@ -104,6 +105,12 @@ namespace CentroDeSalud.Repositories
             using var conexion = new SqlConnection(_connectionString);
             await conexion.ExecuteAsync(@"Update Citas Set EstadoCita = 2 where Id = @Id", new {Id = id});
             return true;
+        }
+
+        public async Task SincronizarCita(int id)
+        {
+            using var conexion = new SqlConnection(_connectionString);
+            await conexion.ExecuteAsync(@"Update Citas Set Sincronizada = 1 where Id = @Id", new { Id = id });
         }
     }
 }

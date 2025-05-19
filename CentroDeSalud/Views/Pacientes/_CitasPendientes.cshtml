@@ -15,6 +15,7 @@
                     <table class="table table-hover align-middle">
                         <thead class="table-success">
                             <tr>
+                                <th>Nº. Cita</th>
                                 <th>Fecha</th>
                                 <th>Hora</th>
                                 <th>Motivo</th>
@@ -27,14 +28,20 @@
                                 var modalId = $"modalCancelarCita_{cita.Id}";
                                 var modalTitleId = $"{modalId}_Label";
                                 <tr>
+                                    <td>@cita.Id</td>
                                     <td>@cita.Fecha.ToString("dd/MM/yyyy")</td>
                                     <td>@cita.Hora.ToString(@"hh\:mm")</td>
                                     <td>@cita.Motivo</td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-outline-danger btn-sm"
-                                                data-bs-toggle="modal" data-bs-target="#@modalId">
+                                        data-bs-toggle="modal" data-bs-target="#@modalId">
                                             <i class="fa-solid fa-ban"></i> Cancelar
                                         </button>
+
+                                        @if (cita.Sincronizada == false)
+                                        {
+                                            <a class="btn boton-Verde-Oscuro btn-sm" asp-action="SincronizarCitaCalendario" asp-controller="Citas" asp-route-id=@cita.Id>Sincronizar</a>
+                                        }
 
                                         <!-- Modal de confirmación -->
                                         <div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@modalTitleId" aria-hidden="true">
