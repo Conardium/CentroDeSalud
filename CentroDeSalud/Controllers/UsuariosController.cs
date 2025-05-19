@@ -202,9 +202,41 @@ namespace CentroDeSalud.Controllers
             var resultadoLoginExterno = await signInManager.ExternalLoginSignInAsync(info.LoginProvider,
                 info.ProviderKey, isPersistent: true, bypassTwoFactor: true);
 
+            //Recogemos los datos del proveedor externo
+            var accessToken = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "access_token")?.Value;
+            var refreshToken = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "refresh_token")?.Value;
+            var expiresAtString = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "expires_at")?.Value;
+
+            DateTime? expiresAt = null;
+            if (DateTime.TryParse(expiresAtString, out var parsedFecha))
+                expiresAt = parsedFecha;
+
             //Comprobamos si hay un usuario con una cuenta vinculada al proveedor
             if (resultadoLoginExterno.Succeeded)
+            {
+                /* Comprobamos si el inicio de sesion contiene el refresh_token:
+                 * Si la cuenta ya tiene vinculada con dicho proveedor y este aun así devuelve un
+                 * refresh_token significa que este ya caducó y nos está pasando el nuevo refresh_token
+                 */
+                if (refreshToken != null)
+                {
+                    //Actualizamos el proveedor del usuario con los nuevos valores
+                    var resultadoActualizarLogin = await servicioLoginsExternos.ActualizarLoginExterno(info.LoginProvider, 
+                        info.ProviderKey, accessToken, refreshToken, expiresAt);
+
+                    if (resultadoActualizarLogin.Succeeded)
+                    {
+                        return LocalRedirect(urlRetorno);
+                    }
+                    else
+                    {
+                        mensaje = "Error actualizando el login externo";
+                        return RedirectToAction("Login", routeValues: new { mensaje });
+                    }
+                }
+                //Si el proveedor no devuelve un refresh_token significa que la cuenta sigue con sus permisos actualizados
                 return LocalRedirect(urlRetorno);
+            }
 
             //Recogemos los datos que queramos del login externo y preparamos el ViewModel para el register
             string email = ObtenerClaim(info.Principal, ClaimTypes.Email);
@@ -214,15 +246,6 @@ namespace CentroDeSalud.Controllers
                 mensaje = "Error leyendo el email del usuario del proveedor";
                 return RedirectToAction("Login", routeValues: new { mensaje });
             }
-
-            //Recogemos los datos del proveedor externo
-            var accessToken = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "access_token")?.Value;
-            var refreshToken = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "refresh_token")?.Value;
-            var expiresAtString = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "expires_at")?.Value;
-
-            DateTime? expiresAt = null;
-            if (DateTime.TryParse(expiresAtString, out var parsedFecha))
-                expiresAt = parsedFecha;
 
             var DatosProveedor = new UsuarioLoginExterno
             {
@@ -297,7 +320,9 @@ namespace CentroDeSalud.Controllers
                 .ConfigureExternalAuthenticationProperties(proveedor, urlRedireccion);
 
             if (proveedor == "Google")
+            {
                 propiedades.Items["prompt"] = "consent"; //Fuerzo la pantalla de consentimiento
+            }
 
             return new ChallengeResult(proveedor, propiedades);
         }
