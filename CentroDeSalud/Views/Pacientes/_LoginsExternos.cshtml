@@ -1,0 +1,45 @@
+﻿@using CentroDeSalud.Models.ViewModels
+@model PerfilViewModel
+
+<h4 class="mb-3 mt-2 TextoVerdeClaro">Datos de la cuenta</h4>
+<div class="row g-3 mb-3 align-items-center">
+    <div class="col-md-8 d-flex align-items-center">
+        <label class="fw-bold text-md-end me-2 fs-6 w-40">Cuentas vinculadas:</label>
+        <div class="d-flex flex-row gap-2 align-items-center">
+            @{
+                bool tieneMicrosoft = Model.LoginsExternos?.Any(l => l.LoginProvider == "Microsoft") ?? false;
+                bool tieneGoogle = Model.LoginsExternos?.Any(l => l.LoginProvider == "Google") ?? false;
+            }
+            @if (!tieneMicrosoft)
+            {
+                <a class="btn btn-outline-dark d-flex align-items-center justify-content-center gap-2"
+                   asp-action="LoginExterno" asp-route-proveedor="Microsoft">
+                    <img src="~/images/icons8-microsoft.svg" width="20" height="20" alt="Microsoft" />
+                    Vincular cuenta con Microsoft
+                </a>
+            }
+            else
+            {
+                <span class="badge rounded-pill Verde fs-6">
+                    <img src="~/images/icons8-microsoft.svg" style="filter: drop-shadow(1px 1px 1px rgba(1,0,0,0.5));" width="20" height="20" alt="Microsoft" />
+                    Cuenta vinculada con Microsoft
+                </span>
+            }
+            @if (!tieneGoogle)
+            {
+                <a class="btn btn-outline-dark d-flex align-items-center justify-content-center gap-2"
+                   asp-action="LoginExterno" asp-route-proveedor="Google">
+                    <img src="~/images/icons8-logo-de-google.svg" width="20" height="20" alt="Google" />
+                    Vincular cuenta con Google
+                </a>
+            }
+            else
+            {
+                <span class="badge rounded-pill Verde fs-6">
+                    <img src="~/images/icons8-logo-de-google.svg" style="filter: drop-shadow(1px 1px 1px rgba(1,0,0,0.5));" width="20" height="20" alt="Google" />
+                    Cuenta vinculada con Google
+                </span>
+            }
+        </div>
+    </div>
+</div>

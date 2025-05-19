@@ -6,20 +6,26 @@ namespace CentroDeSalud.Services
     public interface IServicioPacientes
     {
         Task<Guid> CrearPacienteAsync(Paciente paciente);
+        Task<Paciente> ObtenerPacientePorId(Guid id);
     }
 
     public class ServicioPacientes : IServicioPacientes
     {
-        public readonly IRepositorioPacientes _repositorioPacientes;
+        public readonly IRepositorioPacientes repositorioPacientes;
 
         public ServicioPacientes(IRepositorioPacientes repositorioPacientes)
         {
-            _repositorioPacientes = repositorioPacientes;
+            this.repositorioPacientes = repositorioPacientes;
         }
 
         public async Task<Guid> CrearPacienteAsync(Paciente paciente)
         {
-            return await _repositorioPacientes.CrearPaciente(paciente);
+            return await repositorioPacientes.CrearPaciente(paciente);
+        }
+
+        public async Task<Paciente> ObtenerPacientePorId(Guid id)
+        {
+            return await repositorioPacientes.ObtenerPacientePorId(id);
         }
     }
 }
