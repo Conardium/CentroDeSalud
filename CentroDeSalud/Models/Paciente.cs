@@ -24,5 +24,7 @@ namespace CentroDeSalud.Models
 
         [Required]
         public Sexo Sexo { get; set; }
+
+        public ICollection<Informe> InformesPaciente { get; set; }
     }
 }

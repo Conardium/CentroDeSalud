@@ -18,6 +18,7 @@ namespace CentroDeSalud.Data
         public DbSet<DisponibilidadMedico> DisponibilidadesMedicos { get; set; }
         public DbSet<Chat> Chats { get; set; }
         public DbSet<Mensaje> Mensajes { get; set; }
+        public DbSet<Informe> Informes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -32,6 +33,7 @@ namespace CentroDeSalud.Data
             modelBuilder.Entity<DisponibilidadMedico>().ToTable("DisponibilidadesMedicos");
             modelBuilder.Entity<Chat>().ToTable("Chats");
             modelBuilder.Entity<Mensaje>().ToTable("Mensajes");
+            modelBuilder.Entity<Informe>().ToTable("Informes");
 
             //========================== RELACIONES ===============================
             //===> USUARIO
@@ -95,6 +97,19 @@ namespace CentroDeSalud.Data
                 .HasOne(u => u.UsuarioReceptor)
                 .WithMany(m => m.MensajesRecibidos)
                 .HasForeignKey(m => m.ReceptorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //====> INFORME
+            modelBuilder.Entity<Informe>()
+                .HasOne(p => p.Paciente)
+                .WithMany(i => i.InformesPaciente)
+                .HasForeignKey(i => i.PacienteId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Informe>()
+                .HasOne(m => m.Medico)
+                .WithMany(i => i.InformesMedico)
+                .HasForeignKey(i => i.MedicoId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

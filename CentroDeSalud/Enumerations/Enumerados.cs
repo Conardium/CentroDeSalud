@@ -73,4 +73,12 @@ namespace CentroDeSalud.Enumerations
         Sábado = 6,
         Domingo = 7
     }
+
+    public enum EstadoInforme
+    {
+        Borrador = 0,
+        [Display(Name = "En revisión")]
+        EnRevision = 1,
+        Definitivo = 2
+    }
 }
