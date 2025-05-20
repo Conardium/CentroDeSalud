@@ -25,6 +25,7 @@ builder.Services.AddTransient<IRepositorioCitas, RepositorioCitas>();
 builder.Services.AddTransient<IRepositorioDisponibilidadesMedicos, RepositorioDisponibilidadesMedicos>();
 builder.Services.AddTransient<IRepositorioChats, RepositorioChats>();
 builder.Services.AddTransient<IRepositorioMensajes, RepositorioMensajes>();
+builder.Services.AddTransient<IRepositorioInformes, RepositorioInformes>();
 
 //============================ SERVICIOS ===============================
 builder.Services.AddTransient<IServicioPacientes, ServicioPacientes>();
@@ -35,6 +36,7 @@ builder.Services.AddTransient<IServicioCitas, ServicioCitas>();
 builder.Services.AddTransient<IServicioDisponibilidadesMedicos, ServicioDisponibilidadesMedicos>();
 builder.Services.AddTransient<IServicioChats, ServicioChats>();
 builder.Services.AddTransient<IServicioMensajes, ServicioMensajes>();
+builder.Services.AddTransient<IServicioInformes, ServicioInformes>();
 builder.Services.AddSignalR(); //Servicio del chat en linea
 
 //============================ IDENTITY ===============================
