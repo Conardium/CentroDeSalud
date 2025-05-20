@@ -26,6 +26,14 @@ namespace CentroDeSalud.Controllers
         }
 
         [AllowAnonymous]
+        public async Task<IActionResult> ListadoMedicos()
+        {
+            var medicos = await servicioMedicos.ListarMedicos();
+
+            return View(medicos);
+        }
+
+        [AllowAnonymous]
         public async Task<IActionResult> PerfilPublico(Guid id)
         {
             //El perfil de los medicos es publico y todos pueden verlo
@@ -50,12 +58,13 @@ namespace CentroDeSalud.Controllers
                 Telefono = usuarioMedico.Telefono,
                 RolId = usuarioMedico.RolId,
                 Dni = medico.Dni,
-                Sexo = medico.Sexo
+                Sexo = medico.Sexo,
+                Especialidad = medico.Especialidad
             };
             //Recogemos las disponibilidades del médico (Horario de consultas)
             perfil.DisponibilidadesMedico = (ICollection<DisponibilidadMedico>)await servicioDisponibilidades.ObtenerHorarioMedico(id);
 
-            return View(perfil);
+            return View("Perfil", perfil);
         }
 
         [Authorize(Roles = Constantes.RolMedico)]

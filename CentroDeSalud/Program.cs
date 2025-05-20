@@ -122,10 +122,10 @@ using (var scope = app.Services.CreateScope())
     }
     
     //Seed para generar medicos POR AHORA
-    /*
-    var services = scope.ServiceProvider;
-    await SeedMedicos.CrearMedicosAsync(services);
-    */
+    
+    //var services = scope.ServiceProvider;
+    //await SeedMedicos.CrearMedicosAsync(services);
+    
 }
 
 // Configure the HTTP request pipeline.
