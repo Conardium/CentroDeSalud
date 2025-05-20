@@ -84,7 +84,7 @@
         @if(Model.Id.ToString() == User.FindFirstValue(ClaimTypes.NameIdentifier))
         {
             <div class="text-start mt-4">
-                <a asp-action="EditarPerfil" class="btn boton-Verde-Oscuro">
+                <a asp-action="EditarPerfil" asp-route-id="@Model.Id" class="btn boton-Verde-Oscuro">
                     <i class="fa-solid fa-pen-to-square"></i> Editar perfil
                 </a>
             </div>

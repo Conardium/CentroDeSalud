@@ -9,7 +9,7 @@
 }
 
 <div class="container mt-4">
-    <h2 class="mb-4 text-center">Perfil de usuario</h2>
+    <h2 class="mb-4 text-center">Perfil de @Model.Nombre @Model.Apellidos</h2>
 
     <div class="card shadow p-4">
         <h4 class="mb-3 TextoVerdeClaro">Información personal</h4>
@@ -27,14 +27,19 @@
                 <label class="fw-bold text-md-end me-2 fs-6 w-40">Correo electrónico:</label>
                 <span class="fs-6">@Model.Email</span>
             </div>
-            <div class="col-md-6 d-flex">
-                @{
-                    var dni = Model.Dni;
-                    var dniOculto = new string('*', dni.Length - 3) + dni[^3..];
-                }
-                <label class="fw-bold text-md-end me-2 fs-6 w-40">DNI:</label>
-                <span class="fs-6">@dniOculto</span>
-            </div>
+
+            @if (Model.Id.ToString() == User.FindFirstValue(ClaimTypes.NameIdentifier))
+            {
+                <div class="col-md-6 d-flex">
+                    @{
+                        var dni = Model.Dni;
+                        var dniOculto = new string('*', dni.Length - 3) + dni[^3..];
+                    }
+                    <label class="fw-bold text-md-end me-2 fs-6 w-40">DNI:</label>
+                    <span class="fs-6">@dniOculto</span>
+                </div>
+            }
+
             <div class="col-md-6 d-flex">
                 <label class="fw-bold text-md-end me-2 fs-6 w-40">Sexo:</label>
                 <span class="fs-6">@Model.Sexo.GetDisplayName()</span>
@@ -59,7 +64,7 @@
         @if(Model.Id.ToString() == User.FindFirstValue(ClaimTypes.NameIdentifier))
         {
             <div class="text-start mt-4">
-                <a asp-action="EditarPerfil" class="btn boton-Verde-Oscuro">
+                <a class="btn boton-Verde-Oscuro" asp-action="EditarPerfil" asp-route-id="@Model.Id">
                     <i class="fa-solid fa-pen-to-square"></i> Editar perfil
                 </a>
             </div>

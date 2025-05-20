@@ -1,4 +1,5 @@
 ﻿using CentroDeSalud.Models;
+using CentroDeSalud.Models.ViewModels;
 using Dapper;
 using Microsoft.Data.SqlClient;
 
@@ -6,6 +7,7 @@ namespace CentroDeSalud.Repositories
 {
     public interface IRepositorioMedicos
     {
+        Task<bool> ActualizarDatosPerfil(EditarPerfilViewModel modelo);
         Task<Guid> CrearMedico(Medico medico);
         Task<IEnumerable<Medico>> ListadoMedicos();
         Task<Medico> ObtenerMedicoPorId(Guid id);
@@ -41,6 +43,25 @@ namespace CentroDeSalud.Repositories
             using var conexion = new SqlConnection(_connectionString);
             return await conexion.QueryAsync<Medico>(@"Select u.Id, u.Nombre, u.Apellidos, m.Especialidad from Usuarios u 
                                                         inner join Medicos m on u.Id = m.Id where RolId = 2");
+        }
+
+        public async Task<bool> ActualizarDatosPerfil(EditarPerfilViewModel modelo)
+        {
+            using var conexion = new SqlConnection(_connectionString);
+            try
+            {
+                await conexion.ExecuteAsync(@"Update Usuarios 
+                        SET Nombre = @Nombre, Apellidos = @Apellidos, Telefono = @Telefono Where Id = @Id", modelo);
+
+                await conexion.ExecuteAsync(@"Update Medicos 
+                        SET Sexo = @Sexo, Especialidad = @Especialidad Where Id = @Id", modelo);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }
