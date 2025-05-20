@@ -15,14 +15,14 @@ namespace CentroDeSalud.Data
 
             var usuario = new Usuario
             {
-                Email = "me2@me.me",
-                EmailNormalizado = "ME2@ME.ME",
+                Email = "me5@me.me",
+                EmailNormalizado = "ME5@ME.ME",
                 PasswordHash = "111222",
-                Nombre = "Mari Carmen",
-                Apellidos = "Fernandez Ortega",
+                Nombre = "Flin Flon",
+                Apellidos = "Vazquez Fante",
                 Telefono = "123456789",
                 RolId = null,
-                SecurityStamp = "b9a0c112-8b43-4b12-a83b-7ba36f680f6d"
+                SecurityStamp = "662214f2-389e-4224-9022-4576593061da"
             };
             
             await userManager.CreateAsync(usuario, password: usuario.PasswordHash);
@@ -32,8 +32,8 @@ namespace CentroDeSalud.Data
             {
                 Id = usuarioFinal.Id,
                 Dni = "12345678A",
-                Sexo = Sexo.Mujer,
-                Especialidad = Especialidad.Pediatría
+                Sexo = Sexo.Hombre,
+                Especialidad = Especialidad.Ginecología
             };
 
             await repositorioMedicos.CrearMedico(medico);

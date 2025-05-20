@@ -7,6 +7,7 @@ namespace CentroDeSalud.Repositories
     public interface IRepositorioPacientes
     {
         Task<Guid> CrearPaciente(Paciente paciente);
+        Task<Paciente> ObtenerPacientePorId(Guid id);
     }
 
     public class RepositorioPacientes : IRepositorioPacientes
@@ -26,6 +27,12 @@ namespace CentroDeSalud.Repositories
                                VALUES (@Id, @Dni, @FechaNacimiento, @GrupoSanguineo, @Direccion, @Sexo);", paciente);
 
             return paciente.Id;
+        }
+
+        public async Task<Paciente> ObtenerPacientePorId(Guid id)
+        {
+            using var conexion = new SqlConnection(_connectionString);
+            return await conexion.QueryFirstOrDefaultAsync<Paciente>(@"Select * from Pacientes where Id = @Id", new {Id = id});
         }
     }
 }

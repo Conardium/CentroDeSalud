@@ -1,4 +1,5 @@
 ﻿using CentroDeSalud.Data;
+using CentroDeSalud.Enumerations;
 using CentroDeSalud.Infrastructure.Utilidades;
 using CentroDeSalud.Models;
 using CentroDeSalud.Models.Requests;
@@ -34,6 +35,8 @@ namespace CentroDeSalud.Controllers
             return modelo;
         }
 
+        #region Funcionalidad para Pedir Cita, Vista de confirmación y Sincronización con Google Calendar
+
         [HttpGet]
         [Authorize(Roles = Constantes.RolPaciente)]
         public async Task<IActionResult> PedirCita()
@@ -47,7 +50,7 @@ namespace CentroDeSalud.Controllers
         [Authorize(Roles = Constantes.RolPaciente)]
         public async Task<IActionResult> PedirCita(CrearCitaViewModel modelo)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 modelo = await ObtenerMedicos();
                 return View(modelo);
@@ -59,27 +62,15 @@ namespace CentroDeSalud.Controllers
             if (usuarioId is null)
             {
                 TempData["Acceso"] = true;
-                var aviso = new AvisoViewModel
-                {
-                    Titulo = "Acceso denegado",
-                    Tipo = Constantes.Denegado,
-                    Mensaje = "No tienes los permisos suficientes para acceder a esta página"
-                };
-                return RedirectToAction("AvisosGenerales", "Avisos", aviso);
+                return RedirectToAction("Denegado", "Avisos");
             }
 
-            var usuario = await userManager.FindByIdAsync(usuarioId);        
+            var usuario = await userManager.FindByIdAsync(usuarioId);
 
             if (usuario is null)
             {
                 TempData["Acceso"] = true;
-                var aviso = new AvisoViewModel
-                {
-                    Titulo = "Acceso denegado",
-                    Tipo = Constantes.Denegado,
-                    Mensaje = "No tienes los permisos suficientes para acceder a esta página"
-                };
-                return RedirectToAction("AvisosGenerales", "Avisos", aviso);
+                return RedirectToAction("Denegado", "Avisos");
             }
 
             //SI el usuario exite en la BD
@@ -111,7 +102,7 @@ namespace CentroDeSalud.Controllers
             var idCita = await servicioCitas.CrearCita(cita);
 
             TempData["CitaSolicitada"] = true;
-            return RedirectToAction("CitaSolicitada", new {id = idCita});
+            return RedirectToAction("CitaSolicitada", new { id = idCita });
         }
 
         [Authorize(Roles = Constantes.RolPaciente)]
@@ -145,37 +136,140 @@ namespace CentroDeSalud.Controllers
             }
             if (resultado.TieneError)
             {
-                var avisoError = new AvisoViewModel
-                {
-                    Titulo = "Error",
-                    Tipo = Constantes.Error,
-                    Mensaje = resultado.MensajeError,
-                };
                 TempData["Acceso"] = true;
-                return RedirectToAction("AvisosGenerales", "Avisos", avisoError);
+                return RedirectToAction("Error", "Avisos", new { mensaje = resultado.MensajeError });
             }
 
-            var avisoOK = new AvisoViewModel
-            {
-                Titulo = "Exito",
-                Tipo = Constantes.OK,
-                Mensaje = "Su cita se ha sincronizado correctamente con su calendario de Google",
-            };
             TempData["Acceso"] = true;
-            return RedirectToAction("AvisosGenerales", "Avisos", avisoOK);
+            return RedirectToAction("Exito", "Avisos", new { mensaje = "Su cita se ha sincronizado correctamente con su calendario de Google." });
         }
+
+        #endregion
+
+        #region Funcionalidad para Cancelar una cita
+
+        [Authorize(Roles = Constantes.RolPaciente + "," + Constantes.RolMedico)]
+        public async Task<IActionResult> CancelarCita(int id, string returnUrl)
+        {
+            var citaPorCancelar = await servicioCitas.BuscarCitaPorId(id);
+            if (citaPorCancelar == null)
+            {
+                TempData["Acceso"] = true;
+                return RedirectToAction("Error", "Avisos", new { mensaje = "Ha habido un problema al intentar cancelar su cita. Su cita no existe." });
+            }
+
+            var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(usuarioId, out Guid usuarioIdGuid))
+                return null;
+
+            //Comprobamos que el usuario que pide cancelar la cita sea uno de los pertenecientes a la cita
+            if (citaPorCancelar.PacienteId != usuarioIdGuid && citaPorCancelar.MedicoId != usuarioIdGuid)
+            {
+                TempData["Acceso"] = true;
+                return RedirectToAction("Denegado", "Avisos");
+            }
+
+            var resultado = await servicioCitas.CancelarCita(id);
+
+            if (!resultado)
+            {
+                TempData["Acceso"] = true;
+                return RedirectToAction("Error", "Avisos", new { mensaje = "No hemos podido cancelar su cita." });
+            }
+
+            return Redirect(returnUrl);
+        }
+
+        #endregion
+
+        #region Funcionalidad para Eliminar una cita
+
+        [Authorize(Roles = Constantes.RolPaciente + "," + Constantes.RolMedico)]
+        public async Task<IActionResult> EliminarCita(int id, string returnUrl)
+        {
+            //Obtenemos los datos de la cita a eliminar
+            var citaPorEliminar = await servicioCitas.BuscarCitaPorId(id);
+            if (citaPorEliminar == null)
+            {
+                TempData["Acceso"] = true;
+                return RedirectToAction("Error", "Avisos", new { mensaje = "Ha habido un problema al intentar eliminar la cita. Su cita no existe." });
+            }
+
+            //Comprobamos que la cita tenga el estado de cancelada
+            if(citaPorEliminar.EstadoCita != EstadoCita.Cancelada)
+            {
+                TempData["Acceso"] = true;
+                return RedirectToAction("Error", "Avisos", new {mensaje = "Ha habido un problema al intentar eliminar la cita. La cita debe de tener el estado Cancelada antes de poder eliminarla."});
+            }
+
+            var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(usuarioId, out Guid usuarioIdGuid))
+                return null;
+
+            //Comprobamos que el usuario que pide eliminar la cita sea uno de los pertenecientes a la cita
+            if (citaPorEliminar.PacienteId != usuarioIdGuid && citaPorEliminar.MedicoId != usuarioIdGuid)
+            {
+                TempData["Acceso"] = true;
+                return RedirectToAction("Denegado", "Avisos");
+            }
+
+            var resultado = await servicioCitas.EliminarCita(id);
+
+            if (!resultado)
+            {
+                TempData["Acceso"] = true;
+                return RedirectToAction("Error", "Avisos", new { mensaje = "No hemos podido eliminar su cita." });
+            }
+
+            return Redirect(returnUrl);
+        }
+
+        #endregion
+
+        #region Funcionalidad de FETCH para obtener las citas disponibles para una fecha
 
         [HttpPost]
         [Authorize(Roles = Constantes.RolPaciente)]
         public async Task<IActionResult> ObtenerCitasDisponibles([FromBody] ObtenerCitasRequest modelo)
         {
             var horasDisponibles = await servicioCitas.ListarHorasDisponibles(modelo.MedicoId, modelo.Fecha);
-            if(horasDisponibles.TieneError)
+            if (horasDisponibles.TieneError)
             {
-                return BadRequest(new {mensaje = horasDisponibles.MensajeError});
+                return BadRequest(new { mensaje = horasDisponibles.MensajeError });
             }
             var horas = horasDisponibles.Datos.Select(hora => new SelectListItem(hora.ToString(@"hh\:mm"), hora.ToString()));
             return Ok(horas);
         }
+
+        #endregion
+
+        #region Funcionalidad del Historial de Citas de un Usuario
+
+        [Authorize(Roles = Constantes.RolPaciente + "," + Constantes.RolMedico)]
+        public async Task<IActionResult> HistorialCitas(Guid id)
+        {
+            //Comprobamos si el usuario que el id que recibimos coincide con el de la sesión
+            var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!Guid.TryParse(usuarioId, out Guid sesionId))
+                return null;
+
+            if(id != sesionId)
+            {
+                TempData["Acceso"] = true;
+                return RedirectToAction("Denegado", "Avisos");
+            }
+
+            var rol = User.Claims.FirstOrDefault(c => c.Type.Contains("role"))?.Value;
+
+            if(rol == null)
+                return RedirectToAction("Index", "Home");
+
+            var listadoCitas = await servicioCitas.ListarCitasPorUsuario(sesionId, rol);
+
+            return View(listadoCitas);
+        }
+
+        #endregion
     }
 }

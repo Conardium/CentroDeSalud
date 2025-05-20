@@ -7,6 +7,7 @@ using Google.Apis.Auth.OAuth2;
 using Google.Apis.Calendar.v3;
 using Google.Apis.Calendar.v3.Data;
 using Google.Apis.Services;
+using Microsoft.Data.SqlClient;
 using System.Globalization;
 using System.Net;
 
@@ -14,9 +15,15 @@ namespace CentroDeSalud.Services
 {
     public interface IServicioCitas
     {
+        Task ActualizarSincronizarCita(int id);
         Task<Cita> BuscarCitaPorFechaHora(DateTime fecha, TimeSpan hora);
+        Task<Cita> BuscarCitaPorId(int id);
+        Task<bool> CancelarCita(int id);
         Task<int> CrearCita(Cita cita);
+        Task<bool> EliminarCita(int id);
+        Task<IEnumerable<Cita>> ListarCitasPorUsuario(Guid id, string rol);
         Task<ResultadoOperacion<List<TimeSpan>>> ListarHorasDisponibles(Guid medicoId, DateTime fecha);
+        Task<IEnumerable<Cita>> ObtenerCitasPendientesPorIdUsuario(Guid usuarioId, string rol);
         Task<ResultadoOperacion<bool>> SincronizarCita(Guid usuarioId, int idCita);
     }
 
@@ -39,9 +46,28 @@ namespace CentroDeSalud.Services
             return await repositorioCitas.CrearCita(cita);
         }
 
+        public async Task<bool> EliminarCita(int id)
+        {
+            return await repositorioCitas.EliminarCita(id);
+        }
+        public async Task<IEnumerable<Cita>> ListarCitasPorUsuario(Guid id, string rol)
+        {
+            return await repositorioCitas.ListarCitasPorUsuario(id, rol);
+        }
+
+        public async Task<Cita> BuscarCitaPorId(int id)
+        {
+            return await repositorioCitas.BuscarCitaPorId(id);
+        }
+
         public async Task<Cita> BuscarCitaPorFechaHora(DateTime fecha, TimeSpan hora)
         {
             return await repositorioCitas.BuscarPorFechaHora(fecha, hora);
+        }
+
+        public async Task<IEnumerable<Cita>> ObtenerCitasPendientesPorIdUsuario(Guid usuarioId, string rol)
+        {
+            return await repositorioCitas.ObtenerCitasPendientesPorIdUsuario(usuarioId, rol);
         }
 
         public async Task<ResultadoOperacion<List<TimeSpan>>> ListarHorasDisponibles(Guid medicoId, DateTime fecha)
@@ -164,6 +190,8 @@ namespace CentroDeSalud.Services
             try
             {
                 await servicioCalendar.Events.Insert(evento, "primary").ExecuteAsync();
+                await ActualizarSincronizarCita(idCita);
+
             }
             catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.Forbidden)
             {
@@ -171,6 +199,16 @@ namespace CentroDeSalud.Services
             }
 
             return ResultadoOperacion<bool>.Exito(true);
+        }
+
+        public async Task<bool> CancelarCita(int id)
+        {
+            return await repositorioCitas.CancelarCita(id);
+        }
+
+        public async Task ActualizarSincronizarCita(int id)
+        {
+            await repositorioCitas.SincronizarCita(id);
         }
     }
 }

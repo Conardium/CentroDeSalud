@@ -1,0 +1,80 @@
+﻿@using CentroDeSalud.Models.ViewModels
+@using System.Security.Claims
+@model PerfilViewModel
+
+
+@if (Model.Id.ToString() == User.FindFirstValue(ClaimTypes.NameIdentifier))
+{
+    <div class="container mt-4">
+        <div class="card shadow p-4">
+            <h4 class="mb-3 TextoVerdeClaro">Citas pendientes</h4>
+
+            @if (Model.Citas != null && Model.Citas.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-success">
+                            <tr>
+                                <th>Nº. Cita</th>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Motivo</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-group-divider">
+                            @foreach (var cita in Model.Citas)
+                            {
+                                var modalId = $"modalCancelarCita_{cita.Id}";
+                                var modalTitleId = $"{modalId}_Label";
+                                <tr>
+                                    <td>@cita.Id</td>
+                                    <td>@cita.Fecha.ToString("dd/MM/yyyy")</td>
+                                    <td>@cita.Hora.ToString(@"hh\:mm")</td>
+                                    <td>@cita.Motivo</td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-outline-danger btn-sm"
+                                        data-bs-toggle="modal" data-bs-target="#@modalId">
+                                            <i class="fa-solid fa-ban"></i> Cancelar
+                                        </button>
+
+                                        @if (cita.Sincronizada == false)
+                                        {
+                                            <a class="btn boton-Verde-Oscuro btn-sm" asp-action="SincronizarCitaCalendario" asp-controller="Citas" asp-route-id=@cita.Id>Sincronizar</a>
+                                        }
+
+                                        <!-- Modal de confirmación -->
+                                        <div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@modalTitleId" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="@modalTitleId">Cancelar cita</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        ¿Estás seguro de que deseas cancelar esta cita del <strong>@cita.Fecha.ToString("dd/MM/yyyy")</strong> a las <strong>@cita.Hora.ToString(@"hh\:mm")</strong>?
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                        <form asp-action="CancelarCita" asp-controller="Citas" asp-route-id="@cita.Id" method="post">
+                                                            <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+                                                            <button type="submit" class="btn btn-danger">Cancelar cita</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">No tienes citas pendientes en este momento.</p>
+            }
+        </div>
+    </div>
+}

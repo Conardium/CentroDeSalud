@@ -1,0 +1,74 @@
+﻿@using CentroDeSalud.Models.ViewModels
+@using CentroDeSalud.Infrastructure.Utilidades
+@using CentroDeSalud.Enumerations
+@using System.Security.Claims
+@model PerfilViewModel
+
+@{
+    ViewData["Title"] = "Mi perfil";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">Perfil de usuario</h2>
+
+    <div class="card shadow p-4">
+        <h4 class="mb-3 TextoVerdeClaro">Información personal</h4>
+
+        <div class="row g-3 mb-3 align-items-center">
+            <div class="col-md-6 d-flex">
+                <label class="fw-bold text-md-end me-2 fs-6 w-40">Nombre:</label>
+                <span class="fs-6">@Model.Nombre</span>
+            </div>
+            <div class="col-md-6 d-flex">
+                <label class="fw-bold text-md-end me-2 fs-6 w-40">Apellidos:</label>
+                <span class="fs-6">@Model.Apellidos</span>
+            </div>
+            <div class="col-md-6 d-flex">
+                <label class="fw-bold text-md-end me-2 fs-6 w-40">Correo electrónico:</label>
+                <span class="fs-6">@Model.Email</span>
+            </div>
+            <div class="col-md-6 d-flex">
+                @{
+                    var dni = Model.Dni;
+                    var dniOculto = new string('*', dni.Length - 3) + dni[^3..];
+                }
+                <label class="fw-bold text-md-end me-2 fs-6 w-40">DNI:</label>
+                <span class="fs-6">@dniOculto</span>
+            </div>
+            <div class="col-md-6 d-flex">
+                <label class="fw-bold text-md-end me-2 fs-6 w-40">Sexo:</label>
+                <span class="fs-6">@Model.Sexo.GetDisplayName()</span>
+            </div>
+            <div class="col-md-6 d-flex">
+                <label class="fw-bold text-md-end me-2 fs-6 w-40 @(Model.Telefono == null ? "text-secondary" : "")">Teléfono:</label>
+                @if(Model.Telefono == null)
+                {
+                    <span class="fs-6 text-secondary">...</span>
+                }
+                else
+                {
+                    <span class="fs-6">@Model.Telefono</span>
+                }
+            </div>
+            <div class="col-md-6 d-flex">
+                <label class="fw-bold text-md-end me-2 fs-6 w-40">Especialidad: </label>
+                <span class="badge rounded-pill Verde text-white fs-6">@Model.Especialidad.GetDisplayName()  <i class="fa-solid fa-user-doctor"></i></span>
+            </div>
+        </div>
+
+        @if(Model.Id.ToString() == User.FindFirstValue(ClaimTypes.NameIdentifier))
+        {
+            <div class="text-start mt-4">
+                <a asp-action="EditarPerfil" class="btn boton-Verde-Oscuro">
+                    <i class="fa-solid fa-pen-to-square"></i> Editar perfil
+                </a>
+            </div>
+        }
+
+        <hr class="VerdeTe" style="height: 2px; opacity: 1; border: none;" />
+
+        <partial name="_HorarioConsultas"/>
+    </div>
+</div>
+
+<partial name="_CitasPendientes"/>

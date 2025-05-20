@@ -1,0 +1,24 @@
+﻿@using System.Security.Claims
+<li>
+	<a class="dropdown-item d-flex align-items-center gap-2" asp-controller="Medicos" asp-action="Perfil" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)">
+		<i class="fa-solid fa-address-card w-4 text-center" style="width: 20px;"></i> Perfil
+	</a>
+</li>
+
+<li>
+	<a class="dropdown-item d-flex align-items-center gap-2" asp-controller="Citas" asp-action="HistorialCitas" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)">
+		<i class="fa-solid fa-hospital-user w-4 text-center" style="width: 20px;"></i> Historial de citas
+	</a>
+</li>
+
+<li>
+	<a class="dropdown-item d-flex align-items-center gap-2" asp-controller="Chats" asp-action="Index" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)">
+		<i class="fa-solid fa-comments w-4 text-center" style="width: 20px;"></i> Mis chats
+	</a>
+</li>
+
+<li>
+	<a class="dropdown-item d-flex align-items-center gap-2" asp-controller="Informes" asp-action="ListadoInformesMedico" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)">
+		<i class="fa-solid fa-file-waveform w-4 text-center" style="width: 20px;"></i> Informes de mis pacientes
+	</a>
+</li>

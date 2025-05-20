@@ -1,0 +1,57 @@
+﻿@using CentroDeSalud.Models.ViewModels
+@using CentroDeSalud.Infrastructure.Utilidades
+@using CentroDeSalud.Enumerations
+@model IEnumerable<Medico>
+
+@{
+    ViewData["Title"] = "Médicos";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">Nuestros médicos</h2>
+
+    <div class="d-flex mb-4 justify-content-center gap-4 align-items-center">
+        <div class="col-auto">
+            <strong class="fs-5">Filtros:</strong>
+        </div>
+        <div class="col-md-3">
+            <select id="filtroEspecialidad" class="form-select">
+                <option value="">Todas las especialidades</option>
+                @foreach (var especialidad in Enum.GetValues(typeof(Especialidad)).Cast<Especialidad>().Where(e => e != Especialidad.NoSeleccionado))
+                {
+                    <option value="@especialidad">@((especialidad as Enum).GetDisplayName())</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <input id="filtroNombre" type="text" class="form-control" placeholder="Buscar por nombre..." />
+        </div>
+    </div>
+
+    <div class="row" id="medicosContainer">
+        @foreach (var medico in Model)
+        {
+            <div class="col-md-4 mb-3 medico-card">
+                <div class="card shadow-sm p-2">
+                    <div class="card-body py-2 px-3">
+                        <h5 class="card-title mb-2 nombre-medico">@medico.Nombre @medico.Apellidos</h5>
+
+                        <span class="badge Verde rounded-pill mb-2 fs-6 especialidad-medico">
+                            <i class="fa-solid fa-user-doctor"></i> @medico.Especialidad.GetDisplayName()
+                        </span>
+
+                        <div>
+                            <a asp-action="PerfilPublico" asp-route-id="@medico.Id" class="btn btn-sm btn-outline-primary">
+                                Ver perfil
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts{
+    <script src="~/js/ListadoMedicos.js" asp-append-version="true"></script>
+}

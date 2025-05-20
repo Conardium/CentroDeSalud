@@ -36,5 +36,7 @@ namespace CentroDeSalud.Models
 
         [MaxLength(250)]
         public string Detalles { get; set; }
+
+        public bool Sincronizada { get; set; } = false;
     }
 }

@@ -28,14 +28,8 @@ namespace CentroDeSalud.Controllers
 
             if (sesionId != id.ToString())
             {
-                var aviso = new AvisoViewModel
-                {
-                    Titulo = "Acceso denegado",
-                    Tipo = Constantes.Denegado,
-                    Mensaje = "No tienes permisos para acceder a esta página de la web"
-                };
                 TempData["Acceso"] = true;
-                return RedirectToAction("AvisosGenerales", "Avisos", aviso);
+                return RedirectToAction("Denegado", "Avisos");
             }
 
             var rol = User.FindFirstValue(ClaimTypes.Role); 
@@ -61,14 +55,8 @@ namespace CentroDeSalud.Controllers
             //Si la conversación NO pertenece a la sesión actual le redirigimos a la vista de acceso denegado
             if (!resultado)
             {
-                var aviso = new AvisoViewModel
-                {
-                    Titulo = "Acceso denegado",
-                    Tipo = Constantes.Denegado,
-                    Mensaje = "No tienes permisos para acceder a esta página de la web"
-                };
                 TempData["Acceso"] = true;
-                return RedirectToAction("AvisosGenerales", "Avisos", aviso);
+                return RedirectToAction("Denegado", "Avisos");
             }
 
             var listadoMensajes = await servicioMensajes.ListarMensajesPorChatId(id);

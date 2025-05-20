@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using System.Security.Claims
+@using CentroDeSalud.Data
 @inject SignInManager<Usuario> SignInManager
 
 <ul class="navbar-nav">
@@ -11,22 +12,22 @@
 				<i class="fa-solid fa-user"></i>
 			</a>
 			<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-				<li>
-					<a class="dropdown-item d-flex align-items-center gap-2" asp-controller="Usuarios" asp-action="Perfil">
-						<i class="fa-solid fa-address-card w-4 text-center" style="width: 20px;"></i> Mi perfil
-					</a>
-				</li>
-				<li>
-					<a class="dropdown-item d-flex align-items-center gap-2" asp-controller="Informes" asp-action="ListadoInformes">
-						<i class="fa-solid fa-file-waveform w-4 text-center" style="width: 20px;"></i> Ver Informes
-					</a>
-				</li>
-				<li>
-					<a class="dropdown-item d-flex align-items-center gap-2" asp-controller="Chats" asp-action="Index" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)">
-						<i class="fa-solid fa-comments w-4 text-center" style="width: 20px;"></i> Mis chats
-					</a>
-				</li>
-				<li><hr class="dropdown-divider"/></li>
+
+				@if (User.IsInRole(Constantes.RolPaciente))
+				{
+					<partial name="_LinksPaciente" />
+				}
+				else if (User.IsInRole(Constantes.RolMedico))
+				{
+					<partial name="_LinksMedico" />
+				}
+				else if (User.IsInRole(Constantes.RolAdmin))
+				{
+					//A implementar más adelante
+				}
+
+				<li><hr class="dropdown-divider" /></li>
+
 				<li>
 					<form asp-controller="Usuarios" asp-action="Logout">
 						<button class="dropdown-item d-flex align-items-center gap-2 text-danger" type="submit">
