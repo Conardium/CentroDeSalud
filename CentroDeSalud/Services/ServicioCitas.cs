@@ -167,7 +167,12 @@ namespace CentroDeSalud.Services
             });
 
             //Creamos y configuramos el evento
-            var fechaInicio = cita.Fecha.Date + cita.Hora;
+            var timeZone = TimeZoneInfo.FindSystemTimeZoneById("UTC");
+
+            var fechaInicioSinZona = cita.Fecha.Date + cita.Hora;
+            var offsetMadrid = timeZone.GetUtcOffset(fechaInicioSinZona);
+
+            var fechaInicio = new DateTimeOffset(fechaInicioSinZona, offsetMadrid);
             var fechaFin = fechaInicio.AddMinutes(30);
             var evento = new Event
             {
@@ -176,12 +181,12 @@ namespace CentroDeSalud.Services
                 Description = cita.Motivo,
                 Start = new EventDateTime
                 {
-                    DateTimeDateTimeOffset = new DateTimeOffset(fechaInicio, TimeZoneInfo.FindSystemTimeZoneById("Europe/Madrid").GetUtcOffset(fechaInicio)),
+                    DateTimeDateTimeOffset = fechaInicio,
                     TimeZone = "Europe/Madrid"
                 },
                 End = new EventDateTime
                 {
-                    DateTimeDateTimeOffset = new DateTimeOffset(fechaFin, TimeZoneInfo.FindSystemTimeZoneById("Europe/Madrid").GetUtcOffset(fechaFin)),
+                    DateTimeDateTimeOffset = fechaFin,
                     TimeZone = "Europe/Madrid"
                 }
             };
