@@ -2,44 +2,21 @@
 @model MensajeViewModel
 
 @{
-    ViewData["Title"] = "Chat en linea";
+    ViewData["Title"] = "Chat con la IA";
 }
 
 <link rel="stylesheet" href="~/css/Conversacion.css" asp-append-version="true" />
 
-<h2>Chat en linea</h2>
+<h2 class="mt-4 row justify-content-center">@ViewData["Title"]</h2>
+
+<p class="row justify-content-center form-text">Este chat es temporal, por lo que los mensajes no se guardarán.</p>
+
 
 <div class="row justify-content-center">
     <div class="col-md-8">
         <div class="card shadow">
             <div class="card-body px-3 py-2">
                 <div id="contenedorMensajes" style="min-height:50vh;">
-                    @{
-                        DateTime? fechaAnterior = null;
-                        var hoy = DateTime.Now.Date;
-                        @foreach (var mensaje in Model.Mensajes)
-                        {
-                            var fechaMensaje = mensaje.FechaEnvio.Date;
-
-                            if(fechaAnterior == null || fechaAnterior != fechaMensaje)
-                            {
-                                fechaAnterior = fechaMensaje;
-                                <div class="my-2 text-center">
-                                    <span class="badge VerdeOscuro px-3 py-2" style="">
-                                        @(fechaMensaje == hoy ? "Hoy" : @mensaje.FechaEnvio.ToString("dd/MM/yyy"))
-                                    </span>
-                                </div>
-                            }
-
-                            <div class="d-flex mb-2 @(mensaje.RemitenteId == Model.UsuarioId ? "justify-content-end" : "justify-content-start")">
-                                <div class="mensaje @(mensaje.RemitenteId == Model.UsuarioId ? "mio" : "otro")">
-                                    @mensaje.Contenido
-                                    <br />
-                                    <p class="form-text horaMensaje">@mensaje.FechaEnvio.ToString("HH:mm")</p>
-                                </div>
-                            </div>
-                        }
-                    }
                 </div>
                 <hr />
                 <form id="formulario-mensaje">
@@ -63,14 +40,14 @@
     <script>
         debugger;
         const usuarioId = '@Model.UsuarioId';
-        const chatId = '@Model.ChatId';
+        const chatId = '@Model.UsuarioId';
         const conexion = new signalR.HubConnectionBuilder().withUrl("/chathub").build();
 
         //Desactivamos inicialmente el boton de envio hasta que se establezca la conexion
         document.getElementById("botonEnviar").disabled = true;
 
         //Al recibir un mensaje
-        conexion.on("RecibirMensaje", function(remitenteId, mensaje, horaEnvio){
+        conexion.on("RecibirMensajeIA", function(remitenteId, mensaje){
             debugger;
             const esMio = remitenteId === usuarioId;
             const lado = esMio ? "end" : "start";
@@ -80,8 +57,6 @@
             <div class="d-flex mb-2 justify-content-${lado}">
                 <div class="mensaje ${colorMensaje}">
                     ${mensaje}
-                    <br />
-                    <p class="form-text horaMensaje">${horaEnvio}</p>
                 </div>
             </div>`;
 
@@ -92,7 +67,7 @@
         conexion.start().then(function(){
             debugger
             document.getElementById("botonEnviar").disabled = false;
-            conexion.invoke("UnirseAlChat", chatId);
+            conexion.invoke("UnirseAlChatConIA", usuarioId);
         });
 
         //Enviar el mensaje
@@ -104,16 +79,15 @@
 
             const modelo = {
                 UsuarioId: usuarioId,
-                ChatId: chatId,
+                ChatId: usuarioId,
                 Texto: mensaje,
-                
+
             };
 
             if(mensaje.trim() !== ""){
-                conexion.invoke("EnviarMensaje", modelo)
+                conexion.invoke("EnviarMensajeIA", modelo)
                 .then(() => {
                     input.value = "";
-                    document.getElementById("Avisos").innerHTML = "";
                 })
                 .catch(err => {
                     document.getElementById("Avisos").innerHTML = "El texto contiene carácteres inválidos";

@@ -37,6 +37,7 @@ builder.Services.AddTransient<IServicioDisponibilidadesMedicos, ServicioDisponib
 builder.Services.AddTransient<IServicioChats, ServicioChats>();
 builder.Services.AddTransient<IServicioMensajes, ServicioMensajes>();
 builder.Services.AddTransient<IServicioInformes, ServicioInformes>();
+builder.Services.AddTransient<IChatAI, ChatAI>();
 builder.Services.AddSignalR(); //Servicio del chat en linea
 
 //============================ IDENTITY ===============================

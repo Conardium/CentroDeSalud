@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using CentroDeSalud.Models;
+using CentroDeSalud.Infrastructure.Utilidades;
 
 namespace CentroDeSalud.Controllers
 {
@@ -38,6 +39,8 @@ namespace CentroDeSalud.Controllers
                 ? await servicioChats.ListarChatsPorPaciente(id) 
                 : await servicioChats.ListarChatsPorMedico(id);
 
+            ViewBag.SesionId = sesionId;
+
             return View(listadoChat);
         }
 
@@ -66,6 +69,27 @@ namespace CentroDeSalud.Controllers
                 ChatId = id,
                 UsuarioId = usuarioIdGuid,
                 Mensajes = listadoMensajes
+            };
+
+            return View(modelo);
+        }
+
+        [Authorize(Roles = Constantes.RolPaciente)]
+        public IActionResult ConversacionIA(Guid id)
+        {
+            //Comprobamos que la conversación pertenezca al usuario que está logueado
+            var sesionId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (id.ToString() != sesionId)
+            {
+                TempData["Acceso"] = true;
+                return RedirectToAction("Denegado", "Avisos");
+            }
+
+            var modelo = new MensajeViewModel
+            {
+                ChatId = id,
+                UsuarioId = id,
             };
 
             return View(modelo);
