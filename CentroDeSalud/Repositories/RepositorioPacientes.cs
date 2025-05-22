@@ -34,7 +34,8 @@ namespace CentroDeSalud.Repositories
         public async Task<Paciente> ObtenerPacientePorId(Guid id)
         {
             using var conexion = new SqlConnection(_connectionString);
-            return await conexion.QueryFirstOrDefaultAsync<Paciente>(@"Select * from Pacientes where Id = @Id", new {Id = id});
+            return await conexion.QueryFirstOrDefaultAsync<Paciente>(@"Select * from Pacientes p 
+                            inner join Usuarios u on p.Id = u.Id where p.Id = @Id", new {Id = id});
         }
 
         public async Task<bool> ActualizarDatosPerfil(EditarPerfilViewModel modelo)

@@ -35,7 +35,8 @@ namespace CentroDeSalud.Repositories
         public async Task<Medico> ObtenerMedicoPorId(Guid id)
         {
             using var conexion = new SqlConnection(_connectionString);
-            return await conexion.QueryFirstOrDefaultAsync<Medico>(@"Select * from Medicos where Id = @Id", new { Id = id });
+            return await conexion.QueryFirstOrDefaultAsync<Medico>(@"Select * from Medicos m 
+                            inner join Usuarios u on m.Id = u.Id where m.Id = @Id", new { Id = id });
         }
 
         public async Task<IEnumerable<Medico>> ListadoMedicos()
