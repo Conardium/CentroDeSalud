@@ -1,5 +1,6 @@
 ﻿using CentroDeSalud.Data;
 using CentroDeSalud.Models;
+using CentroDeSalud.Models.ViewModels;
 using Dapper;
 using Microsoft.Data.SqlClient;
 
@@ -13,6 +14,7 @@ namespace CentroDeSalud.Repositories
         Task<int> CrearCita(Cita cita);
         Task<bool> EliminarCita(int id);
         Task<IEnumerable<Cita>> ListarCitasPorUsuario(Guid id, string rol);
+        Task<IEnumerable<SelectPacienteViewModel>> ListarPacientesDelMedico(Guid medicoId);
         Task<IEnumerable<Cita>> ObtenerCitasPendientesMedicoPorFecha(Guid medicoId, DateTime fecha);
         Task<IEnumerable<Cita>> ObtenerCitasPendientesPorIdUsuario(Guid idUsuario, string rol);
         Task SincronizarCita(int id);
@@ -111,6 +113,13 @@ namespace CentroDeSalud.Repositories
         {
             using var conexion = new SqlConnection(_connectionString);
             await conexion.ExecuteAsync(@"Update Citas Set Sincronizada = 1 where Id = @Id", new { Id = id });
+        }
+
+        public async Task<IEnumerable<SelectPacienteViewModel>> ListarPacientesDelMedico(Guid medicoId)
+        {
+            using var conexion = new SqlConnection(_connectionString);
+            return await conexion.QueryAsync<SelectPacienteViewModel>("ObtenerPacientesDelMedicoConCitaPendiente",
+                        new { MedicoId = medicoId }, commandType: System.Data.CommandType.StoredProcedure);
         }
     }
 }

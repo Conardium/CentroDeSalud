@@ -1,6 +1,7 @@
 ﻿using CentroDeSalud.Enumerations;
 using CentroDeSalud.Infrastructure.Utilidades;
 using CentroDeSalud.Models;
+using CentroDeSalud.Models.ViewModels;
 using CentroDeSalud.Repositories;
 using Google;
 using Google.Apis.Auth.OAuth2;
@@ -23,6 +24,7 @@ namespace CentroDeSalud.Services
         Task<bool> EliminarCita(int id);
         Task<IEnumerable<Cita>> ListarCitasPorUsuario(Guid id, string rol);
         Task<ResultadoOperacion<List<TimeSpan>>> ListarHorasDisponibles(Guid medicoId, DateTime fecha);
+        Task<IEnumerable<SelectPacienteViewModel>> ListarPacientesDelMedico(Guid medicoId);
         Task<IEnumerable<Cita>> ObtenerCitasPendientesPorIdUsuario(Guid usuarioId, string rol);
         Task<ResultadoOperacion<bool>> SincronizarCita(Guid usuarioId, int idCita);
     }
@@ -214,6 +216,11 @@ namespace CentroDeSalud.Services
         public async Task ActualizarSincronizarCita(int id)
         {
             await repositorioCitas.SincronizarCita(id);
+        }
+
+        public async Task<IEnumerable<SelectPacienteViewModel>> ListarPacientesDelMedico(Guid medicoId)
+        {
+            return await repositorioCitas.ListarPacientesDelMedico(medicoId);
         }
     }
 }
