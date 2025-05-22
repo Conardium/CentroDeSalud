@@ -28,13 +28,15 @@ namespace CentroDeSalud.Controllers
             this.userManager = userManager;
         }
 
+        #region Funcionalidad Crear el informe del paciente
+
         [Authorize(Roles = Constantes.RolMedico)]
         public async Task<IActionResult> MisPacientes(Guid id)
         {
             //Mostramos los pacientes que el medico tiene con citas pendientes
             var pacientes = await servicioCitas.ListarPacientesDelMedico(id);
 
-            if(pacientes == null || !pacientes.Any())
+            if (pacientes == null || !pacientes.Any())
             {
                 TempData["Acceso"] = true;
                 return RedirectToAction("Error", "Avisos", new { mensaje = "Parece que no tiene ningún paciente asignado en estos momentos." });
@@ -49,11 +51,22 @@ namespace CentroDeSalud.Controllers
         {
             var idMedico = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            if (!Guid.TryParse(idMedico, out Guid idMedicoGuid))
+                return null;
+
+            //Comprobamos si el médico tiene alguna cita pendiente con ese paciente para poder crearle un informe.
+            var citasPendientesMedico = await servicioCitas.ObtenerCitasPendientesPorIdUsuario(idMedicoGuid, Constantes.RolMedico);
+            if(!citasPendientesMedico.Any(cita => cita.PacienteId == pacienteId))
+            {
+                TempData["Acceso"] = true;
+                return RedirectToAction("Denegado", "Avisos");
+            }
+
             //Recogemos los datos del paciente
             var usuarioPaciente = await userManager.FindByIdAsync(pacienteId.ToString());
             var usuarioMedico = await userManager.FindByIdAsync(idMedico);
 
-            if(usuarioMedico is null || usuarioPaciente is null)
+            if (usuarioMedico is null || usuarioPaciente is null)
             {
                 TempData["Acceso"] = true;
                 return RedirectToAction("Error", "Avisos", new { mensaje = "No se ha podido crear el formulario correctamente" });
@@ -130,5 +143,57 @@ namespace CentroDeSalud.Controllers
             TempData["Acceso"] = true;
             return RedirectToAction("Exito", "Avisos", new { mensaje = "El informe del paciente se ha creado correctamente." });
         }
+
+        #endregion
+
+        #region Funcionalidad Consultar los informes
+
+        [Authorize(Roles = Constantes.RolMedico + "," + Constantes.RolPaciente)]
+        public async Task<IActionResult> ListadoInformes(Guid id)
+        {
+            var rol = User.FindFirstValue(ClaimTypes.Role);
+
+            //Comprobamos que el idSesion es el mismo que el id que se pasa
+            var idSesion = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if(idSesion == null || idSesion != id.ToString())
+            {
+                TempData["Acceso"] = true;
+                return RedirectToAction("Denegado", "Avisos");
+            }
+
+            IEnumerable<Informe> listadoInformes = null;
+
+            //Recogemos los informes
+            if(rol == Constantes.RolMedico || rol == Constantes.RolPaciente)
+            {
+                listadoInformes = await servicioInformes.ListarInformesPorUsuario(id, rol);
+            }
+
+            if(listadoInformes == null)
+            {
+                TempData["Acceso"] = true;
+                return RedirectToAction("Error", "Avisos", new { mensaje = "Ha habido un problema al buscar los informes." });
+            }
+
+            //Recogemos el paciente y médico de cada informe
+            foreach(var informe in listadoInformes)
+            {
+                var paciente = await servicioPacientes.ObtenerPacientePorId(informe.PacienteId);
+                informe.Paciente = paciente;
+                var medico = await servicioMedicos.ObtenerMedicoPorId(informe.MedicoId);
+                informe.Medico = medico;
+            }
+
+            return View(listadoInformes);
+        }
+
+        #endregion
+
+        #region Funcionalidad Modificar un informe
+
+
+
+        #endregion
     }
 }
