@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="~/lib/fontawesome/css/regular.css" />
     <link rel="stylesheet" href="~/lib/fontawesome/css/solid.css" />
 </head>
-<body>
+<body class="default-body @(ViewData["BodyClass"] ?? "")">
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3 p-0" style="min-height: 60px;">
             <div class="container-fluid p-0">
