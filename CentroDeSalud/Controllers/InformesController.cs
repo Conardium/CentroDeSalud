@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace CentroDeSalud.Controllers
 {
@@ -146,7 +147,7 @@ namespace CentroDeSalud.Controllers
 
         #endregion
 
-        #region Funcionalidad Consultar los informes
+        #region Funcionalidad Consultar los informes y Detalles
 
         [Authorize(Roles = Constantes.RolMedico + "," + Constantes.RolPaciente)]
         public async Task<IActionResult> ListadoInformes(Guid id)
@@ -186,6 +187,72 @@ namespace CentroDeSalud.Controllers
             }
 
             return View(listadoInformes);
+        }
+
+        [Authorize(Roles = Constantes.RolMedico)]
+        public async Task<IActionResult> HistorialInformes()
+        {
+            var listadoInformes = await servicioInformes.ListarInformesPorUsuario(Guid.Empty, null);
+
+            if (listadoInformes == null)
+            {
+                TempData["Acceso"] = true;
+                return RedirectToAction("Error", "Avisos", new { mensaje = "Ha habido un problema al buscar los informes." });
+            }
+
+            //Recogemos el paciente y médico de cada informe
+            foreach (var informe in listadoInformes)
+            {
+                var paciente = await servicioPacientes.ObtenerPacientePorId(informe.PacienteId);
+                informe.Paciente = paciente;
+                var medico = await servicioMedicos.ObtenerMedicoPorId(informe.MedicoId);
+                informe.Medico = medico;
+            }
+
+            return View("ListadoInformes" ,listadoInformes);
+        }
+
+        [Authorize(Roles = Constantes.RolMedico + "," + Constantes.RolPaciente)]
+        public async Task<IActionResult> Detalles(int id)
+        {
+            var informe = await servicioInformes.ObtenerInformePorId(id);
+
+            informe.Paciente = await servicioPacientes.ObtenerPacientePorId(informe.PacienteId);
+            informe.Medico = await servicioMedicos.ObtenerMedicoPorId(informe.MedicoId);
+
+            return View(informe);
+        }
+
+        public async Task<IActionResult> DescargarArchivo(int id)
+        {
+            // Obtenemos el informe
+            var informe = await servicioInformes.ObtenerInformePorId(id);
+            if (informe == null || string.IsNullOrEmpty(informe.ArchivosAdjuntos))
+            {
+                return NotFound();
+            }
+
+            //Comprobamos que la persona que descarga el archivo sea o el paciente o el medico del informe
+            var idSesion = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if(idSesion != informe.PacienteId.ToString() && idSesion != informe.MedicoId.ToString())
+            {
+                TempData["Acceso"] = true;
+                return RedirectToAction("Denegado", "Avisos");
+            }
+
+            var rutaArchivo = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", informe.ArchivosAdjuntos.TrimStart('/'));
+
+            if (!System.IO.File.Exists(rutaArchivo))
+            {
+                return NotFound();
+            }
+
+            var contentType = "application/octet-stream";
+            var nombreArchivo = Path.GetFileName(rutaArchivo); // Nombre de la descarga
+
+            var bytes = System.IO.File.ReadAllBytes(rutaArchivo);
+
+            return File(bytes, contentType, nombreArchivo); // Fuerza la descarga
         }
 
         #endregion
