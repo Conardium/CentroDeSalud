@@ -19,5 +19,7 @@ namespace CentroDeSalud.Models
         public Sexo Sexo { get; set; }
 
         public ICollection<DisponibilidadMedico> DisponibilidadesMedico { get; set; }
+
+        public ICollection<Informe> InformesMedico { get; set; }
     }
 }

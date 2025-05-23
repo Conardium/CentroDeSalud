@@ -1,0 +1,77 @@
+﻿@using CentroDeSalud.Models.ViewModels
+@using CentroDeSalud.Enumerations
+@model CrearInformeViewModel
+
+@{
+	ViewData["Title"] = "Crear informe";
+}
+
+<h2 class="text-center mb-2">Crear un nuevo informe</h2>
+<p class="text-center form-text">Los campos con * son obligarios</p>
+
+<div class="card mt-4 bg-light p-4">
+    <form asp-action="Crear" enctype="multipart/form-data">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label>Paciente</label> <span class="text-danger">*</span>
+                <input type="text" class="form-control" value="@Model.NombrePaciente" readonly />
+                <input type="hidden" asp-for="PacienteId" />
+            </div>
+            <div class="col-md-6">
+                <label>Médico</label> <span class="text-danger">*</span>
+                <input type="text" class="form-control" value="@Model.NombreMedico" readonly />
+                <input type="hidden" asp-for="MedicoId" />
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-2">
+                <label>Estado</label> <span class="text-danger">*</span>
+                <input type="text" class="form-control" value="@EstadoInforme.Borrador" readonly />
+                <input type="hidden" asp-for="EstadoInforme" value="@EstadoInforme.Borrador" />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label>Diagnóstico</label> <span class="text-danger">*</span>
+            <input type="text" asp-for="Diagnostico" class="form-control" />
+            <span asp-validation-for="Diagnostico" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label>Tratamiento</label> <span class="text-danger">*</span>
+            <textarea asp-for="Tratamiento" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Tratamiento" class="text-danger"></span>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label>Notas</label>
+                <textarea asp-for="Notas" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Notas" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label>Recomendaciones</label>
+                <textarea asp-for="Recomendaciones" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Recomendaciones" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label>Archivos adjuntos</label>
+            <input asp-for="ArchivoAdjunto" type="file" class="form-control" accept=".jpg,.jpeg,.png,.pdf" />
+            <span asp-validation-for="ArchivoAdjunto" class="text-danger"></span>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn boton-Verde-Oscuro px-4">
+                Crear informe
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

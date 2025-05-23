@@ -1,10 +1,12 @@
 ﻿using CentroDeSalud.Models;
+using CentroDeSalud.Models.ViewModels;
 using CentroDeSalud.Repositories;
 
 namespace CentroDeSalud.Services
 {
     public interface IServicioPacientes
     {
+        Task<bool> ActualizarDatosPerfil(EditarPerfilViewModel modelo);
         Task<Guid> CrearPacienteAsync(Paciente paciente);
         Task<Paciente> ObtenerPacientePorId(Guid id);
     }
@@ -26,6 +28,11 @@ namespace CentroDeSalud.Services
         public async Task<Paciente> ObtenerPacientePorId(Guid id)
         {
             return await repositorioPacientes.ObtenerPacientePorId(id);
+        }
+
+        public async Task<bool> ActualizarDatosPerfil(EditarPerfilViewModel modelo)
+        {
+            return await repositorioPacientes.ActualizarDatosPerfil(modelo);
         }
     }
 }

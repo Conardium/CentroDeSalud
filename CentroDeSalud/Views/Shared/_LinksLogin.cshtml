@@ -9,7 +9,7 @@
 		<li class="nav-item dropdown">
 			<a class="nav-link text-light dropdown-toggle d-flex align-items-center gap-2" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 				@User.FindFirst("NombreReal")?.Value (@User.Claims.FirstOrDefault(c => c.Type.Contains("role"))?.Value)
-				<i class="fa-solid fa-user"></i>
+				<i class="fa-solid fa-circle-user" style="font-size:25px"></i>
 			</a>
 			<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
 

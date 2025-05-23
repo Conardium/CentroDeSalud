@@ -469,8 +469,8 @@ namespace CentroDeSalud.Controllers
         /*
             var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (!Guid.TryParse(usuarioId, out Guid id))
-                return null;
+                if (!Guid.TryParse(usuarioId, out Guid id))
+                    return null;
          */
     }
 }

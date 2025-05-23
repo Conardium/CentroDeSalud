@@ -40,7 +40,9 @@
 
                                         @if (cita.Sincronizada == false)
                                         {
-                                            <a class="btn boton-Verde-Oscuro btn-sm" asp-action="SincronizarCitaCalendario" asp-controller="Citas" asp-route-id=@cita.Id>Sincronizar</a>
+                                            <a class="btn boton-Verde-Oscuro btn-sm" asp-action="SincronizarCitaCalendario" asp-controller="Citas" asp-route-id=@cita.Id>
+                                                <i class="fa-solid fa-calendar-week"></i> Sincronizar
+                                            </a>
                                         }
 
                                         <!-- Modal de confirmación -->

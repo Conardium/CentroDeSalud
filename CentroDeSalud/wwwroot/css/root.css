@@ -11,6 +11,46 @@ body{
     background-color: var(--color-antiflash-white);
 }
 
+.fondoLogin{
+background-image: url('/images/fondoLogin.svg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;
+}
+
+.fondoRegistrar {
+    background-image: url('/images/fondoRegistrar.svg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;
+}
+
+.fondoPerfil {
+    background-image: url('/images/fondoPerfil.svg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;
+}
+
+.fondoMedicos {
+    background-image: url('/images/fondoMedicos.svg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;
+}
+
+.fondoInformes {
+    background-image: url('/images/fondoInformes.svg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;
+}
+
 .dropdown-toggle::after {
     display: none;
 }
@@ -46,6 +86,8 @@ body{
     width: 100%;
 }
 
+
+
 .VerdeOscuro {
     background-color: var(--color-dark-green);
     color: white;
@@ -58,6 +100,11 @@ body{
 .VerdeTe{
     background-color: var(--color-keppel);
 }
+
+.Gris {
+    background-color: var(--color-dark-gray);
+}
+
 
 .TextoVerdeOscuro{
     color: var(--color-dark-green) !important;

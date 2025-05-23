@@ -1,6 +1,7 @@
 ﻿using CentroDeSalud.Enumerations;
 using CentroDeSalud.Infrastructure.Utilidades;
 using CentroDeSalud.Models;
+using CentroDeSalud.Models.ViewModels;
 using CentroDeSalud.Repositories;
 using Google;
 using Google.Apis.Auth.OAuth2;
@@ -23,6 +24,7 @@ namespace CentroDeSalud.Services
         Task<bool> EliminarCita(int id);
         Task<IEnumerable<Cita>> ListarCitasPorUsuario(Guid id, string rol);
         Task<ResultadoOperacion<List<TimeSpan>>> ListarHorasDisponibles(Guid medicoId, DateTime fecha);
+        Task<IEnumerable<SelectPacienteViewModel>> ListarPacientesDelMedico(Guid medicoId);
         Task<IEnumerable<Cita>> ObtenerCitasPendientesPorIdUsuario(Guid usuarioId, string rol);
         Task<ResultadoOperacion<bool>> SincronizarCita(Guid usuarioId, int idCita);
     }
@@ -167,7 +169,12 @@ namespace CentroDeSalud.Services
             });
 
             //Creamos y configuramos el evento
-            var fechaInicio = cita.Fecha.Date + cita.Hora;
+            var timeZone = TimeZoneInfo.FindSystemTimeZoneById("UTC");
+
+            var fechaInicioSinZona = cita.Fecha.Date + cita.Hora;
+            var offsetMadrid = timeZone.GetUtcOffset(fechaInicioSinZona);
+
+            var fechaInicio = new DateTimeOffset(fechaInicioSinZona, offsetMadrid);
             var fechaFin = fechaInicio.AddMinutes(30);
             var evento = new Event
             {
@@ -176,12 +183,12 @@ namespace CentroDeSalud.Services
                 Description = cita.Motivo,
                 Start = new EventDateTime
                 {
-                    DateTimeDateTimeOffset = new DateTimeOffset(fechaInicio, TimeZoneInfo.FindSystemTimeZoneById("Europe/Madrid").GetUtcOffset(fechaInicio)),
+                    DateTimeDateTimeOffset = fechaInicio,
                     TimeZone = "Europe/Madrid"
                 },
                 End = new EventDateTime
                 {
-                    DateTimeDateTimeOffset = new DateTimeOffset(fechaFin, TimeZoneInfo.FindSystemTimeZoneById("Europe/Madrid").GetUtcOffset(fechaFin)),
+                    DateTimeDateTimeOffset = fechaFin,
                     TimeZone = "Europe/Madrid"
                 }
             };
@@ -209,6 +216,11 @@ namespace CentroDeSalud.Services
         public async Task ActualizarSincronizarCita(int id)
         {
             await repositorioCitas.SincronizarCita(id);
+        }
+
+        public async Task<IEnumerable<SelectPacienteViewModel>> ListarPacientesDelMedico(Guid medicoId)
+        {
+            return await repositorioCitas.ListarPacientesDelMedico(medicoId);
         }
     }
 }

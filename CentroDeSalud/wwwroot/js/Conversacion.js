@@ -29,3 +29,11 @@
 
     observer.observe(contenedor, { childList: true, subtree: true });
 })();
+
+//Funcion para recoger el Enter como "Enviar mensaje"
+document.getElementById("Texto").addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault(); // Evita el salto de línea
+        document.getElementById("botonEnviar").click(); // Simula el clic en el botón de enviar
+    }
+});

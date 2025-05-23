@@ -1,0 +1,62 @@
+﻿@using CentroDeSalud.Models.ViewModels
+@using CentroDeSalud.Infrastructure.Utilidades
+@using CentroDeSalud.Enumerations
+@model EditarPerfilViewModel
+
+<form asp-action="EditarPerfil" class="container mt-4">
+    <h2 class="mb-4 text-center">Editar perfil</h2>
+
+    <div class="card shadow p-4">
+        <h4 class="mb-3 TextoVerdeClaro">Información personal</h4>
+
+        <input type="hidden" asp-for="Id" />
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-3 d-flex align-items-center">
+                <label for="Nombre" class="fw-bold text-md-end me-2 fs-6" style="min-width: 75px;">Nombre:</label>
+                <input asp-for="Nombre" class="form-control form-control-sm fs-6" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6 d-flex align-items-center">
+                <label for="Apellidos" class="fw-bold text-md-end me-2 fs-6" style="min-width: 75px;">Apellidos:</label>
+                <input asp-for="Apellidos" class="form-control form-control-sm fs-6" />
+                <span asp-validation-for="Apellidos" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-3 d-flex align-items-center">
+                <label for="Sexo" class="fw-bold text-md-end me-2 fs-6">Sexo:</label>
+                <select asp-for="Sexo" class="form-select form-select-sm fs-6">
+                    @foreach (var sexo in Enum.GetValues(typeof(Sexo)).Cast<Sexo>().Where(s => s != Sexo.NoSeleccionado))
+                    {
+                        <option value="@sexo">@sexo.GetDisplayName()</option>
+                    }
+                </select>
+                <span asp-validation-for="Sexo" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-3 d-flex align-items-center">
+                <label for="Telefono" class="fw-bold text-md-end me-2 fs-6" style="min-width: 75px;">Teléfono:</label>
+                <input asp-for="Telefono" class="form-control form-control-sm fs-6" />
+                <span asp-validation-for="Telefono" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6 d-flex align-items-center">
+                <label for="Direccion" class="fw-bold text-md-end me-2 fs-6 w-40">Dirección:</label>
+                <input asp-for="Direccion" class="form-control form-control-sm fs-6" />
+                <span asp-validation-for="Direccion" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="text-start mt-4 d-flex gap-3">
+            <button type="submit" class="btn boton-Verde-Oscuro">
+                <i class="fa-solid fa-floppy-disk"></i> Guardar cambios
+            </button>
+            <a asp-action="Perfil" asp-route-id="@Model.Id" class="btn btn-secondary">Volver</a>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

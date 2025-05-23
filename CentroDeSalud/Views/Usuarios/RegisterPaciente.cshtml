@@ -4,6 +4,7 @@
 
 @{
     ViewData["Title"] = "Registro de Paciente";
+    ViewData["BodyClass"] = "fondoRegistrar";
 }
 
 <h2 class="mt-4 row justify-content-center">@ViewData["Title"]</h2>
@@ -83,7 +84,7 @@
         <div class="col-md-6">
             <div class="card shadow">
                 <div class="card-body">
-                    <h4>Datos de inicio de sesión</h4>
+                    <h4>Datos de inicio de sesión <i title="Estos datos se usarán para iniciar sesión cuando se registre" class="fa-solid fa-circle-info fs-5 text-primary"></i></h4>
                     <div class="d-flex gap-4">
                         <div class="form-group w-50">
                             <label asp-for="Email"></label> <span class="text-danger">*</span>
@@ -96,15 +97,17 @@
                             <input asp-for="PasswordHash" class="form-control" type="password" />
                             <span asp-validation-for="PasswordHash" class="text-danger"></span>
                         </div>
+
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <button type="submit" class="w-50    btn boton-Verde-Oscuro mt-3">Registrarse</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="d-flex justify-content-center">
-        <button type="submit" class="w-25 btn boton-Verde-Oscuro mt-3">Registrarse</button>
-    </div>
+    
 </form>
 
 @section Scripts {

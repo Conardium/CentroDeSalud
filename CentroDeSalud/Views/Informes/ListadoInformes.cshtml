@@ -1,0 +1,126 @@
+﻿@using CentroDeSalud.Data
+@using CentroDeSalud.Enumerations
+@using System.Security.Claims
+@using CentroDeSalud.Infrastructure.Utilidades
+@model IEnumerable<Informe>
+
+@{
+    ViewData["Title"] = "Crear informe";
+    ViewData["BodyClass"] = "fondoInformes";
+}
+
+<h2 class="text-center mb-2">Listado de informes</h2>
+
+@if (User.IsInRole(Constantes.RolMedico))
+{
+    <h6 class="text-center mb-2">
+        <a class="btn boton-Verde-Oscuro" asp-action="MisPacientes" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)">
+            Crear nuevo informe
+            <i class="fa-solid fa-circle-plus"></i>
+        </a>
+    </h6>
+}
+
+<div class="mt-2 row mb-3 justify-content-center">
+    <div class="col-md-auto d-flex justify-content-center align-items-center">
+        <p class="m-0"><strong>Filtros</strong></p>
+    </div>
+    <div class="col-md-2">
+        <label for="fechaInicio">Desde:</label>
+        <input type="date" id="fechaInicio" class="form-control" />
+    </div>
+    <div class="col-md-2">
+        <label for="fechaFin">Hasta:</label>
+        <input type="date" id="fechaFin" class="form-control" />
+    </div>
+    <div class="col-md-2">
+        <label for="estadoFiltro">Estado:</label>
+        <select id="estadoFiltro" class="form-control">
+            <option value="">Todos</option>
+            <option value="Borrador">Borrador</option>
+            <option value="EnRevision">En revisión</option>
+            <option value="Definitivo">Definitivo</option>
+        </select>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="card shadow p-4">
+        @if (Model != null && Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-success">
+                        <tr>
+                            <th>Nº. Informe <i class="fa-solid fa-hashtag"></i></th>
+                            <th>Fecha creación <i class="fa-regular fa-calendar"></i></th>
+                            <th>Médico <i class="fa-solid fa-user-doctor"></i></th>
+
+                            @if (User.IsInRole(Constantes.RolMedico))
+                            {
+                                <th>Paciente <i class="fa-solid fa-user"></i></th>
+                                <th>Última Modificación <i class="fa-solid fa-hammer"></i></th>
+                            }
+
+                            <th class="text-center">Estado <i class="fa-solid fa-clipboard-check"></i></th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        @foreach (var informe in Model)
+                        {
+                            var badgeColor = informe.EstadoInforme switch
+                            {
+                                EstadoInforme.Borrador => "secondary",
+                                EstadoInforme.EnRevision => "warning",
+                                EstadoInforme.Definitivo => "success",
+                                _ => "light"
+                            };
+
+                            var icon = informe.EstadoInforme switch
+                            {
+                                EstadoInforme.Borrador => "<i class='fa-solid fa-eraser'></i>",
+                                EstadoInforme.EnRevision => "<i class='fa-solid fa-magnifying-glass'></i>",
+                                EstadoInforme.Definitivo => "<i class='fa-solid fa-check-to-slot'></i>",
+                                _ => ""
+                            };
+
+                            <tr>
+                                <td>@informe.Id</td>
+                                <td>@informe.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@informe.Medico.Nombre @informe.Medico.Apellidos</td>
+
+                                @if (User.IsInRole(Constantes.RolMedico))
+                                {
+                                    <td>@informe.Paciente.Nombre @informe.Paciente.Apellidos</td>
+                                    <td>@informe.FechaModificacion?.ToString("dd/MM/yyyy HH:mm")</td>
+                                }
+
+                                <td class="text-center">
+                                    <span class="badge rounded-pill bg-@badgeColor">@informe.EstadoInforme.GetDisplayName() @Html.Raw(icon)</span>
+                                </td>
+                                <td class="text-center">
+                                    <a class="btn btn-primary" asp-action="Detalles" asp-route-id="@informe.Id">Detalles</a>
+
+                                    @if(User.IsInRole(Constantes.RolMedico) && informe.MedicoId.ToString() == User.FindFirstValue(ClaimTypes.NameIdentifier))
+                                    {
+                                        <a class="btn boton-Verde-Oscuro" asp-action="Editar" asp-route-id="@informe.Id">Editar</a>
+                                    }
+
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-muted">No hay informes en este momento.</p>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/FiltroInformes.js" asp-append-version="true"></script>
+}

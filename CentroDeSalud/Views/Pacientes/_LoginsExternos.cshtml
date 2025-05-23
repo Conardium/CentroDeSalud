@@ -13,7 +13,7 @@
             @if (!tieneMicrosoft)
             {
                 <a class="btn btn-outline-dark d-flex align-items-center justify-content-center gap-2"
-                   asp-action="LoginExterno" asp-route-proveedor="Microsoft">
+                   asp-action="LoginExterno" asp-controller="Usuarios" asp-route-proveedor="Microsoft">
                     <img src="~/images/icons8-microsoft.svg" width="20" height="20" alt="Microsoft" />
                     Vincular cuenta con Microsoft
                 </a>
@@ -28,7 +28,7 @@
             @if (!tieneGoogle)
             {
                 <a class="btn btn-outline-dark d-flex align-items-center justify-content-center gap-2"
-                   asp-action="LoginExterno" asp-route-proveedor="Google">
+                   asp-action="LoginExterno" asp-controller="Usuarios" asp-route-proveedor="Google">
                     <img src="~/images/icons8-logo-de-google.svg" width="20" height="20" alt="Google" />
                     Vincular cuenta con Google
                 </a>

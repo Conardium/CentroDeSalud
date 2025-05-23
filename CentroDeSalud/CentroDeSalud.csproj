@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.66" />
     <PackageReference Include="Google.Apis.Calendar.v3" Version="1.69.0.3746" />
+    <PackageReference Include="Google_GenerativeAI" Version="2.5.10" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="9.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.0" />
@@ -26,6 +27,7 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
+    <Folder Include="wwwroot\images\uploads\" />
   </ItemGroup>
 
 </Project>

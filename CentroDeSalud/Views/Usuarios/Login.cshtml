@@ -2,6 +2,7 @@
 @model LoginViewModel
 @{
     ViewData["Title"] = "Iniciar sesión";
+    ViewData["BodyClass"] = "fondoLogin";
 }
 
 <h2 class="mt-4 row justify-content-center mb-3">Iniciar Sesión</h2>
@@ -42,6 +43,10 @@
                     </div>
 
                     <button type="submit" class="btn boton-Verde-Oscuro mb-3 w-100">Iniciar sesión</button>
+
+                    <div class="form-group">
+                        <a class="link-Verde" asp-action="RegisterPaciente">¿No tienes cuenta? regístrate aquí</a>
+                    </div>
 
                     <div class="d-flex align-items-center mb-3">
                         <hr class="flex-grow-1">
