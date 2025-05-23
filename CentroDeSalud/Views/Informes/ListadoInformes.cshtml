@@ -1,10 +1,12 @@
 ﻿@using CentroDeSalud.Data
 @using CentroDeSalud.Enumerations
 @using System.Security.Claims
+@using CentroDeSalud.Infrastructure.Utilidades
 @model IEnumerable<Informe>
 
 @{
     ViewData["Title"] = "Crear informe";
+    ViewData["BodyClass"] = "fondoInformes";
 }
 
 <h2 class="text-center mb-2">Listado de informes</h2>
@@ -95,14 +97,14 @@
                                 }
 
                                 <td class="text-center">
-                                    <span class="badge rounded-pill bg-@badgeColor">@informe.EstadoInforme @Html.Raw(icon)</span>
+                                    <span class="badge rounded-pill bg-@badgeColor">@informe.EstadoInforme.GetDisplayName() @Html.Raw(icon)</span>
                                 </td>
                                 <td class="text-center">
                                     <a class="btn btn-primary" asp-action="Detalles" asp-route-id="@informe.Id">Detalles</a>
 
                                     @if(User.IsInRole(Constantes.RolMedico) && informe.MedicoId.ToString() == User.FindFirstValue(ClaimTypes.NameIdentifier))
                                     {
-                                        <a class="btn boton-Verde-Oscuro">Editar</a>
+                                        <a class="btn boton-Verde-Oscuro" asp-action="Editar" asp-route-id="@informe.Id">Editar</a>
                                     }
 
                                 </td>

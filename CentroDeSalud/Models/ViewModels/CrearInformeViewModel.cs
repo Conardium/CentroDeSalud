@@ -6,6 +6,8 @@ namespace CentroDeSalud.Models.ViewModels
 {
     public class CrearInformeViewModel
     {
+        public int Id { get; set; }
+
         [Display(Name = "Paciente")]
         public string NombrePaciente { get; set; }
 

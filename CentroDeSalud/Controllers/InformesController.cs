@@ -29,7 +29,7 @@ namespace CentroDeSalud.Controllers
             this.userManager = userManager;
         }
 
-        #region Funcionalidad Crear el informe del paciente
+        #region Funcionalidad Crear el informe del paciente (3 métodos)
 
         [Authorize(Roles = Constantes.RolMedico)]
         public async Task<IActionResult> MisPacientes(Guid id)
@@ -147,7 +147,7 @@ namespace CentroDeSalud.Controllers
 
         #endregion
 
-        #region Funcionalidad Consultar los informes y Detalles
+        #region Funcionalidad Consultar los informes y Detalles (4 métodos)
 
         [Authorize(Roles = Constantes.RolMedico + "," + Constantes.RolPaciente)]
         public async Task<IActionResult> ListadoInformes(Guid id)
@@ -257,9 +257,90 @@ namespace CentroDeSalud.Controllers
 
         #endregion
 
-        #region Funcionalidad Modificar un informe
+        #region Funcionalidad Modificar un informe (2 métodos)
 
+        [HttpGet]
+        [Authorize(Roles = Constantes.RolMedico)]
+        public async Task<IActionResult> Editar(int id)
+        {
+            var informe = await servicioInformes.ObtenerInformePorId(id);
 
+            //Comprobamos que el medico que va a editar el informe sea el creador de este
+            var sesionId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if(informe.MedicoId.ToString() != sesionId)
+            {
+                TempData["Acceso"] = true;
+                return RedirectToAction("Denegado", "Avisos");
+            }
+
+            //Comprobamos que el informe exista
+            if(informe == null)
+            {
+                TempData["Acceso"] = true;
+                return RedirectToAction("Error", "Avisos", "No hemos podido encontrar el informe.");
+            }
+
+            //Mapeamos el modelo de la vista
+            var modelo = new CrearInformeViewModel
+            {
+                Id = id,
+                PacienteId = informe.PacienteId,
+                MedicoId = informe.MedicoId,
+                FechaCreacion = informe.FechaCreacion,
+                EstadoInforme = informe.EstadoInforme,
+                Diagnostico = informe.Diagnostico,
+                Tratamiento = informe.Tratamiento,
+                Notas = informe.Notas,
+                Recomendaciones = informe.Recomendaciones,
+            };
+
+            var paciente = await servicioPacientes.ObtenerPacientePorId(informe.PacienteId);
+            var medico = await servicioMedicos.ObtenerMedicoPorId(informe.MedicoId);
+            modelo.NombrePaciente = paciente.Nombre + " " + paciente.Apellidos;
+            modelo.NombreMedico = medico.Nombre + " " + medico.Apellidos;
+
+            return View(modelo);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = Constantes.RolMedico)]
+        public async Task<IActionResult> Editar(CrearInformeViewModel modelo)
+        {
+            //Comprobamos si el modelo cumple con las anotaciones
+            if (!ModelState.IsValid)
+            {
+                return View(modelo);
+            }
+
+            //Comprobamos si el usuario existe en la BD
+            var usuario = userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            if(usuario is null)
+            {
+                TempData["Acceso"] = true;
+                return RedirectToAction("Denegado", "Avisos");
+            }
+
+            var informe = new Informe
+            {
+                Id = modelo.Id,
+                FechaModificacion = DateTime.Now,
+                EstadoInforme = modelo.EstadoInforme,
+                Diagnostico = modelo.Diagnostico,
+                Tratamiento = modelo.Tratamiento,
+                Notas = modelo.Notas,
+                Recomendaciones = modelo.Recomendaciones,
+            };
+
+            var resultado = await servicioInformes.EditarInforme(informe);
+
+            if (!resultado)
+            {
+                TempData["Acceso"] = true;
+                return RedirectToAction("Error", "Avisos", "Ha habido un error al actualizar el informe.");
+            }
+
+            return RedirectToAction("Detalles", new { id = informe.Id});
+        }
 
         #endregion
     }

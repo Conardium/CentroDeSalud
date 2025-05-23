@@ -42,8 +42,7 @@ namespace CentroDeSalud.Repositories
             {
                 await conexion.ExecuteAsync(@"Update Informes SET FechaModificacion = @FechaModificacion, 
                     EstadoInforme = @EstadoInforme, Diagnostico = @Diagnostico, Tratamiento = @Tratamiento,
-                    Notas = @Notas, Recomendaciones = @Recomendaciones, ArchivosAdjuntos = @ArchivosAdjuntos
-                    Where Id = @Id", informe);
+                    Notas = @Notas, Recomendaciones = @Recomendaciones Where Id = @Id", informe);
 
                 return true;
             }

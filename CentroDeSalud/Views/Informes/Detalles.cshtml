@@ -1,4 +1,5 @@
 ﻿@using System.Security.Claims
+@using CentroDeSalud.Infrastructure.Utilidades
 @model Informe
 
 @{
@@ -23,7 +24,7 @@
                 <label class="fw-bold d-block">Estado:</label>
                 <div>
                     <span class="badge rounded-pill VerdeTe fs-6">
-                        @Model.EstadoInforme
+                        @Model.EstadoInforme.GetDisplayName()
                     </span>
                 </div>
             </div>
