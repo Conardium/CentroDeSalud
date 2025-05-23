@@ -9,6 +9,39 @@
 
 <h2 class="text-center mb-2">Listado de informes</h2>
 
+@if (User.IsInRole(Constantes.RolMedico))
+{
+    <h6 class="text-center mb-2">
+        <a class="btn boton-Verde-Oscuro" asp-action="MisPacientes" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)">
+            Crear nuevo informe
+            <i class="fa-solid fa-circle-plus"></i>
+        </a>
+    </h6>
+}
+
+<div class="mt-2 row mb-3 justify-content-center">
+    <div class="col-md-auto d-flex justify-content-center align-items-center">
+        <p class="m-0"><strong>Filtros</strong></p>
+    </div>
+    <div class="col-md-2">
+        <label for="fechaInicio">Desde:</label>
+        <input type="date" id="fechaInicio" class="form-control" />
+    </div>
+    <div class="col-md-2">
+        <label for="fechaFin">Hasta:</label>
+        <input type="date" id="fechaFin" class="form-control" />
+    </div>
+    <div class="col-md-2">
+        <label for="estadoFiltro">Estado:</label>
+        <select id="estadoFiltro" class="form-control">
+            <option value="">Todos</option>
+            <option value="Borrador">Borrador</option>
+            <option value="EnRevision">En revisión</option>
+            <option value="Definitivo">Definitivo</option>
+        </select>
+    </div>
+</div>
+
 <div class="container mt-4">
     <div class="card shadow p-4">
         @if (Model != null && Model.Any())
@@ -65,7 +98,7 @@
                                     <span class="badge rounded-pill bg-@badgeColor">@informe.EstadoInforme @Html.Raw(icon)</span>
                                 </td>
                                 <td class="text-center">
-                                    <a class="btn btn-primary">Detalles</a>
+                                    <a class="btn btn-primary" asp-action="Detalles" asp-route-id="@informe.Id">Detalles</a>
 
                                     @if(User.IsInRole(Constantes.RolMedico) && informe.MedicoId.ToString() == User.FindFirstValue(ClaimTypes.NameIdentifier))
                                     {
@@ -85,3 +118,7 @@
         }
     </div>
 </div>
+
+@section Scripts {
+    <script src="~/js/FiltroInformes.js" asp-append-version="true"></script>
+}

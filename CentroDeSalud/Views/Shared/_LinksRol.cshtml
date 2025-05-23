@@ -15,7 +15,7 @@
 	else if (User.IsInRole(Constantes.RolMedico))
 	{
 		<li class="nav-item me-3">
-			<a class="nav-link nav-link-custom text-light" asp-controller="Informes" asp-action="MisPacientes" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)"><i class="fa-solid fa-book-medical"></i> Mis pacientes</a>
+			<a class="nav-link nav-link-custom text-light" asp-controller="Informes" asp-action="HistorialInformes" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)"><i class="fa-solid fa-laptop-medical"></i> Informes</a>
 		</li>
 	}
 }

@@ -1,0 +1,94 @@
+﻿@using System.Security.Claims
+@model Informe
+
+@{
+    ViewData["Title"] = "Detalles del informe";
+}
+
+<h2 class="text-center mb-2">Detalles del informe Nº.@Model.Id</h2>
+
+<div class="card mt-4 Gris p-4">
+    <!-- Card superior: Datos generales -->
+    <div class="card mb-4 p-3 border rounded">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label class="fw-bold">Paciente:</label>
+                <div>@Model.Paciente.Nombre @Model.Paciente.Apellidos</div>
+            </div>
+            <div class="col-md-4">
+                <label class="fw-bold">Médico:</label>
+                <div>@Model.Medico.Nombre @Model.Medico.Apellidos</div>
+            </div>
+            <div class="col-md-4">
+                <label class="fw-bold d-block">Estado:</label>
+                <div>
+                    <span class="badge rounded-pill VerdeTe fs-6">
+                        @Model.EstadoInforme
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <label class="fw-bold">Fecha Creación:</label>
+                <div>@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</div>
+            </div>
+            <div class="col-md-6">
+                <label class="fw-bold">Última Modificación:</label>
+                <div>@Model.FechaModificacion?.ToString("dd/MM/yyyy HH:mm")</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card inferior: Contenido clínico -->
+    <div class="card p-3 border rounded">
+        <div class="mb-3">
+            <label class="fw-bold">Diagnóstico:</label>
+            <div style="white-space: pre-wrap;">@Model.Diagnostico</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="fw-bold">Tratamiento:</label>
+            <div style="white-space: pre-wrap;">@Model.Tratamiento</div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="fw-bold">Notas:</label>
+                <div style="white-space: pre-wrap;">@Model.Notas</div>
+            </div>
+            <div class="col-md-6">
+                <label class="fw-bold">Recomendaciones:</label>
+                <div style="white-space: pre-wrap;">@Model.Recomendaciones</div>
+            </div>
+        </div>
+
+
+        <div class="mb-3">
+            <label class="fw-bold">Archivo adjunto:</label>
+            @if (!string.IsNullOrEmpty(Model.ArchivosAdjuntos))
+            {
+                var fileName = System.IO.Path.GetFileName(Model.ArchivosAdjuntos);
+                var idSesion = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if(idSesion == Model.PacienteId.ToString() || idSesion == Model.MedicoId.ToString())
+                {
+                    <div>
+                        <a href="@Url.Action("DescargarArchivo", "Informes", new { id = Model.Id })" target="_blank">
+                            @fileName
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div>
+                        @fileName
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-muted">No hay archivo adjunto</div>
+            }
+        </div>
+    </div>
+</div>
