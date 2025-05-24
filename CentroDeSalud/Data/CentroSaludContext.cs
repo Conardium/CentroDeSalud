@@ -19,6 +19,8 @@ namespace CentroDeSalud.Data
         public DbSet<Chat> Chats { get; set; }
         public DbSet<Mensaje> Mensajes { get; set; }
         public DbSet<Informe> Informes { get; set; }
+        public DbSet<PreguntaForo> PreguntasForos { get; set; }
+        public DbSet<RespuestaForo> RespuestasForos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -34,6 +36,8 @@ namespace CentroDeSalud.Data
             modelBuilder.Entity<Chat>().ToTable("Chats");
             modelBuilder.Entity<Mensaje>().ToTable("Mensajes");
             modelBuilder.Entity<Informe>().ToTable("Informes");
+            modelBuilder.Entity<PreguntaForo>().ToTable("PreguntasForos");
+            modelBuilder.Entity<RespuestaForo>().ToTable("RespuestasForos");
 
             //========================== RELACIONES ===============================
             //===> USUARIO

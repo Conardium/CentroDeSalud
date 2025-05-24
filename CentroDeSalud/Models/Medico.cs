@@ -21,5 +21,7 @@ namespace CentroDeSalud.Models
         public ICollection<DisponibilidadMedico> DisponibilidadesMedico { get; set; }
 
         public ICollection<Informe> InformesMedico { get; set; }
+
+        public ICollection<RespuestaForo> RespuestasForo { get; set; }
     }
 }

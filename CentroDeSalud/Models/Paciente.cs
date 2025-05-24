@@ -26,5 +26,7 @@ namespace CentroDeSalud.Models
         public Sexo Sexo { get; set; }
 
         public ICollection<Informe> InformesPaciente { get; set; }
+
+        public ICollection<PreguntaForo> PreguntasForo { get; set; }
     }
 }
