@@ -92,6 +92,5 @@ namespace CentroDeSalud.Enumerations
     {
         Borrador = 0,
         Publicado = 1,
-        Archivado = 2,
     }
 }
