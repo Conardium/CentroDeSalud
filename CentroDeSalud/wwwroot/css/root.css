@@ -97,6 +97,10 @@ background-image: url('/images/fondoLogin.svg');
     background-color: var(--color-green-tea);
 }
 
+.VerdeMenta{
+    background-color: var(--color-menta-claro);
+}
+
 .VerdeTe{
     background-color: var(--color-keppel);
 }

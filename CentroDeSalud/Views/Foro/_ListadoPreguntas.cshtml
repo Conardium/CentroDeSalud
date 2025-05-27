@@ -1,0 +1,48 @@
+﻿@using CentroDeSalud.Models.ViewModels
+@using CentroDeSalud.Enumerations
+@using CentroDeSalud.Data
+@model PublicarPreguntaViewModel
+
+<div class="p-3" id="listadoPreguntas">
+    @foreach (var pregunta in Model.Preguntas)
+    {
+        var Respondida = pregunta.EstadoPregunta == EstadoPregunta.Abierta ? "bg-warning" : "bg-success";
+
+        <div class="mb-5 card VerdeMenta" data-titulo="@pregunta.Titulo.ToLower()" data-estado="@pregunta.EstadoPregunta">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="fw-bold mb-0">@pregunta.Titulo</h5>
+                    <span class="badge @Respondida fs-6">@pregunta.EstadoPregunta</span>
+                </div>
+                <p class="mb-3 card-text">@pregunta.Texto</p>
+
+                @if (pregunta.RespuestasForo.Count > 0)
+                {
+                    <button class="btn btn-link p-0 ver-respuestas mb-2"
+                            data-id="@pregunta.Id"
+                            data-respuestas="@pregunta.RespuestasForo.Count">
+                        Ver respuestas (@pregunta.RespuestasForo.Count)
+                    </button>
+                    <div class="respuestas d-none" data-id="@pregunta.Id">
+                        @foreach (var respuesta in pregunta.RespuestasForo)
+                        {
+                            <div class="bg-light rounded p-3 mb-2 border">
+                                <p class="mb-1">
+                                    <strong>@respuesta.Medico.Nombre @respuesta.Medico.Apellidos respondió:</strong>
+                                    @respuesta.Texto
+                                </p>
+                                <small class="text-muted">Respondido el @respuesta.FechaRespuesta.ToString("dd 'de' MMMM 'de' yyyy")</small>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+            @if (User.IsInRole(Constantes.RolMedico))
+            {
+                <div class="d-flex ps-2 pb-2">
+                    <a class="btn boton-Verde-Oscuro" asp-action="ResponderPregunta" asp-route-id="@pregunta.Id">Responder</a>
+                </div>
+            }
+        </div>
+    }
+</div>

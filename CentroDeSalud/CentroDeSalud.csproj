@@ -27,7 +27,6 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
-    <Folder Include="Views\Foro\" />
     <Folder Include="wwwroot\images\uploads\" />
   </ItemGroup>
 

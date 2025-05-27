@@ -1,0 +1,40 @@
+﻿@using CentroDeSalud.Models.ViewModels
+@using CentroDeSalud.Data
+@model PublicarPreguntaViewModel
+
+@{
+    ViewData["Title"] = "Foro";
+}
+
+<h2 class="text-center mb-4">Foro de preguntas</h2>
+
+<p class="form-text text-center">
+    ¡Bienvenido al Foro de Salud del Centro Médico! <br />
+    Aquí puedes hacer preguntas, compartir experiencias y recibir respuestas confiables de nuestros profesionales. Recuerda mantener el respeto y la cordialidad en tus mensajes.
+    <br />¡Tu bienestar es nuestra prioridad!
+</p>
+
+<partial name="_Avisos" />
+
+<div class="card">
+    <div>
+
+        @if (User.IsInRole(Constantes.RolPaciente))
+        {
+            <partial name="_FormularioPregunta" />
+        }
+
+        <h4 class="badger VerdeOscuro rounded-pill p-2 mx-3 mt-2 text-center mb-4">Preguntas más recientes</h4>
+        
+        <partial name="_ListadoPreguntas" />
+
+        <div class="d-flex justify-content-center mb-3">
+            <a asp-action="HistorialPreguntas" class="btn boton-Verde-Oscuro">Ver todas las preguntas</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/Faq.js"></script>
+}

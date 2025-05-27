@@ -1,0 +1,36 @@
+﻿@using CentroDeSalud.Models.ViewModels
+@model PublicarPreguntaViewModel
+
+<div id="preguntaBox" class="p-3 mb-3">
+    <p class="mb-3 fs-5">¿Tienes alguna duda?</p>
+    <button class="btn btn-outline-primary" id="btnMostrarFormulario">Haz una pregunta</button>
+</div>
+
+<div id="formularioBox" class="p-3 mb-3 d-none">
+    <div class="d-flex justify-content-center">
+        <div class="alert alert-primary alert-dismissible fade show d-inline-flex align-items-center position-relative" role="alert" style="width: fit-content; max-width: 100%;">
+            <i class="fa-solid fa-circle-info me-2"></i>
+            <div>
+                Comparte tus dudas o experiencias de forma respetuosa. Este espacio es para ayudar y aprender entre todos.
+            </div>
+            <button type="button" class="btn-close position-absolute end-0" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+    </div>
+
+    <form asp-action="PublicarPregunta">
+        <div class="mb-3">
+            <label asp-for="Titulo" class="form-label fw-bold"></label> <span class="text-danger">*</span>
+            <input asp-for="Titulo" class="form-control" placeholder="Escribe un título...">
+            <span asp-validation-for="Titulo" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Detalles" class="form-label fw-bold"></label> <span class="text-danger">*</span>
+            <textarea asp-for="Detalles" class="form-control" rows="3" placeholder="Explica tu duda..."></textarea>
+            <span asp-validation-for="Detalles" class="text-danger"></span>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn boton-Verde-Oscuro" id="btnEnviarPregunta">Publicar</button>
+            <button type="reset" class="btn btn-secondary" id="btnCancelarPregunta">Cancelar</button>
+        </div>
+    </form>
+</div>
