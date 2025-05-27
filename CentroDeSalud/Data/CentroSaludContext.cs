@@ -117,6 +117,9 @@ namespace CentroDeSalud.Data
                 .WithMany(i => i.InformesMedico)
                 .HasForeignKey(i => i.MedicoId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            //====> PUBLICACION
+            modelBuilder.Entity<Publicacion>().HasIndex(p => new { p.Slug }).IsUnique();
         }
     }
 }
