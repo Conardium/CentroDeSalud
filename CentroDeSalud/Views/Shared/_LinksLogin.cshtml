@@ -23,7 +23,11 @@
 				}
 				else if (User.IsInRole(Constantes.RolAdmin))
 				{
-					//A implementar más adelante
+					<li>
+						<a class="dropdown-item d-flex align-items-center gap-2" asp-controller="Admins" asp-action="Index">
+							<i class="fa-solid fa-screwdriver-wrench w-4 text-center" style="width: 20px;"></i> Panel de administrador
+						</a>
+					</li>
 				}
 
 				<li><hr class="dropdown-divider" /></li>
