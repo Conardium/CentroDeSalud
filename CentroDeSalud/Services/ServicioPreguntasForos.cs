@@ -5,8 +5,11 @@ namespace CentroDeSalud.Services
 {
     public interface IServicioPreguntasForos
     {
+        Task<bool> ActualizarEstadoPregunta(int id);
         Task<int> CrearPreguntaForo(PreguntaForo preguntaForo);
+        Task<IEnumerable<PreguntaForo>> ListarCincoUltimasPreguntas();
         Task<IEnumerable<PreguntaForo>> ListarPreguntasForo();
+        Task<PreguntaForo> ObtenerPreguntaPorId(int id);
     }
 
     public class ServicioPreguntasForos : IServicioPreguntasForos
@@ -25,7 +28,7 @@ namespace CentroDeSalud.Services
             return await repositorioPreguntas.CrearPreguntaForo(preguntaForo);
         }
 
-        public async Task<PreguntaForo> BuscarPreguntaPorId(int id)
+        public async Task<PreguntaForo> ObtenerPreguntaPorId(int id)
         {
             return await repositorioPreguntas.BuscarPreguntaPorId(id);
         }
@@ -41,6 +44,16 @@ namespace CentroDeSalud.Services
             }
 
             return preguntas;
+        }
+
+        public async Task<IEnumerable<PreguntaForo>> ListarCincoUltimasPreguntas()
+        {
+            return await repositorioPreguntas.ListarCincoUltimasPreguntas();
+        }
+
+        public async Task<bool> ActualizarEstadoPregunta(int id)
+        {
+            return await repositorioPreguntas.ActualizarEstadoPregunta(id);
         }
     }
 }
