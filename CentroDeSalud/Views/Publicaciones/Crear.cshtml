@@ -1,0 +1,67 @@
+﻿@using CentroDeSalud.Models.ViewModels
+@using CentroDeSalud.Enumerations
+@model CrearPublicacionViewModel
+
+@{
+    ViewData["Title"] = "Crear publicación";
+    ViewData["BodyClass"] = "fondoPerfil";
+}
+
+<h2 class="mt-4 row justify-content-center">@ViewData["Title"]</h2>
+
+<p class="row justify-content-center form-text">Los campos con * son obligarios</p>
+
+<partial name="_Avisos" />
+
+<div class="card bg-light shadow">
+    <div class="card-body">
+        <form asp-action="Crear" enctype="multipart/form-data">
+            <div class="mb-4">
+                <label asp-for="Titulo" class="form-label"></label> <span class="text-danger">*</span>
+                <input asp-for="Titulo" class="form-control" />
+                <span asp-validation-for="Titulo" class="text-danger"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Resumen" class="form-label"></label>
+                <textarea asp-for="Resumen" class="form-control" rows="2"></textarea>
+                <span asp-validation-for="Resumen" class="text-danger"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Cuerpo" class="form-label"></label> <span class="text-danger">*</span>
+                <textarea asp-for="Cuerpo" class="form-control" rows="6"></textarea>
+                <span asp-validation-for="Cuerpo" class="text-danger"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Imagen" class="form-label"></label>
+                <input asp-for="Imagen" type="file" class="form-control" />
+                <span asp-validation-for="Imagen" class="text-danger"></span>
+            </div>
+
+            <hr />
+
+            <div class="form-check mb-4 mt-4">
+                <input asp-for="Destacada" class="form-check-input border-black" />
+                <label asp-for="Destacada" class="form-check-label">Marcar publicación como "Destacada"</label>
+                <span asp-validation-for="Destacada" class="text-danger"></span>
+            </div>
+
+            <div class="mb-5 col-md-3">
+                <label asp-for="EstadoPublicacion" class="form-label"></label> <span class="text-danger">*</span>
+                <select asp-for="EstadoPublicacion" class="form-select" asp-items="Html.GetEnumSelectList<EstadoPublicacion>()">
+                </select>
+                <span asp-validation-for="EstadoPublicacion" class="text-danger"></span>
+            </div>
+
+            <div class="d-flex justify-content-center ">
+                <button type="submit" class="btn boton-Verde-Oscuro" style="min-width:20vw">Crear publicación</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
