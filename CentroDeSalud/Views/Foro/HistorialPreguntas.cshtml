@@ -1,0 +1,39 @@
+﻿@using CentroDeSalud.Models.ViewModels
+@using CentroDeSalud.Data
+@model PublicarPreguntaViewModel
+
+@{
+    ViewData["Title"] = "Foro Listado";
+}
+
+<h2 class="text-center mb-4">Foro de preguntas</h2>
+
+<div class="card">
+    <div>
+        <div class="row m-4 justify-content-center">
+            <div class="col-auto d-flex align-items-center">
+                <strong>Filtros:</strong>
+            </div>
+            <div class="col-md-6">
+                <input type="text" class="form-control" id="filtroTitulo" placeholder="Filtrar por título...">
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="filtroEstado">
+                    <option value="">Todos los estados</option>
+                    <option value="Abierta">Abierta</option>
+                    <option value="Resuelta">Resuelta</option>
+                </select>
+            </div>
+        </div>
+
+        <hr />
+
+        <partial name="_ListadoPreguntas" />
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/Faq.js"></script>
+    <script src="~/js/FiltroFaq.js"></script>
+}

@@ -81,4 +81,10 @@ namespace CentroDeSalud.Enumerations
         EnRevision = 1,
         Definitivo = 2
     }
+
+    public enum EstadoPregunta
+    {
+        Abierta = 0,
+        Resuelta = 1
+    }
 }
