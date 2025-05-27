@@ -21,6 +21,7 @@ namespace CentroDeSalud.Data
         public DbSet<Informe> Informes { get; set; }
         public DbSet<PreguntaForo> PreguntasForos { get; set; }
         public DbSet<RespuestaForo> RespuestasForos { get; set; }
+        public DbSet<Publicacion> Publicaciones { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -38,6 +39,7 @@ namespace CentroDeSalud.Data
             modelBuilder.Entity<Informe>().ToTable("Informes");
             modelBuilder.Entity<PreguntaForo>().ToTable("PreguntasForos");
             modelBuilder.Entity<RespuestaForo>().ToTable("RespuestasForos");
+            modelBuilder.Entity<Publicacion>().ToTable("Publicaciones");
 
             //========================== RELACIONES ===============================
             //===> USUARIO
