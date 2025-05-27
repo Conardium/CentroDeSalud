@@ -1,0 +1,61 @@
+﻿@using CentroDeSalud.Enumerations
+@model IEnumerable<Publicacion>
+
+@{
+	ViewData["Title"] = "Listado publicaciones";
+}
+
+<h2 class="mb-4 text-center">Listado de Publicaciones</h2>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    @foreach (var publicacion in Model)
+    {
+        <div class="col">
+            <div class="card h-100 d-flex flex-column shadow">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">@publicacion.Titulo</h5>
+                    <p class="card-text">@publicacion.Resumen</p>
+
+                    <div class="mt-auto">
+                        <p class="text-muted mb-2">Fecha publicación: @publicacion.FechaPublicacion.ToString("dd/MM/yyyy HH:mm")</p>
+                        <span class="badge fs-6 bg-@((publicacion.EstadoPublicacion == EstadoPublicacion.Borrador) ? "secondary" : "success") d-block w-100 text-center">
+                            @publicacion.EstadoPublicacion
+                        </span>
+
+                        <div class="mt-2 d-flex justify-content-between">
+                            <a asp-action="Editar" asp-route-id="@publicacion.Id" class="btn btn-primary">
+                                <i class="fa-regular fa-pen-to-square"></i> Editar
+                            </a>
+
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal-@publicacion.Id">
+                                <i class="fa-regular fa-trash-can"></i> Borrar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="confirmDeleteModal-@publicacion.Id" tabindex="-1" aria-labelledby="confirmDeleteLabel-@publicacion.Id" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header bg-warning-subtle">
+                            <h5 class="modal-title" id="confirmDeleteLabel-@publicacion.Id"><i class="fa-solid fa-triangle-exclamation fs-4"></i> Aviso</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                        <div class="modal-body">
+                            ¿Estás seguro que quieres borrar la publicación "<strong>@publicacion.Titulo</strong>"?
+                        </div>
+                        <div class="modal-footer bg-light">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+
+                            <form method="post" asp-action="Borrar" asp-route-id="@publicacion.Id" class="d-inline">
+                                <button type="submit" class="btn btn-danger">Borrar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    }
+</div>
