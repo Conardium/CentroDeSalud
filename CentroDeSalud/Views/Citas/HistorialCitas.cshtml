@@ -13,14 +13,14 @@
         @if (Model != null && Model.Any())
         {
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle table-striped">
                     <thead class="table-success">
                         <tr>
                             <th>Nº. Cita <i class="fa-solid fa-hashtag"></i></th>
                             <th>Fecha <i class="fa-regular fa-calendar"></i></th>
                             <th>Hora <i class="fa-regular fa-clock"></i></th>
                             <th>Motivo <i class="fa-regular fa-comment-dots"></i></th>
-                            <th>Estado <i class="fa-solid fa-clipboard-check"></i></th>
+                            <th class="text-center">Estado <i class="fa-solid fa-clipboard-check"></i></th>
                             <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
@@ -54,13 +54,13 @@
                                 <td>@cita.Fecha.ToString("dd/MM/yyyy")</td>
                                 <td>@cita.Hora.ToString(@"hh\:mm")</td>
                                 <td>@cita.Motivo</td>
-                                <td>
-                                    <span class="badge rounded-pill bg-@badgeColor">@cita.EstadoCita @Html.Raw(icon)</span>
+                                <td class="text-center">
+                                    <span class="badge rounded-pill fs-6 bg-@badgeColor">@cita.EstadoCita @Html.Raw(icon)</span>
                                 </td>
                                 <td class="text-center">
                                     @if (cita.EstadoCita == EstadoCita.Pendiente)
                                     {
-                                        <button type="button" class="btn btn-outline-danger btn-sm"
+                                        <button type="button" class="btn btn-outline-danger"
                                                 data-bs-toggle="modal" data-bs-target="#@modalCancelarId">
                                             <i class="fa-solid fa-ban"></i> Cancelar
                                         </button>
@@ -69,8 +69,8 @@
                                         <div class="modal fade" id="@modalCancelarId" tabindex="-1" aria-labelledby="@modalCancelarTitleId" aria-hidden="true">
                                             <div class="modal-dialog modal-dialog-centered">
                                                 <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="@modalCancelarTitleId">Cancelar cita</h5>
+                                                    <div class="modal-header bg-warning-subtle">
+                                                        <h5 class="modal-title" id="@modalCancelarTitleId"><i class="fa-solid fa-triangle-exclamation fs-4"></i> Aviso</h5>
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                                                     </div>
                                                     <div class="modal-body">
@@ -89,7 +89,7 @@
                                     }
                                     else if (cita.EstadoCita == EstadoCita.Cancelada)
                                     {
-                                        <button type="button" class="btn btn-outline-danger btn-sm"
+                                        <button type="button" class="btn btn-outline-danger"
                                                 data-bs-toggle="modal" data-bs-target="#@modalEliminarId">
                                             <i class="fa-solid fa-trash"></i> Eliminar
                                         </button>
@@ -98,8 +98,8 @@
                                         <div class="modal fade" id="@modalEliminarId" tabindex="-1" aria-labelledby="@modalEliminarTitleId" aria-hidden="true">
                                             <div class="modal-dialog modal-dialog-centered">
                                                 <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="@modalEliminarTitleId">Eliminar cita cancelada</h5>
+                                                    <div class="modal-header bg-danger-subtle">
+                                                        <h5 class="modal-title" id="@modalEliminarTitleId"><i class="fa-solid fa-triangle-exclamation fs-4"></i> Aviso</h5>
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                                                     </div>
                                                     <div class="modal-body">

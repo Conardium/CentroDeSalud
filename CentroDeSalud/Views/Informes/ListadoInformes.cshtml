@@ -62,7 +62,7 @@
                                 <th>Última Modificación <i class="fa-solid fa-hammer"></i></th>
                             }
 
-                            <th class="text-center">Estado <i class="fa-solid fa-clipboard-check"></i></th>
+                            <th class="text-center" title="Estados posibles: Borrador, En revisión y Definitivo">Estado <i class="fa-solid fa-clipboard-check"></i></th>
                             <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
@@ -72,7 +72,7 @@
                             var badgeColor = informe.EstadoInforme switch
                             {
                                 EstadoInforme.Borrador => "secondary",
-                                EstadoInforme.EnRevision => "warning",
+                                EstadoInforme.EnRevision => "warning text-dark",
                                 EstadoInforme.Definitivo => "success",
                                 _ => "light"
                             };
@@ -97,7 +97,7 @@
                                 }
 
                                 <td class="text-center">
-                                    <span class="badge rounded-pill bg-@badgeColor">@informe.EstadoInforme.GetDisplayName() @Html.Raw(icon)</span>
+                                    <span class="badge rounded-pill fs-6 bg-@badgeColor">@informe.EstadoInforme.GetDisplayName() @Html.Raw(icon)</span>
                                 </td>
                                 <td class="text-center">
                                     <a class="btn btn-primary" asp-action="Detalles" asp-route-id="@informe.Id">Detalles</a>

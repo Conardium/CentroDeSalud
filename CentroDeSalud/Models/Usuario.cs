@@ -54,5 +54,8 @@ namespace CentroDeSalud.Models
         public ICollection<Chat> Chats { get; set; }
         public ICollection<Mensaje> MensajesRecibidos { get; set; }
         public ICollection<Mensaje> MensajesEnviados { get; set; }
+
+        //Solo para administradores
+        public ICollection<Publicacion> Publicaciones { get; set; }
     }
 }

@@ -87,4 +87,10 @@ namespace CentroDeSalud.Enumerations
         Abierta = 0,
         Resuelta = 1
     }
+
+    public enum EstadoPublicacion
+    {
+        Borrador = 0,
+        Publicado = 1,
+    }
 }

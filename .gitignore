@@ -363,4 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 
 # Ignorar archivos subidos por los usuarios
-/wwwroot/images/uploads/
+wwwroot/images/uploads/

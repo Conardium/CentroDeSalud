@@ -1,0 +1,40 @@
+﻿
+@{
+	ViewData["Title"] = "Panel de administrador";
+	ViewData["BodyClass"] = "fondoAdmin";
+}
+
+<div class="card-transparente">
+	<div class="d-flex justify-content-center mb-2">
+		<h2>Panel de administración</h2>
+	</div>
+	<div class="d-flex justify-content-center mb-2">
+		<p class="fs-5">¿Que desea hacer?</p>
+	</div>
+
+	<partial name="_Avisos"/>
+
+	<div class="row justify-content-center gap-5 align-items-center">
+		<div class="col-md-3">
+			<a class="btn boton-Verde-Oscuro w-100 shadow" asp-action="Crear" asp-controller="Publicaciones">
+				<i class="fa-solid fa-bullhorn fs-4 mt-2"></i> <br />
+				<p class="fs-4 fw-bold m-0">Nueva publicación</p>
+				<p class="form-text text-light">Cree una nueva publicación para la web</p>
+			</a>
+		</div>
+		<div class="col-md-3">
+			<a class="btn boton-Verde-Oscuro w-100 shadow" asp-action="Listado" asp-controller="Publicaciones">
+				<i class="fa-solid fa-list fs-4 mt-2"></i> <br />
+				<p class="fs-4 fw-bold m-0">Listar publicaciones</p>
+				<p class="form-text text-light">Vea, edite y borre las publicaciones</p>
+			</a>
+		</div>
+		<div class="col-md-3">
+			<a class="btn boton-Verde-Oscuro w-100 shadow" asp-action="CrearMedico" asp-controller="Medicos">
+				<i class="fa-solid fa-user-plus fs-4 mt-2"></i> <br />
+				<p class="fs-4 fw-bold m-0">Nuevo perfil médico</p>
+				<p class="form-text text-light">Cree un nuevo perfil médico</p>
+			</a>
+		</div>
+	</div>
+</div>
