@@ -8,7 +8,11 @@ namespace CentroDeSalud.Services
 {
     public interface IServicioPublicaciones
     {
+        Task<bool> ActualizarPublicacion(Publicacion publicacion);
+        Task<Publicacion> BuscarPublicacionPorId(int id);
+        Task<Publicacion> BuscarPublicacionPorSlug(string slug);
         Task<int> CrearPublicacion(Publicacion publicacion);
+        Task<bool> EliminarPublicacion(int id);
         string GenerarSlug(string titulo);
         Task<IEnumerable<Publicacion>> ListarDestacadas();
         Task<IEnumerable<Publicacion>> ListarPublicaciones();
@@ -64,6 +68,21 @@ namespace CentroDeSalud.Services
             return await repositorioPublicaciones.CrearPublicacion(publicacion);
         }
 
+        public async Task<bool> EliminarPublicacion(int id)
+        {
+            return await repositorioPublicaciones.EliminarPublicacion(id);
+        }
+
+        public async Task<Publicacion> BuscarPublicacionPorId(int id)
+        {
+            return await repositorioPublicaciones.BuscarPublicacionPorId(id);
+        }
+
+        public async Task<Publicacion> BuscarPublicacionPorSlug(string slug)
+        {
+            return await repositorioPublicaciones.BuscarPublicacionPorSlug(slug);
+        }
+
         public async Task<IEnumerable<Publicacion>> ListarPublicaciones()
         {
             return await repositorioPublicaciones.ListarPublicaciones();
@@ -72,6 +91,11 @@ namespace CentroDeSalud.Services
         public async Task<IEnumerable<Publicacion>> ListarDestacadas()
         {
             return await repositorioPublicaciones.ListarDestacadas();
+        }
+
+        public async Task<bool> ActualizarPublicacion(Publicacion publicacion)
+        {
+            return await repositorioPublicaciones.ActualizarPublicacion(publicacion);
         }
     }
 }

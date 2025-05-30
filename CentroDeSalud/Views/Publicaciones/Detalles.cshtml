@@ -1,0 +1,55 @@
+﻿@model Publicacion
+
+@{
+    ViewData["Title"] = Model.Titulo;
+    ViewData["BodyClass"] = "fondoPublicacion";
+}
+
+<div class="container noticia-transparente shadow mt-3">
+
+    @* Imagen principal *@
+    @if (!string.IsNullOrEmpty(Model.ImagenURL))
+    {
+        <div class="text-center mb-4">
+            <img src="@Model.ImagenURL" alt="Imagen de la publicación" class="img-fluid rounded shadow" style="max-height: 400px; object-fit: cover;" />
+        </div>
+    }
+
+    @* Título y estado *@
+    <div class="d-flex justify-content-start align-items-center mb-3">
+        @if (Model.Destacada)
+        {
+            <div class="bg-warning text-dark rounded p-2 d-flex align-items-center me-2" 
+            style="width: 40px; height: 40px; cursor: help;"
+            data-bs-toggle="tooltip" title="Publicación destacada">
+                <i class="fas fa-bookmark fa-lg mx-auto"></i>
+            </div>
+        }
+        <h1 class="fw-bold">@Model.Titulo</h1>
+    </div>
+    <div class="text-muted small">
+        <p><strong>Fecha publicación: </strong> @Model.FechaPublicacion.ToString("dd/MM/yyyy HH:mm")</p>
+    </div>
+
+    @* Resumen *@
+    @if (!string.IsNullOrWhiteSpace(Model.Resumen))
+    {
+        <p class="text-muted fst-italic">@Model.Resumen</p>
+    }
+
+    <hr />
+
+    @* Cuerpo completo *@
+    <article class="mb-4 fs-5" style="white-space: pre-line;">
+        @Html.Raw(Model.Cuerpo)
+    </article>
+
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        });
+    </script>
+}

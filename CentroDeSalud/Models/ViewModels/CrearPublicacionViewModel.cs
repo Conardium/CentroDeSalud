@@ -7,6 +7,8 @@ namespace CentroDeSalud.Models.ViewModels
 {
     public class CrearPublicacionViewModel
     {
+        public int Id { get; set; }
+
         [Required(ErrorMessage = "Indique el título de la publicación")]
         [StringLength(150, ErrorMessage = "El título no puede tener más de 150 caracteres")]
         [EvitarInyecciones]
@@ -26,7 +28,8 @@ namespace CentroDeSalud.Models.ViewModels
         [Display(Name = "Estado")]
         public EstadoPublicacion EstadoPublicacion { get; set; } = EstadoPublicacion.Borrador;
 
-        [Display(Name = "Imágen")]
         public IFormFile Imagen { get; set; }
+
+        public string ImagenURL { get; set; }
     }
 }

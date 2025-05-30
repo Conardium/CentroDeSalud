@@ -3,7 +3,7 @@
 @model CrearPublicacionViewModel
 
 @{
-    ViewData["Title"] = "Crear publicación";
+    ViewData["Title"] = "Editar publicación";
     ViewData["BodyClass"] = "fondoPerfil";
 }
 
@@ -15,7 +15,8 @@
 
 <div class="card bg-light shadow">
     <div class="card-body">
-        <form asp-action="Crear" enctype="multipart/form-data">
+        <form asp-action="Editar" enctype="multipart/form-data">
+            <input type="hidden" asp-for="Id"/>
             <div class="mb-4">
                 <label asp-for="Titulo" class="form-label"></label> <span class="text-danger">*</span>
                 <input asp-for="Titulo" class="form-control" />
@@ -40,6 +41,18 @@
                 <span asp-validation-for="Imagen" class="text-danger"></span>
             </div>
 
+            <div class="mb-4">
+                <label class="form-label">Imagen actual:</label><br />
+                @if (!string.IsNullOrEmpty(Model.ImagenURL))
+                {
+                    <img src="@Model.ImagenURL" alt="Imagen actual" style="max-width: 200px; border-radius: 6px;" />
+                }
+                else
+                {
+                    <p class="form-text">Esta publicación no tiene una imagen todavía</p>
+                }
+            </div>        
+
             <hr />
 
             <div class="form-check mb-4 mt-4">
@@ -58,8 +71,9 @@
                 <span asp-validation-for="EstadoPublicacion" class="text-danger"></span>
             </div>
 
-            <div class="d-flex justify-content-center ">
-                <button type="submit" class="btn boton-Verde-Oscuro" style="min-width:20vw">Crear publicación</button>
+            <div class="d-flex justify-content-center gap-3">
+                <button type="submit" class="btn boton-Verde-Oscuro" style="min-width:20vw">Guardar cambios</button>
+                <a asp-action="Listado" class="btn btn-secondary" style="min-width:20vw">Cancelar</a>
             </div>
         </form>
     </div>
