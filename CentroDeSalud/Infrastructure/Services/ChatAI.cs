@@ -43,6 +43,8 @@ namespace CentroDeSalud.Infrastructure.Services
 
                     - Si el comentario es una duda o pregunta, respóndela directamente pero detallando un poco la respuesta.
                     - Si la pregunta requiere explicaciones largas, diagnósticos o información detallada, recomienda pedir una cita con su médico.
+                    - Si la pregunta es sobre algun sintoma o problema medico, indicale a que especialista debe consultar dentro de esta lista:
+                      Medicina General, Pediatría, Ginecología, Cardiología, Dermatología y Psiquiatría.
 
                     Evita repetir el comentario original y no salgas del rol de asistente médico.";
 
