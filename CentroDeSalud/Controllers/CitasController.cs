@@ -18,15 +18,19 @@ namespace CentroDeSalud.Controllers
     {
         private readonly IServicioMedicos servicioMedicos;
         private readonly IServicioCitas servicioCitas;
+        private readonly IServicioChats servicioChats;
         private readonly UserManager<Usuario> userManager;
 
-        public CitasController(IServicioMedicos servicioMedicos, IServicioCitas servicioCitas, UserManager<Usuario> userManager)
+        public CitasController(IServicioMedicos servicioMedicos, IServicioCitas servicioCitas, 
+            UserManager<Usuario> userManager, IServicioChats servicioChats)
         {
             this.servicioMedicos = servicioMedicos;
             this.servicioCitas = servicioCitas;
             this.userManager = userManager;
+            this.servicioChats = servicioChats;
         }
 
+        [Authorize(Roles = Constantes.RolPaciente)]
         private async Task<CrearCitaViewModel> ObtenerMedicos()
         {
             var modelo = new CrearCitaViewModel();
@@ -35,7 +39,7 @@ namespace CentroDeSalud.Controllers
             return modelo;
         }
 
-        #region Funcionalidad para Pedir Cita, Vista de confirmación y Sincronización con Google Calendar
+        #region Funcionalidad para Pedir Cita, Vista de confirmación y Sincronización con Google Calendar (4 métodos)
 
         [HttpGet]
         [Authorize(Roles = Constantes.RolPaciente)]
@@ -48,6 +52,7 @@ namespace CentroDeSalud.Controllers
 
         [HttpPost]
         [Authorize(Roles = Constantes.RolPaciente)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> PedirCita(CrearCitaViewModel modelo)
         {
             if (!ModelState.IsValid)
@@ -101,6 +106,14 @@ namespace CentroDeSalud.Controllers
 
             var idCita = await servicioCitas.CrearCita(cita);
 
+            //Creamos el chat entre el Medico y el Paciente de la cita
+            var chat = new Chat()
+            {
+                PacienteId = usuario.Id,
+                MedicoId = modelo.MedicoId
+            };
+            await servicioChats.CrearChat(chat);
+
             TempData["CitaSolicitada"] = true;
             return RedirectToAction("CitaSolicitada", new { id = idCita });
         }
@@ -146,7 +159,7 @@ namespace CentroDeSalud.Controllers
 
         #endregion
 
-        #region Funcionalidad para Cancelar una cita
+        #region Funcionalidad para Cancelar una cita (1 método)
 
         [Authorize(Roles = Constantes.RolPaciente + "," + Constantes.RolMedico)]
         public async Task<IActionResult> CancelarCita(int id, string returnUrl)
@@ -182,7 +195,7 @@ namespace CentroDeSalud.Controllers
 
         #endregion
 
-        #region Funcionalidad para Eliminar una cita
+        #region Funcionalidad para Eliminar una cita (1 método)
 
         [Authorize(Roles = Constantes.RolPaciente + "," + Constantes.RolMedico)]
         public async Task<IActionResult> EliminarCita(int id, string returnUrl)
@@ -226,7 +239,7 @@ namespace CentroDeSalud.Controllers
 
         #endregion
 
-        #region Funcionalidad de FETCH para obtener las citas disponibles para una fecha
+        #region Funcionalidad de FETCH para obtener las citas disponibles para una fecha (1 método)
 
         [HttpPost]
         [Authorize(Roles = Constantes.RolPaciente)]
@@ -243,7 +256,7 @@ namespace CentroDeSalud.Controllers
 
         #endregion
 
-        #region Funcionalidad del Historial de Citas de un Usuario
+        #region Funcionalidad del Historial de Citas de un Usuario (1 método)
 
         [Authorize(Roles = Constantes.RolPaciente + "," + Constantes.RolMedico)]
         public async Task<IActionResult> HistorialCitas(Guid id)

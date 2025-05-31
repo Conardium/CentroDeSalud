@@ -84,6 +84,7 @@ namespace CentroDeSalud.Controllers
 
         [HttpPost]
         [Authorize(Roles = Constantes.RolPaciente)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> PublicarPregunta(PublicarPreguntaViewModel modelo)
         {
             if (!ModelState.IsValid)
@@ -151,6 +152,7 @@ namespace CentroDeSalud.Controllers
 
         [HttpPost]
         [Authorize(Roles = Constantes.RolMedico)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> PublicarRespuesta(PublicarRespuestaViewModel modelo)
         {
             if(!ModelState.IsValid)

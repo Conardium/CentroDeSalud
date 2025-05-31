@@ -39,6 +39,7 @@ namespace CentroDeSalud.Controllers
 
         [HttpPost]
         [Authorize(Roles = Constantes.RolAdmin)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crear(CrearPublicacionViewModel modelo)
         {
             if (!ModelState.IsValid)
@@ -158,6 +159,7 @@ namespace CentroDeSalud.Controllers
 
         [HttpPost]
         [Authorize(Roles = Constantes.RolAdmin)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Borrar(int id)
         {
             //Comprobamos que el usuario existe
@@ -238,6 +240,7 @@ namespace CentroDeSalud.Controllers
 
         [HttpPost]
         [Authorize(Roles = Constantes.RolAdmin)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Editar(CrearPublicacionViewModel modelo)
         {
             if(!ModelState.IsValid)
