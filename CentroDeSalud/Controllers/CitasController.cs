@@ -94,7 +94,6 @@ namespace CentroDeSalud.Controllers
 
             //Antes de crear la cita comprobamos si justamente no se ha pedido cita ya para esa hora.
             var citaOcupada = await servicioCitas.BuscarCitaPorFechaHora(cita.Fecha, cita.Hora);
-
             if (citaOcupada is not null)
             {
                 ViewBag.MensajeError = @"<div class='alert alert-danger alert-dismissible fade show' role='alert'>
@@ -104,6 +103,18 @@ namespace CentroDeSalud.Controllers
                 return View(Nuevomodelo);
             }
 
+            //Comprobamos que el usuario no tenga ya una cita pendiente con ese médico
+            var citasPendientesPaciente = await servicioCitas.ObtenerCitasPendientesPorIdUsuario(usuarioIdGuid, Constantes.RolPaciente);
+            if(citasPendientesPaciente.Any(c => c.MedicoId == cita.MedicoId))
+            {
+                ViewBag.MensajeError = @"<div class='alert alert-danger alert-dismissible fade show' role='alert'>
+                    <i class='fa-solid fa-circle-exclamation'></i> Ya tiene una cita pendiente con el médico seleccionado.
+                    <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button></div>";
+                var Nuevomodelo = await ObtenerMedicos();
+                return View(Nuevomodelo);
+            }
+
+            //Creamos la cita
             var idCita = await servicioCitas.CrearCita(cita);
 
             //Creamos el chat entre el Medico y el Paciente de la cita
