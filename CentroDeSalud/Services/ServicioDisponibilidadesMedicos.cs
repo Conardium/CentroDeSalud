@@ -5,6 +5,7 @@ namespace CentroDeSalud.Services
 {
     public interface IServicioDisponibilidadesMedicos
     {
+        Task<bool> CrearDisponibilidad(DisponibilidadMedico modelo);
         Task<DisponibilidadMedico> ObtenerDisponibilidad(Guid medicoId, int numeroDia);
         Task<IEnumerable<DisponibilidadMedico>> ObtenerHorarioMedico(Guid medicoId);
     }
@@ -16,6 +17,11 @@ namespace CentroDeSalud.Services
         public ServicioDisponibilidadesMedicos(IRepositorioDisponibilidadesMedicos repositorioDisponibilidades)
         {
             this.repositorioDisponibilidades = repositorioDisponibilidades;
+        }
+
+        public async Task<bool> CrearDisponibilidad(DisponibilidadMedico modelo)
+        {
+            return await repositorioDisponibilidades.CrearDisponibilidad(modelo);
         }
 
         public async Task<DisponibilidadMedico> ObtenerDisponibilidad(Guid medicoId, int numeroDia)

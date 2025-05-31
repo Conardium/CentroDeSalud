@@ -1,0 +1,58 @@
+﻿@using CentroDeSalud.Enumerations
+@using CentroDeSalud.Models.ViewModels
+@model CrearMedicoViewModel
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger d-flex align-items-center gap-2">
+            <i class="fa-solid fa-circle-exclamation"></i>
+        </div>
+        <div class="card shadow bg-light">
+            <div class="card-body">
+                <h4>Datos personales</h4>
+                <div class="d-flex gap-4 mb-3">
+                    <div class="form-group w-50">
+                        <label asp-for="Nombre"></label> <span class="text-danger">*</span>
+                        <input asp-for="Nombre" class="form-control" placeholder="Nombre" />
+                        <span asp-validation-for="Nombre" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group w-75">
+                        <label asp-for="Apellidos"></label> <span class="text-danger">*</span>
+                        <input asp-for="Apellidos" class="form-control" placeholder="Apellidos" />
+                        <span asp-validation-for="Apellidos" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-4 mb-3">
+                    <div class="form-group w-50">
+                        <label asp-for="Dni"></label> <span class="text-danger">*</span>
+                        <input asp-for="Dni" class="form-control" placeholder="12345678A" />
+                        <span asp-validation-for="Dni" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group w-50">
+                        <label asp-for="Telefono"></label>
+                        <input asp-for="Telefono" class="form-control" placeholder="123456789" />
+                        <span asp-validation-for="Telefono" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-4 mb-3">
+                    <div class="form-group w-50">
+                        <label asp-for="Sexo"></label> <span class="text-danger">*</span>
+                        <select asp-for="Sexo" asp-items="Html.GetEnumSelectList<Sexo>()" class="form-control">
+                        </select>
+                        <span asp-validation-for="Sexo" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group w-50">
+                        <label asp-for="Especialidad"></label> <span class="text-danger">*</span>
+                        <select asp-for="Especialidad" asp-items="Html.GetEnumSelectList<Especialidad>()" class="form-control"></select>
+                        <span asp-validation-for="Especialidad" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

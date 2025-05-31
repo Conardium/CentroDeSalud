@@ -26,10 +26,17 @@ namespace CentroDeSalud.Repositories
         {
             using var conexion = new SqlConnection(_connectionString);
 
-            await conexion.ExecuteAsync(@"INSERT INTO Medicos (Id, Dni, Sexo, Especialidad)
+            try
+            {
+                await conexion.ExecuteAsync(@"INSERT INTO Medicos (Id, Dni, Sexo, Especialidad)
                            VALUES (@Id, @Dni, @Sexo, @Especialidad);", medico);
 
-            return medico.Id;
+                return medico.Id;
+            }
+            catch
+            {
+                return Guid.Empty;
+            }
         }
 
         public async Task<Medico> ObtenerMedicoPorId(Guid id)

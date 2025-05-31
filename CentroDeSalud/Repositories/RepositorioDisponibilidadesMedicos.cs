@@ -7,6 +7,7 @@ namespace CentroDeSalud.Repositories
 {
     public interface IRepositorioDisponibilidadesMedicos
     {
+        Task<bool> CrearDisponibilidad(DisponibilidadMedico modelo);
         Task<DisponibilidadMedico> DisponibilidadPorMedicoIdyDiaSemana(Guid medicoId, int diaSemana);
         Task<IEnumerable<DisponibilidadMedico>> ObtenerHorarioMedico(Guid medicoId);
     }
@@ -18,6 +19,22 @@ namespace CentroDeSalud.Repositories
         public RepositorioDisponibilidadesMedicos(IConfiguration configuration)
         {
             _connectionString = configuration.GetConnectionString("DevelopmentConnection");
+        }
+
+        public async Task<bool> CrearDisponibilidad(DisponibilidadMedico modelo)
+        {
+            using var conexion = new SqlConnection(_connectionString);
+            try
+            {
+                await conexion.ExecuteAsync(@"Insert into DisponibilidadesMedicos (MedicoId, DiaSemana, 
+                    HoraInicio, HoraFin)
+                    Values (@MedicoId, @DiaSemana, @HoraInicio, @HoraFin)", modelo);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public async Task<DisponibilidadMedico> DisponibilidadPorMedicoIdyDiaSemana(Guid medicoId, int diaSemana)

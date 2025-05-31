@@ -12,6 +12,7 @@ namespace CentroDeSalud.Repositories
         Task<Usuario> BuscarUsuarioPorNombre(string nombre);
         Task ActualizarRol(Guid usuarioId, int? rolId);
         Task ActualizarPassword(Usuario usuario);
+        Task<bool> EliminarUsuario(Guid id);
     }
 
     public class RepositorioUsuarios : IRepositorioUsuarios
@@ -37,6 +38,20 @@ namespace CentroDeSalud.Repositories
                          @Nombre, @Apellidos, @Telefono);", usuario);
 
             return id;
+        }
+
+        public async Task<bool> EliminarUsuario(Guid id)
+        {
+            using var conexion = new SqlConnection(_connectionString);
+            try
+            {
+                await conexion.ExecuteAsync(@"Delete from Usuarios where Id = @Id", new {Id = id});
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public async Task<Usuario> BuscarUsuarioPorId(Guid id)

@@ -63,10 +63,10 @@ namespace CentroDeSalud.Data
             return IdentityResult.Success;
         }
 
-        public Task<IdentityResult> DeleteAsync(Usuario user, CancellationToken cancellationToken)
+        public async Task<IdentityResult> DeleteAsync(Usuario user, CancellationToken cancellationToken)
         {
-            //No se implementa
-            throw new NotImplementedException();
+            var resultado = await _repositorioUsuarios.EliminarUsuario(user.Id);
+            return resultado ? IdentityResult.Success : IdentityResult.Failed();
         }
 
         public void Dispose()

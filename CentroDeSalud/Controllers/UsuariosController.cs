@@ -48,6 +48,7 @@ namespace CentroDeSalud.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> RegisterPaciente(RegisterPacienteViewModel modelo)
         {
             if (!ModelState.IsValid)

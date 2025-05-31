@@ -7,6 +7,7 @@ namespace CentroDeSalud.Services
     public interface IServicioMedicos
     {
         Task<bool> ActualizarDatosPerfil(EditarPerfilViewModel modelo);
+        Task<Guid> CrearMedico(Medico medico);
         Task<IEnumerable<Medico>> ListarMedicos();
         Task<Medico> ObtenerMedicoPorId(Guid id);
     }
@@ -18,6 +19,11 @@ namespace CentroDeSalud.Services
         public ServicioMedicos(IRepositorioMedicos repositorioMedicos)
         {
             this.repositorioMedicos = repositorioMedicos;
+        }
+
+        public async Task<Guid> CrearMedico(Medico medico)
+        {
+            return await repositorioMedicos.CrearMedico(medico);
         }
 
         public async Task<IEnumerable<Medico>> ListarMedicos()

@@ -1,0 +1,43 @@
+﻿@using CentroDeSalud.Enumerations
+@using CentroDeSalud.Models.ViewModels
+@model CrearMedicoViewModel
+
+@{
+    ViewData["Title"] = "Nuevo perfil médico";
+    ViewData["BodyClass"] = "fondoRegistrar";
+}
+
+<h2 class="mt-4 row justify-content-center">@ViewData["Title"]</h2>
+
+<p class="row justify-content-center form-text">Los campos con * son obligarios</p>
+
+<partial name="_Avisos" />
+
+<form asp-action="CrearMedico">
+    @Html.AntiForgeryToken()
+
+    <partial name="_DatosPersonales"/>
+
+    <partial name="_DatosSesion"/>
+
+    <partial name="_FormularioHorario"/>
+
+    <div id="contenedorInputsOcultos" class="d-none"></div>
+
+    <div class="d-flex justify-content-center">
+        <button type="submit" class="border-light w-50 btn boton-Verde-Oscuro my-3 shadow">Crear perfil médico</button>
+    </div>
+
+</form>
+
+@section Scripts {
+    <script src="~/js/CrearMedico.js" asp-append-version="true"></script>
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(function () {
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        });
+    </script>
+}
