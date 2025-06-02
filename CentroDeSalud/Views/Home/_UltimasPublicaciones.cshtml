@@ -1,0 +1,31 @@
+﻿@using CentroDeSalud.Models.ViewModels
+@model PaginaInicioViewModel
+
+<h1 class="pt-5 fw-bold text-decoration-underline TextoVerdeOscuro text-center mb-4">Últimas publicaciones</h1>
+
+@if (Model.Publicaciones?.Any() == true)
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 justify-content-center">
+        @foreach (var publicacion in Model.Publicaciones)
+        {
+            <div class="col">
+                <div class="card h-100 sombra-solida">
+                    <img src="@publicacion.ImagenURL" class="card-img-top" alt="Imagen @publicacion.Titulo">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title fw-bold">@publicacion.Titulo</h5>
+                        <p class="card-text">@publicacion.Resumen</p>
+                        <a asp-action="Detalles" asp-controller="Publicaciones" asp-route-id="@publicacion.Slug"
+                           class="btn boton-Verde-Oscuro mt-auto"><i class="fa-solid fa-eye"></i> Ver publicación</a>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted"><strong>Publicado el:</strong> @publicacion.FechaPublicacion</small>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p class="text-center form-text fs-5">Actualmente no disponemos de más publicaciones.</p>
+}
