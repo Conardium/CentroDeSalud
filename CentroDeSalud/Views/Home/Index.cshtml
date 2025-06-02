@@ -2,7 +2,20 @@
     ViewData["Title"] = "Página de inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<partial name="_Cabecera"/>
+
+<partial name="_Especialidades"/>
+
+<partial name="_PublicacionesDestacadas"/>
+
+<partial name="_UltimasPublicaciones"/>
+
+<partial name="_Contacto"/>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        });
+    </script>
+}
