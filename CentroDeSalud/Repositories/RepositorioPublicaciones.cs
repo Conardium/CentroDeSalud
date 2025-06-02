@@ -97,7 +97,7 @@ namespace CentroDeSalud.Repositories
             {
                 var mostrarTop4 = top4 ? "Top(4)" : "";
                 return await conexion.QueryAsync<Publicacion>(@"Select " + mostrarTop4 + @"Id, Titulo, Resumen, FechaPublicacion, 
-                                FechaModificacion, EstadoPublicacion, Slug, Destacada from Publicaciones");
+                                FechaModificacion, EstadoPublicacion, Slug, Destacada from Publicaciones order by Id desc");
             }
             catch
             {
@@ -110,8 +110,8 @@ namespace CentroDeSalud.Repositories
             using var conexion = new SqlConnection(_connectionString);
             try
             {
-                return await conexion.QueryAsync<Publicacion>(@"Select TOP(" + cantidad + @") Id, Titulo, Resumen, FechaPublicacion, 
-                                FechaModificacion, EstadoPublicacion, Slug, Destacada from Publicaciones where Destacada = 0");
+                return await conexion.QueryAsync<Publicacion>(@"Select TOP(" + cantidad + @") * from Publicaciones 
+                                where Destacada = 0 AND EstadoPublicacion = 1 order by Id desc");
             }
             catch
             {
@@ -124,7 +124,8 @@ namespace CentroDeSalud.Repositories
             using var conexion = new SqlConnection(_connectionString);
             try
             {
-                return await conexion.QueryAsync<Publicacion>(@"Select * from Publicaciones where Destacada = 1");
+                return await conexion.QueryAsync<Publicacion>(@"Select * from Publicaciones 
+                                            where Destacada = 1 AND EstadoPublicacion = 1");
             }
             catch
             {
