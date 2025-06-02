@@ -27,7 +27,7 @@ namespace CentroDeSalud.Controllers
             this.signInManager = signInManager;
         }
 
-        #region Funcionalidad para acceder al perfil del paciente y editar sus datos
+        #region Funcionalidad para acceder al perfil del paciente y editar sus datos (3 métodos)
 
         [Authorize(Roles = Constantes.RolPaciente)]
         public async Task<IActionResult> Perfil(Guid id)
@@ -120,6 +120,7 @@ namespace CentroDeSalud.Controllers
 
         [HttpPost]
         [Authorize(Roles = Constantes.RolPaciente)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditarPerfil(EditarPerfilViewModel modelo)
         {
             if (!ModelState.IsValid)

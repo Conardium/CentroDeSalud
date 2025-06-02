@@ -28,14 +28,14 @@ namespace CentroDeSalud.Controllers
             return View();
         }
 
+        #region Funcionalidad para crear un perfil médico (2 métodos)
+
         [HttpGet]
         [Authorize(Roles = Constantes.RolAdmin)]
         public IActionResult CrearMedico()
         {
             return View();
         }
-
-        #region Funcionalidad para crear un perfil médico (1 método)
 
         [HttpPost]
         [Authorize(Roles = Constantes.RolAdmin)]

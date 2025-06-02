@@ -21,6 +21,8 @@ namespace CentroDeSalud.Controllers
             this.servicioMensajes = servicioMensajes;
         }
 
+        #region Funcionalidad para ver el historial de chats del usuario (1 método)
+
         [Authorize(Roles = Constantes.RolPaciente + "," + Constantes.RolMedico)]
         public async Task<IActionResult> Index(Guid id)
         {
@@ -33,16 +35,20 @@ namespace CentroDeSalud.Controllers
                 return RedirectToAction("Denegado", "Avisos");
             }
 
-            var rol = User.FindFirstValue(ClaimTypes.Role); 
-            
-            var listadoChat = rol == Constantes.RolPaciente 
-                ? await servicioChats.ListarChatsPorPaciente(id) 
+            var rol = User.FindFirstValue(ClaimTypes.Role);
+
+            var listadoChat = rol == Constantes.RolPaciente
+                ? await servicioChats.ListarChatsPorPaciente(id)
                 : await servicioChats.ListarChatsPorMedico(id);
 
             ViewBag.SesionId = sesionId;
 
             return View(listadoChat);
         }
+
+        #endregion
+
+        #region Funcionalidad que redirige al usuario a una conversación (2 métodos)
 
         [Authorize(Roles = Constantes.RolPaciente + "," + Constantes.RolMedico)]
         public async Task<IActionResult> Conversacion(Guid id)
@@ -94,5 +100,7 @@ namespace CentroDeSalud.Controllers
 
             return View(modelo);
         }
+
+        #endregion
     }
 }

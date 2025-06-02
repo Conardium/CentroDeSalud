@@ -14,7 +14,8 @@ namespace CentroDeSalud.Repositories
         Task<int> CrearPublicacion(Publicacion publicacion);
         Task<bool> EliminarPublicacion(int id);
         Task<IEnumerable<Publicacion>> ListarDestacadas();
-        Task<IEnumerable<Publicacion>> ListarPublicaciones();
+        Task<IEnumerable<Publicacion>> ListarPublicaciones(bool top4 = false);
+        Task<IEnumerable<Publicacion>> ListarUltimasNoDestacadas(int cantidad);
     }
 
     public class RepositorioPublicaciones : IRepositorioPublicaciones
@@ -89,13 +90,28 @@ namespace CentroDeSalud.Repositories
             }
         }
 
-        public async Task<IEnumerable<Publicacion>> ListarPublicaciones()
+        public async Task<IEnumerable<Publicacion>> ListarPublicaciones(bool top4 = false)
         {
             using var conexion = new SqlConnection(_connectionString);
             try
             {
-                return await conexion.QueryAsync<Publicacion>(@"Select Id, Titulo, Resumen, FechaPublicacion, 
+                var mostrarTop4 = top4 ? "Top(4)" : "";
+                return await conexion.QueryAsync<Publicacion>(@"Select " + mostrarTop4 + @"Id, Titulo, Resumen, FechaPublicacion, 
                                 FechaModificacion, EstadoPublicacion, Slug, Destacada from Publicaciones");
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public async Task<IEnumerable<Publicacion>> ListarUltimasNoDestacadas(int cantidad)
+        {
+            using var conexion = new SqlConnection(_connectionString);
+            try
+            {
+                return await conexion.QueryAsync<Publicacion>(@"Select TOP(" + cantidad + @") Id, Titulo, Resumen, FechaPublicacion, 
+                                FechaModificacion, EstadoPublicacion, Slug, Destacada from Publicaciones where Destacada = 0");
             }
             catch
             {

@@ -119,6 +119,17 @@ background-image: url('/images/fondoLogin.svg');
     padding: 2rem;
 }
 
+.card.sombra-solida {
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.card.sombra-solida:hover {
+    box-shadow: 0 12px 18px rgba(0, 0, 0, 0.35);
+    transform: translateY(-5px);
+}
+
 .VerdeOscuro {
     background-color: var(--color-dark-green);
     color: white;
