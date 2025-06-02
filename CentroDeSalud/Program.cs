@@ -43,7 +43,8 @@ builder.Services.AddTransient<IServicioInformes, ServicioInformes>();
 builder.Services.AddTransient<IServicioPreguntasForos,  ServicioPreguntasForos>();
 builder.Services.AddTransient<IServicioRespuestasForos, ServicioRespuestasForos>();
 builder.Services.AddTransient<IServicioPublicaciones, ServicioPublicaciones>();
-builder.Services.AddTransient<IChatAI, ChatAI>();
+builder.Services.AddTransient<IChatAI, ChatAI>(); //Servicio de chat con la IA de Gemini
+builder.Services.AddTransient<IStorageService, AzureBlobStorageService>(); //Servicio de almacenamiento de Azure
 builder.Services.AddSignalR(); //Servicio del chat en linea
 
 //============================ IDENTITY ===============================

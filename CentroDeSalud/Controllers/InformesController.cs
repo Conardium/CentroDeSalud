@@ -1,5 +1,6 @@
 ﻿using CentroDeSalud.Data;
 using CentroDeSalud.Enumerations;
+using CentroDeSalud.Infrastructure.Services;
 using CentroDeSalud.Models;
 using CentroDeSalud.Models.ViewModels;
 using CentroDeSalud.Services;
@@ -17,15 +18,18 @@ namespace CentroDeSalud.Controllers
         private readonly IServicioMedicos servicioMedicos;
         private readonly IServicioCitas servicioCitas;
         private readonly UserManager<Usuario> userManager;
+        private readonly IStorageService storageService;
 
         public InformesController(IServicioInformes servicioInformes, IServicioPacientes servicioPacientes,
-            IServicioMedicos servicioMedicos, IServicioCitas servicioCitas, UserManager<Usuario> userManager)
+            IServicioMedicos servicioMedicos, IServicioCitas servicioCitas, UserManager<Usuario> userManager, 
+            IStorageService storageService)
         {
             this.servicioInformes = servicioInformes;
             this.servicioPacientes = servicioPacientes;
             this.servicioMedicos = servicioMedicos;
             this.servicioCitas = servicioCitas;
             this.userManager = userManager;
+            this.storageService = storageService;
         }
 
         #region Funcionalidad Crear el informe del paciente (3 métodos)
@@ -109,24 +113,23 @@ namespace CentroDeSalud.Controllers
                 }
 
                 // Ruta de guardado
-                var nombreArchivo = $"{Guid.NewGuid()}{extension}";
-                var rutaCarpeta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "uploads");
+                var nombreArchivoBlob = $"{Guid.NewGuid()}{extension}";
 
-                if (!Directory.Exists(rutaCarpeta))
+                // Obtenemos el tipo de contenido (MIME type) del archivo
+                var contentType = modelo.ArchivoAdjunto.ContentType;
+                if (string.IsNullOrEmpty(contentType))
                 {
-                    Directory.CreateDirectory(rutaCarpeta);
+                    // Fallback si el navegador no proporciona el tipo de contenido
+                    contentType = "application/octet-stream"; // O un tipo más específico basado en la extensión
                 }
 
-                var rutaCompleta = Path.Combine(rutaCarpeta, nombreArchivo);
-
-                using (var stream = new FileStream(rutaCompleta, FileMode.Create))
+                using(var stream = modelo.ArchivoAdjunto.OpenReadStream())
                 {
-                    await modelo.ArchivoAdjunto.CopyToAsync(stream);
-                }
+                    //Sube el archivo a Azure Blob Storage
+                    var UrlArchivoAzure = await storageService.UploadFileAsync(stream, nombreArchivoBlob, contentType);
 
-                //Guardamos la ruta del archivo en el modelo
-                var rutaRelativa = Path.Combine("/images/uploads", nombreArchivo).Replace("\\", "/");
-                informe.ArchivosAdjuntos = rutaRelativa;
+                    informe.ArchivosAdjuntos = UrlArchivoAzure;
+                }
             }
 
             //Rellenamos el resto del modelo

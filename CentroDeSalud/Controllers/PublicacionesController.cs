@@ -1,5 +1,6 @@
 ﻿using CentroDeSalud.Data;
 using CentroDeSalud.Enumerations;
+using CentroDeSalud.Infrastructure.Services;
 using CentroDeSalud.Migrations;
 using CentroDeSalud.Models;
 using CentroDeSalud.Models.ViewModels;
@@ -18,14 +19,16 @@ namespace CentroDeSalud.Controllers
         private readonly UserManager<Usuario> userManager;
         private readonly ILogger<PublicacionesController> _logger;
         private readonly IWebHostEnvironment webHostEnvironment;
+        private readonly IStorageService storageService;
 
-        public PublicacionesController(IServicioPublicaciones servicioPublicaciones, UserManager<Usuario> userManager, 
-            ILogger<PublicacionesController> logger, IWebHostEnvironment webHostEnvironment)
+        public PublicacionesController(IServicioPublicaciones servicioPublicaciones, UserManager<Usuario> userManager,
+            ILogger<PublicacionesController> logger, IWebHostEnvironment webHostEnvironment, IStorageService storageService)
         {
             this.servicioPublicaciones = servicioPublicaciones;
             this.userManager = userManager;
             _logger = logger;
             this.webHostEnvironment = webHostEnvironment;
+            this.storageService = storageService;
         }
 
         #region Funcionalidad para crear una publicación (2 métodos)
@@ -64,24 +67,23 @@ namespace CentroDeSalud.Controllers
                 }
 
                 // Ruta de guardado
-                var nombreArchivo = $"{Guid.NewGuid()}{extension}";
-                var rutaCarpeta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "uploads");
+                var nombreArchivoBlob = $"{Guid.NewGuid()}{extension}";
 
-                if (!Directory.Exists(rutaCarpeta))
+                // Obtenemos el tipo de contenido (MIME type) del archivo
+                var contentType = modelo.Imagen.ContentType;
+                if (string.IsNullOrEmpty(contentType))
                 {
-                    Directory.CreateDirectory(rutaCarpeta);
+                    // Fallback si el navegador no proporciona el tipo de contenido
+                    contentType = "application/octet-stream"; // O un tipo más específico basado en la extensión
                 }
 
-                var rutaCompleta = Path.Combine(rutaCarpeta, nombreArchivo);
-
-                using (var stream = new FileStream(rutaCompleta, FileMode.Create))
+                using (var stream = modelo.Imagen.OpenReadStream())
                 {
-                    await modelo.Imagen.CopyToAsync(stream);
-                }
+                    //Sube el archivo a Azure Blob Storage
+                    var UrlArchivoAzure = await storageService.UploadFileAsync(stream, nombreArchivoBlob, contentType);
 
-                //Guardamos la ruta del archivo en el modelo
-                var rutaRelativa = Path.Combine("/images/uploads", nombreArchivo).Replace("\\", "/");
-                publicacion.ImagenURL = rutaRelativa;
+                    publicacion.ImagenURL = UrlArchivoAzure;
+                }
             }
 
             //Creamos el slug para la vista de detalles de la publicacion
@@ -105,16 +107,11 @@ namespace CentroDeSalud.Controllers
                 //Borramos el archivo que se haya insertado
                 if (!string.IsNullOrEmpty(publicacion.ImagenURL))
                 {
-                    try
-                    {
-                        var rutaFisica = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", publicacion.ImagenURL.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
-                        if (System.IO.File.Exists(rutaFisica))
-                            System.IO.File.Delete(rutaFisica);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "No se pudo eliminar la imagen en {RutaImagen}", publicacion.ImagenURL);
-                    }
+                    //Necesitamos obtener el nombre del blob, no la URL completa,
+                    //de modo que en base a la URL de la BD conseguimos el nombre del blob para borrarlo
+                    var uri = new Uri(publicacion.ImagenURL);
+                    var nombreBlobToDelete = Path.GetFileName(uri.LocalPath);
+                    await storageService.DeleteFileAsync(nombreBlobToDelete);
                 }
 
                 TempData["Mensaje"] = "Ha habido un problema al intentar subir la publicación.";
@@ -178,6 +175,15 @@ namespace CentroDeSalud.Controllers
                 return RedirectToAction("Listado");
             }
 
+            //Borramos de Azure Storage la imagen
+            if (!string.IsNullOrEmpty(publicacion.ImagenURL))
+            {
+                var uri = new Uri(publicacion.ImagenURL);
+                var nombreBlobToDelete = Path.GetFileName(uri.LocalPath);
+
+                await storageService.DeleteFileAsync(nombreBlobToDelete);
+            }
+
             var resultado = await servicioPublicaciones.EliminarPublicacion(id);
 
             if (!resultado)
@@ -185,18 +191,6 @@ namespace CentroDeSalud.Controllers
                 TempData["Tipo"] = Constantes.Error;
                 TempData["Mensaje"] = "No se ha podido eliminar la publicación";
                 return RedirectToAction("Listado");
-            }
-
-            //Borrar de la carpeta imagenes la imagen de la publicacion (si tiene)
-            if (!string.IsNullOrEmpty(publicacion.ImagenURL))
-            {
-                var rutaRelativa = publicacion.ImagenURL.TrimStart('/');
-                var rutaImagen = Path.Combine(webHostEnvironment.WebRootPath, rutaRelativa);
-
-                if (System.IO.File.Exists(rutaImagen))
-                {
-                    System.IO.File.Delete(rutaImagen);
-                }
             }
 
             TempData["Tipo"] = Constantes.OK;
@@ -283,29 +277,31 @@ namespace CentroDeSalud.Controllers
                 // 1. Eliminar imagen anterior
                 if (!string.IsNullOrEmpty(publicacionExiste.ImagenURL))
                 {
-                    var rutaRelativa = publicacionExiste.ImagenURL.TrimStart('/');
-                    var rutaImagen = Path.Combine(webHostEnvironment.WebRootPath, rutaRelativa);
+                    var uri = new Uri(publicacionExiste.ImagenURL);
+                    var nombreBlobToDelete = Path.GetFileName(uri.LocalPath);
 
-                    if (System.IO.File.Exists(rutaImagen))
-                    {
-                        System.IO.File.Delete(rutaImagen);
-                    }
+                    await storageService.DeleteFileAsync(nombreBlobToDelete);
                 }
 
                 // 2. Guardar nueva imagen
-                var nuevoNombre = Guid.NewGuid().ToString() + Path.GetExtension(modelo.Imagen.FileName);
-                var rutaCarpeta = Path.Combine(webHostEnvironment.WebRootPath, "images", "uploads");
+                var extension = Path.GetExtension(modelo.Imagen.FileName).ToLowerInvariant();
+                var nuevoNombreBlob = $"{Guid.NewGuid()}{extension}";
 
-                if (!Directory.Exists(rutaCarpeta))
-                    Directory.CreateDirectory(rutaCarpeta);
-
-                var rutaCompleta = Path.Combine(rutaCarpeta, nuevoNombre);
-                using (var stream = new FileStream(rutaCompleta, FileMode.Create))
+                // Obtenemos el tipo de contenido (MIME type) del archivo
+                var contentType = modelo.Imagen.ContentType;
+                if (string.IsNullOrEmpty(contentType))
                 {
-                    await modelo.Imagen.CopyToAsync(stream);
+                    // Fallback si el navegador no proporciona el tipo de contenido
+                    contentType = "application/octet-stream"; // O un tipo más específico basado en la extensión
                 }
 
-                publicacion.ImagenURL = "/images/uploads/" + nuevoNombre;
+                using (var stream = modelo.Imagen.OpenReadStream())
+                {
+                    //Sube el archivo a Azure Blob Storage
+                    var UrlArchivoAzure = await storageService.UploadFileAsync(stream, nuevoNombreBlob, contentType);
+
+                    publicacion.ImagenURL = UrlArchivoAzure;
+                }
             }
 
             //Guardamos los cambios en la BD
