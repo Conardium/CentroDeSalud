@@ -39,7 +39,7 @@ namespace CentroDeSalud.Controllers
         }
 
 
-        #region Funcionalidad Resgistro Paciente
+        #region Funcionalidad Resgistro Paciente (2 métodos)
 
         [AllowAnonymous]
         public IActionResult RegisterPaciente()
@@ -49,6 +49,7 @@ namespace CentroDeSalud.Controllers
 
         [HttpPost]
         [AllowAnonymous]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegisterPaciente(RegisterPacienteViewModel modelo)
         {
             if (!ModelState.IsValid)
@@ -119,7 +120,7 @@ namespace CentroDeSalud.Controllers
 
         #endregion
 
-        #region Funcionalidad LOGIN
+        #region Funcionalidad LOGIN (2 métodos)
 
         [HttpGet]
         [AllowAnonymous]
@@ -130,6 +131,7 @@ namespace CentroDeSalud.Controllers
 
         [HttpPost]
         [AllowAnonymous]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel modelo)
         {
             if (!ModelState.IsValid)
@@ -151,7 +153,7 @@ namespace CentroDeSalud.Controllers
 
         #endregion
 
-        #region Funcionalidad LOGOUT
+        #region Funcionalidad LOGOUT (1 método)
 
         [HttpPost]
         [Authorize(Roles = Constantes.RolPaciente + "," + Constantes.RolMedico + "," + Constantes.RolAdmin)]
@@ -163,7 +165,7 @@ namespace CentroDeSalud.Controllers
 
         #endregion
 
-        #region Funcionalidad Login Externo
+        #region Funcionalidad Login Externo (2 métodos)
 
         [AllowAnonymous]
         [HttpGet]
@@ -310,7 +312,7 @@ namespace CentroDeSalud.Controllers
 
         #endregion
 
-        #region Funcionalidad Conceder Permisos Google Calendar
+        #region Funcionalidad Conceder Permisos Google Calendar (2 métodos)
 
         [Authorize(Roles = Constantes.RolPaciente)]
         [HttpGet]
@@ -385,7 +387,7 @@ namespace CentroDeSalud.Controllers
 
         #endregion
 
-        #region Funcionalidad de "Olvidar Contraseña"
+        #region Funcionalidad de "Olvidar Contraseña" (4 métodos)
 
         [HttpGet]
         [AllowAnonymous]
@@ -397,8 +399,14 @@ namespace CentroDeSalud.Controllers
 
         [HttpPost]
         [AllowAnonymous]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> OlvidarPassword(OlvidarPasswordViewModel modelo)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(modelo);
+            }
+
             var mensaje = "¡Todo listo! Si el email dado se corresponde con uno de nuestros usuarios, en su bandeja de entrada podrá encontrar un correo con las instrucciones para recuperar su contraseña";
             ViewBag.Mensaje = mensaje;
             ModelState.Clear();
@@ -437,41 +445,35 @@ namespace CentroDeSalud.Controllers
 
         [HttpPost]
         [AllowAnonymous]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> RestablecerPassword(RestablecerPasswordViewModel modelo)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(modelo);
+            }
+
             var usuario = await userManager.FindByEmailAsync(modelo.Email);
             TempData["PasswordCambiado"] = true;
 
             if (usuario is null)
             {
-                return RedirectToAction("PasswordCambiado");
+                TempData["Acceso"] = true;
+                return RedirectToAction("Error", "Avisos", new { mensaje = "El usuario no existe." });
             }
 
 
             var resultado = await userManager.ResetPasswordAsync(usuario, modelo.CodigoReseteo, modelo.Password);
-            return RedirectToAction("PasswordCambiado");
-        }
+            if (!resultado.Succeeded)
+            {
+                TempData["Acceso"] = true;
+                return RedirectToAction("Error", "Avisos", new { mensaje = "Ha habido un error al cambiar la contraseña." });
+            }
 
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult PasswordCambiado()
-        {
-            //Para evitar acceder manualmente a esta vista
-            if (!TempData.ContainsKey("PasswordCambiado"))
-                return NotFound();
-
-            TempData.Remove("PasswordCambiado");
-            return View();
+            TempData["Acceso"] = true;
+            return RedirectToAction("Exito", "Avisos", new { mensaje = "La contraseña se ha cambiado correctamente." });
         }
 
         #endregion
-
-
-        /*
-            var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-                if (!Guid.TryParse(usuarioId, out Guid id))
-                    return null;
-         */
     }
 }

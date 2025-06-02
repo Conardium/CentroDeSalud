@@ -87,6 +87,7 @@ namespace CentroDeSalud.Controllers
 
         [Authorize(Roles = Constantes.RolMedico)]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crear(CrearInformeViewModel modelo)
         {
             if (!ModelState.IsValid)
@@ -303,6 +304,7 @@ namespace CentroDeSalud.Controllers
 
         [HttpPost]
         [Authorize(Roles = Constantes.RolMedico)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Editar(CrearInformeViewModel modelo)
         {
             //Comprobamos si el modelo cumple con las anotaciones

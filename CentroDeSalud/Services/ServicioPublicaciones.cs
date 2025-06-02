@@ -15,7 +15,8 @@ namespace CentroDeSalud.Services
         Task<bool> EliminarPublicacion(int id);
         string GenerarSlug(string titulo);
         Task<IEnumerable<Publicacion>> ListarDestacadas();
-        Task<IEnumerable<Publicacion>> ListarPublicaciones();
+        Task<IEnumerable<Publicacion>> ListarPublicaciones(bool top4 = false);
+        Task<IEnumerable<Publicacion>> ListarUltimasNoDestacadas(int cantidad);
     }
 
     public class ServicioPublicaciones : IServicioPublicaciones
@@ -83,9 +84,14 @@ namespace CentroDeSalud.Services
             return await repositorioPublicaciones.BuscarPublicacionPorSlug(slug);
         }
 
-        public async Task<IEnumerable<Publicacion>> ListarPublicaciones()
+        public async Task<IEnumerable<Publicacion>> ListarPublicaciones(bool top4 = false)
         {
             return await repositorioPublicaciones.ListarPublicaciones();
+        }
+
+        public async Task<IEnumerable<Publicacion>> ListarUltimasNoDestacadas(int cantidad)
+        {
+            return await repositorioPublicaciones.ListarUltimasNoDestacadas(cantidad);
         }
 
         public async Task<IEnumerable<Publicacion>> ListarDestacadas()

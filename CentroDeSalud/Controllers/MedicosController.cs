@@ -164,6 +164,7 @@ namespace CentroDeSalud.Controllers
 
         [HttpPost]
         [Authorize(Roles = Constantes.RolMedico)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditarPerfil(EditarPerfilViewModel modelo)
         {
             if(!ModelState.IsValid)
