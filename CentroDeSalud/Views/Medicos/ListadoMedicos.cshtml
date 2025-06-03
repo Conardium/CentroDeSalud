@@ -29,28 +29,35 @@
         </div>
     </div>
 
-    <div class="row" id="medicosContainer">
-        @foreach (var medico in Model)
-        {
-            <div class="col-md-4 mb-3 medico-card">
-                <div class="card shadow-sm p-2">
-                    <div class="card-body py-2 px-3">
-                        <h5 class="card-title mb-2 nombre-medico">@medico.Nombre @medico.Apellidos</h5>
+    @if (Model != null && Model.Any())
+    {
+        <div class="row" id="medicosContainer">
+            @foreach (var medico in Model)
+            {
+                <div class="col-md-4 mb-3 medico-card">
+                    <div class="card shadow-sm p-2">
+                        <div class="card-body py-2 px-3">
+                            <h5 class="card-title mb-2 nombre-medico">@medico.Nombre @medico.Apellidos</h5>
 
-                        <span class="badge Verde rounded-pill mb-2 fs-6 especialidad-medico">
-                            <i class="fa-solid fa-user-doctor"></i> @medico.Especialidad.GetDisplayName()
-                        </span>
+                            <span class="badge Verde rounded-pill mb-2 fs-6 especialidad-medico">
+                                <i class="fa-solid fa-user-doctor"></i> @medico.Especialidad.GetDisplayName()
+                            </span>
 
-                        <div>
-                            <a asp-action="PerfilPublico" asp-route-id="@medico.Id" class="btn btn-sm btn-outline-primary">
-                                Ver perfil
-                            </a>
+                            <div>
+                                <a asp-action="PerfilPublico" asp-route-id="@medico.Id" class="btn btn-sm btn-outline-primary">
+                                    Ver perfil
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        }
-    </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="d-flex justify-content-center form-text fs-6">Actualmente no disponemos de perfiles médicos en la web, disculpe las moléstias.</p>
+    }
 </div>
 
 @section Scripts{

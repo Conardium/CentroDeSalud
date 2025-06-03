@@ -150,7 +150,7 @@ namespace CentroDeSalud.Controllers
 
         #endregion
 
-        #region Funcionalidad Consultar los informes y Detalles (4 métodos)
+        #region Funcionalidad Consultar los informes, Detalles y descargar archivo adjunto (4 métodos)
 
         [Authorize(Roles = Constantes.RolMedico + "," + Constantes.RolPaciente)]
         public async Task<IActionResult> ListadoInformes(Guid id)
@@ -243,19 +243,7 @@ namespace CentroDeSalud.Controllers
                 return RedirectToAction("Denegado", "Avisos");
             }
 
-            var rutaArchivo = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", informe.ArchivosAdjuntos.TrimStart('/'));
-
-            if (!System.IO.File.Exists(rutaArchivo))
-            {
-                return NotFound();
-            }
-
-            var contentType = "application/octet-stream";
-            var nombreArchivo = Path.GetFileName(rutaArchivo); // Nombre de la descarga
-
-            var bytes = System.IO.File.ReadAllBytes(rutaArchivo);
-
-            return File(bytes, contentType, nombreArchivo); // Fuerza la descarga
+            return Redirect(informe.ArchivosAdjuntos);
         }
 
         #endregion
