@@ -1,0 +1,32 @@
+﻿<div class="modal fade" id="cookieModal" tabindex="-1" aria-labelledby="cookieModalLabel" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header bg-primary-subtle">
+                <h5 class="modal-title fw-bold" id="cookieModalLabel"><i class="fa-solid fa-cookie-bite"></i> Uso de Cookies</h5>
+            </div>
+            <div class="modal-body">
+                Esta web utiliza cookies esenciales para garantizar su correcto funcionamiento. Al continuar navegando, aceptas su uso.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="acceptCookiesBtn">De acuerdo</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const cookiesAccepted = localStorage.getItem("cookiesAccepted");
+
+        if (!cookiesAccepted) {
+            const cookieModal = new bootstrap.Modal(document.getElementById('cookieModal'));
+            cookieModal.show();
+
+            document.getElementById('acceptCookiesBtn').addEventListener('click', function () {
+                localStorage.setItem("cookiesAccepted", "true");
+                cookieModal.hide();
+            });
+        }
+    });
+</script>
