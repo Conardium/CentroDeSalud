@@ -74,7 +74,7 @@ namespace CentroDeSalud.Controllers
                 if (string.IsNullOrEmpty(contentType))
                 {
                     // Fallback si el navegador no proporciona el tipo de contenido
-                    contentType = "application/octet-stream"; // O un tipo más específico basado en la extensión
+                    contentType = "application/octet-stream"; // Valor por defecto
                 }
 
                 using (var stream = modelo.Imagen.OpenReadStream())

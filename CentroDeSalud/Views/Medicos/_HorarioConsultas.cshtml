@@ -2,11 +2,11 @@
 @using CentroDeSalud.Models.ViewModels
 @model PerfilViewModel
 
-<h4 class="mb-3 mt-2 TextoVerdeClaro">Horario de consultas</h4>
+<h4 class="mb-3 mt-2 TextoVerdeClaro fw-bold"><i class="fa-solid fa-calendar-week"></i> Horario de consultas</h4>
 @if (Model.DisponibilidadesMedico != null && Model.DisponibilidadesMedico.Any())
 {
     <div class="table-responsive">
-        <table class="table table-hover align-middle">
+        <table class="table table-hover table-striped align-middle">
             <thead class="table-success">
                 <tr>
                     <th>Dia de la semana</th>

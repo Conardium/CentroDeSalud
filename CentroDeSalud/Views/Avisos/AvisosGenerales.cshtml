@@ -11,30 +11,30 @@
 		<div class="d-flex justify-content-center">
 			@if (Model.Tipo == Constantes.OK)
 			{
-				<img class="img-fluid" style="min-height: 200px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));" src="~/images/icons8-exito.svg" alt="ImagenExito" />
+				<img class="img-fluid" style="min-height: 300px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));" src="~/images/icons8-exito.svg" alt="ImagenExito" />
 			}
 			else if (Model.Tipo == Constantes.Denegado)
 			{
-				<img class="img-fluid" style="min-height: 200px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));" src="~/images/icons8-denegado.svg" alt="ImagenDenegado" />
+				<img class="img-fluid" style="min-height: 300px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));" src="~/images/icons8-denegado.svg" alt="ImagenDenegado" />
 			}
 			else
 			{
-				<img class="img-fluid" style="min-height: 200px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));" src="~/images/icons8-error.svg" alt="ImagenError" />
+				<img class="img-fluid" style="min-height: 300px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));" src="~/images/icons8-error.svg" alt="ImagenError" />
 			}
 		</div>
 
 		<div class="d-flex justify-content-center">
 			@if (Model.Tipo == Constantes.OK)
 			{
-				<h1 class="text-success">@Model.Titulo</h1>
+				<h1 class="text-success fw-bold">@Model.Titulo</h1>
 			}
 			else
 			{
-				<h1 class="text-danger">@Model.Titulo</h1>
+				<h1 class="text-danger fw-bold">@Model.Titulo</h1>
 			}
 		</div>
 
-		<div class="d-flex justify-content-center mb-4" style="font-size: 18px; text-align:center;">
+		<div class="d-flex justify-content-center mb-4 fs-5 text-center">
 			@Model.Mensaje
 		</div>
 

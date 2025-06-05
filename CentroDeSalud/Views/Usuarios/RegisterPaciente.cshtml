@@ -84,7 +84,7 @@
         <div class="col-md-6">
             <div class="card shadow bg-light">
                 <div class="card-body">
-                    <h4>Datos de inicio de sesión <i title="Estos datos se usarán para iniciar sesión cuando se registre" class="fa-solid fa-circle-info fs-5 text-primary"></i></h4>
+                    <h4>Datos de inicio de sesión <i data-bs-toggle="tooltip" title="Estos datos se usarán para iniciar sesión cuando se registre" class="fa-solid fa-circle-info fs-5 text-primary"></i></h4>
                     <div class="d-flex gap-4">
                         <div class="form-group w-50">
                             <label asp-for="Email"></label> <span class="text-danger">*</span>
@@ -111,5 +111,11 @@
 </form>
 
 @section Scripts {
+    <script>
+        $(function () {
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        });
+    </script>
+
     <partial name="_ValidationScriptsPartial" />
 }
