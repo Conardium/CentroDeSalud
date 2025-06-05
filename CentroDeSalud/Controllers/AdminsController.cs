@@ -52,9 +52,9 @@ namespace CentroDeSalud.Controllers
                 ModelState.AddModelError("HorarioConsultas", "Indique un horario de consultas para el médico");
                 return View(modelo);
             }
-            else if (modelo.HorarioConsultas.Count <= 2)
+            else if (modelo.HorarioConsultas.Count <= 1)
             {
-                ModelState.AddModelError("HorarioConsultas", "Indique al menos 3 franjas horarias");
+                ModelState.AddModelError("HorarioConsultas", "Indique al menos 2 franjas horarias");
                 return View(modelo);
             }
 
