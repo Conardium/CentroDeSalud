@@ -1,6 +1,70 @@
 ﻿@{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = "Política de Privacidad";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="container py-5">
+    <div class="card shadow rounded-4 border-0">
+        <div class="card-body p-4">
+            <h1 class="mb-4 text-center fw-bold TextoVerdeOscuro">Política de Privacidad</h1>
+
+            <p>En el <strong>Centro de Salud Cura Vitae</strong> nos comprometemos a proteger y respetar tu privacidad. Esta política explica cómo recogemos, usamos y protegemos tus datos personales cuando visitas nuestra página web o utilizas nuestros servicios.</p>
+
+            <h4 class="mt-4">1. ¿Quién es el responsable del tratamiento de tus datos?</h4>
+            <ul>
+                <li><strong>Responsable:</strong> Centro de Salud Cura Vitae</li>
+                <li><strong>CIF:</strong> B56789012</li>
+                <li><strong>Domicilio:</strong> Carrer de Mallorca, 221 Barcelona España</li>
+                <li><strong>Email de contacto:</strong> curavitaeprueba@outlook.com</li>
+            </ul>
+
+            <h4 class="mt-4">2. ¿Qué datos recogemos?</h4>
+            <p>Recogemos y tratamos los siguientes datos personales:</p>
+            <ul>
+                <li><strong>Datos identificativos:</strong> nombre, apellidos, DNI, fecha de nacimiento.</li>
+                <li><strong>Datos de contacto:</strong> email, teléfono, dirección.</li>
+                <li><strong>Datos médicos:</strong> historial clínico, citas, informes, grupo sanguíneo, etc. (solo si el usuario es paciente).</li>
+                <li><strong>Datos de navegación:</strong> IP, navegación y cookies.</li>
+            </ul>
+
+            <h4 class="mt-4">3. ¿Con qué finalidad tratamos tus datos?</h4>
+            <ul>
+                <li>Gestionar tu perfil como paciente o médico.</li>
+                <li>Pedir y cancelar citas médicas.</li>
+                <li>Garantizar el funcionamiento técnico y seguro de la web.</li>
+                <li>Cumplir obligaciones legales en materia sanitaria y protección de datos.</li>
+            </ul>
+
+            <h4 class="mt-4">4. ¿Cuál es la base legal del tratamiento?</h4>
+            <ul>
+                <li>Consentimiento del usuario.</li>
+                <li>Cumplimiento de obligaciones legales.</li>
+            </ul>
+
+            <h4 class="mt-4">5. ¿Durante cuánto tiempo conservamos tus datos?</h4>
+            <p>Los datos se conservarán mientras que el usuario tenga una cuenta activa en la web.</p>
+
+            <h4 class="mt-4">6. ¿Con quién compartimos tus datos?</h4>
+            <ul>
+                <li>Profesionales médicos del centro (cuando sea necesario).</li>
+                <li>Apliaciones de terceros como Google, Microsoft y SendGrid.</li>
+            </ul>
+
+            <h4 class="mt-4">7. ¿Cuáles son tus derechos?</h4>
+            <p>Puedes ejercer los siguientes derechos:</p>
+            <ul>
+                <li>Acceso, rectificación, supresión, oposición y limitación del tratamiento.</li>
+                <li>Portabilidad de tus datos cuando sea aplicable.</li>
+            </ul>
+
+            <h4 class="mt-4">8. Medidas de seguridad</h4>
+            <p>Aplicamos medidas técnicas y organizativas adecuadas como cifrado HTTPS, control de accesos a las diferentes secciones de la web y almacenamiento seguro.</p>
+
+            <h4 class="mt-4">9. Cambios en esta política</h4>
+            <p>Nos reservamos el derecho de modificar esta política para adaptarla a futuras novedades legales o técnicas. Avisaremos en caso de cambios relevantes.</p>
+
+            <p class="text-muted mt-3 mb-5 text-start"><em>Última actualización: @DateTime.Now.ToString("dd/MM/yyyy")</em></p>
+
+            <a class="btn boton-Verde-Oscuro" asp-action="Index">Volver al inicio</a>
+        </div>
+    </div>
+</div>
