@@ -130,12 +130,6 @@ using (var scope = app.Services.CreateScope())
             await rolRepo.InsertarRol(rol);
         }
     }
-    
-    //Seed para generar medicos POR AHORA
-    
-    //var services = scope.ServiceProvider;
-    //await SeedMedicos.CrearMedicosAsync(services);
-    
 }
 
 // Configure the HTTP request pipeline.
